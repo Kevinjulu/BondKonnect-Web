@@ -31,7 +31,7 @@ The project is organized into three main components:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/bondkonnect.git
+git clone https://github.com/your-username/bondkonnect_new.git
 cd bondkonnect
 ```
 
