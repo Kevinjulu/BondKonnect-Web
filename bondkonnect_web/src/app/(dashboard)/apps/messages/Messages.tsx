@@ -1,18 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/components/ui/button";
 import ConversationList from "../../components/apps/messages/conversation-list";
 import ChatWindow from "../../components/apps/messages/chat-window";
 import { Plus, Search, Users, Shield } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/app/components/ui/dialog";
-import { getMessageParticipants } from "@/app/lib/actions/api.actions";
-import { useToast } from "@/app/hooks/use-toast";
-import { ScrollArea } from "@/app/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/app/components/ui/avatar";
-import { Input } from "@/app/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { getMessageParticipants } from "@/lib/actions/api.actions";
+import { useToast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from "next/navigation";
-import { submitMessage } from "@/app/lib/actions/api.actions";
+import { submitMessage } from "@/lib/actions/api.actions";
 
 interface Participant {
   Id: number;

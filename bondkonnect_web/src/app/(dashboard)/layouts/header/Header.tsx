@@ -1,13 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { SidebarProvider, SidebarTrigger } from "@/app/components/ui/sidebar"
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Search } from "./Search";
 import { Profile } from "./Profile";
 import { Messages } from "./Messages";
 import { Notifications } from "./Notifications";
 import  ModeToggle  from "./ModeToggle";
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { useRouter } from "next/navigation";
 
 interface HeaderProps {

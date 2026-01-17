@@ -1,10 +1,10 @@
 import React from "react";
 import UploadComponent from "./Upload";
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
-// import { hasRequiredPermissions } from "@/app/lib/actions/api.actions";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
+// import { hasRequiredPermissions } from "@/lib/actions/api.actions";
 import { redirect } from "next/navigation";
 
-import { ModulePermissions, ActionPermissions } from "@/app/app/config/permissions";
+import { ModulePermissions, ActionPermissions } from "@/app/config/permissions";
 
 
 // export const hasRequiredPermissions = (

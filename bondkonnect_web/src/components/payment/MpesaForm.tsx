@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/app/store/store";
-import { startPayment, paymentSuccess, paymentFailure, setMpesaCheckoutRequestID } from "@/app/store/apps/payment/PaymentSlice";
-import { initiateMpesaPayment } from "@/app/lib/actions/payment.actions";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
-import { Label } from "@/app/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { useToast } from "@/app/hooks/use-toast";
-import { Icons } from "@/app/components/icons";
+import { AppDispatch, RootState } from "@/store/store";
+import { startPayment, paymentSuccess, paymentFailure, setMpesaCheckoutRequestID } from "@/store/apps/payment/PaymentSlice";
+import { initiateMpesaPayment } from "@/lib/actions/payment.actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Icons } from "@/components/icons";
 
 export default function MpesaForm() {
   const dispatch = useDispatch<AppDispatch>();

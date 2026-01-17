@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import PageContainer from "./components/container/PageContainer";
-import { Tabs, TabsContent, TabsList, TabsTrigger,} from "@/app/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger,} from "@/components/ui/tabs"
 import { CalendarDateRangePicker } from "./components/apps/dashboard/DateRangePicker";
 import { BondCalc } from "./components/apps/dashboard/BondCalc";
 import { InlineBondCalc } from "./components/apps/dashboard/InlineBondCalc";
@@ -10,7 +10,7 @@ import  { BondScreensTable } from "./components/apps/dashboard/BondScreensTable"
 import { SpotYieldChart } from "./components/apps/dashboard/SpotYieldChart";
 import { BondMarketChart } from "./components/apps/dashboard/BondMarketChart";
 import { Barbell } from "./components/apps/dashboard/BarbellTable";
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
 
 export default function Home() {
     const [isLoading, setIsLoading] = useState(true);

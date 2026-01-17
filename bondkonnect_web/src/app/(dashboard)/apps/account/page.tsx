@@ -1,6 +1,6 @@
 import React from "react";
 import AccountComponent from "./AccountComponent";
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { redirect } from "next/navigation";
 
 const Account = async () => {
@@ -9,7 +9,7 @@ const Account = async () => {
     redirect("/auth/login");
   }
 
-  return <AccountComponent  />;
+  return <AccountComponent user={user} />;
 };
 
 export default Account;

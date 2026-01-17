@@ -20,7 +20,7 @@
       }
     ],
     "paths": {
-      "@/app/*": ["./src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/(dashboard)/apps/Messages", "server.js"],

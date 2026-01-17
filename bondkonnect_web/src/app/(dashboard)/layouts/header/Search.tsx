@@ -1,6 +1,6 @@
 "use client";
 import { useEffect,useState } from "react";
-import { Input } from "@/app/components/ui/input"
+import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation";
 
 export function Search({ userDetails }: { userDetails: UserData }) {

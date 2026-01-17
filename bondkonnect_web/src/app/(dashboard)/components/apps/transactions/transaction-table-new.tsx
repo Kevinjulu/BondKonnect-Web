@@ -1,9 +1,9 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { AlertCircle, Filter, ArrowUpDown, Calendar, Clock, DollarSign, Percent, Hash, Building2, Loader2 } from 'lucide-react'
-import { Badge } from '@/app/components/ui/badge'
-import { Button } from '@/app/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { 
   Dialog, 
   DialogContent, 
@@ -12,16 +12,16 @@ import {
   DialogTitle, 
   DialogTrigger,
   DialogFooter 
-} from '@/app/components/ui/dialog'
-import { Input } from '@/app/components/ui/input'
-import { Label } from '@/app/components/ui/label'
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { 
   Select, 
   SelectContent, 
   SelectItem, 
   SelectTrigger, 
   SelectValue 
-} from '@/app/components/ui/select'
+} from '@/components/ui/select'
 import { 
   Table, 
   TableBody, 
@@ -29,10 +29,10 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from '@/app/components/ui/table'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/app/components/ui/tabs'
+} from '@/components/ui/table'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { toast } from 'react-hot-toast'
-import { getUserTransactions, markTransactionStatus } from '@/app/lib/actions/api.actions'
+import { getUserTransactions, markTransactionStatus } from '@/lib/actions/api.actions'
 
 interface Transaction {
   Id: number

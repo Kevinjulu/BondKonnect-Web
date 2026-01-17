@@ -5,15 +5,15 @@ import { redirect, useRouter } from "next/navigation";
 import { loginType } from "../../(dashboard)/types/auth/auth";
 import CustomSnackbar from "../../(dashboard)/layouts/shared/snackbar/CustomSnackbar";
 
-import { Button } from '@/app/components/ui/button';
-import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/app/components/ui/card';
-import { Input } from '@/app/components/ui/input';
-import { Label } from '@/app/components/ui/label';
-// const axios = require('@/app/utils/axios');
+import { Button } from '@/components/ui/button';
+import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+// const axios = require('@/utils/axios');
 import axios from 'axios';
-import { login } from "@/app/lib/actions/api.actions";
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
-// import { Icons } from "@/app/components/icons";
+import { login } from "@/lib/actions/api.actions";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
+// import { Icons } from "@/components/icons";
 // import PageContainer from "../../(dashboard)/components/container/PageContainer";
 
 

@@ -1,15 +1,15 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { Button } from "@/app/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/app/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { getUnreadNotifications, markAllNotificationsAsRead, markOneNotificationsAsRead, approveIntermediaryClient } from "@/app/lib/actions/api.actions";
-import { useToast } from "@/app/hooks/use-toast";
+import { getUnreadNotifications, markAllNotificationsAsRead, markOneNotificationsAsRead, approveIntermediaryClient } from "@/lib/actions/api.actions";
+import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { MessageSquare, FileText, UserPlus, AlertTriangle, Globe, LayoutDashboard } from "lucide-react";
-import { cn } from "@/app/lib/utils";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/app/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface Notification {
   notification_id: number;

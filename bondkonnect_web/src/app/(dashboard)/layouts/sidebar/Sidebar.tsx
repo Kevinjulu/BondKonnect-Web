@@ -1,20 +1,20 @@
 "use client";
 import { Calendar, Home, Inbox, Search, Settings,ChevronDown,ChevronUp,User2,Plus } from "lucide-react"
-import { Sidebar,SidebarHeader,SidebarFooter,SidebarGroupAction, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem,} from "@/app/components/ui/sidebar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,} from "@/app/components/ui/dropdown-menu"
+import { Sidebar,SidebarHeader,SidebarFooter,SidebarGroupAction, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem,} from "@/components/ui/sidebar"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
 import { usePathname, useRouter } from "next/navigation";
-import { AppState } from '@/app/store/store'
-import { useDispatch, useSelector } from '@/app/store/hooks';
-import { setUserRole, clearUserRole } from '@/app/store/apps/auth/AuthSlice';
+import { AppState } from '@/store/store'
+import { useDispatch, useSelector } from '@/store/hooks';
+import { setUserRole, clearUserRole } from '@/store/apps/auth/AuthSlice';
 import Logo from "../shared/logo/Logo";
 import { FaAudible } from "react-icons/fa";
 import { TbSquareLetterB } from "react-icons/tb";
 import { Header } from "./profile/SidebarHeader";
 import { Footer } from "./profile/SidebarFooter";
-import { ScrollArea,ScrollBar  } from "@/app/components/ui/scroll-area"
+import { ScrollArea,ScrollBar  } from "@/components/ui/scroll-area"
 import Menuitems from "./MenuItems";
 import { Items } from "./profile/SidebarItems";
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { useState, useEffect } from "react";
 
 interface AppSidebarProps {

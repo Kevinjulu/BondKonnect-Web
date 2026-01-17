@@ -1,10 +1,10 @@
 "use client"
 import { useRouter } from "next/navigation"
-import { Input } from "@/app/components/ui/input"
-import { Button } from "@/app/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar, CreditCard, Plus, ArrowLeft } from "lucide-react"
-import { Label } from "@/app/components/ui/label"
+import { Label } from "@/components/ui/label"
 
 export default function CreateInvoicePage() {
   const router = useRouter()

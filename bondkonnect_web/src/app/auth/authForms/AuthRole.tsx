@@ -11,21 +11,21 @@ interface UserData {
 }
 import CustomSnackbar from "../../(dashboard)/layouts/shared/snackbar/CustomSnackbar";
 
-import { Button } from '@/app/components/ui/button';
-import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/app/components/ui/card';
-// import { Input } from '@/app/components/ui/input';
-import { Label } from '@/app/components/ui/label';
-import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group"
-import { Icons } from "@/app/components/icons"
+import { Button } from '@/components/ui/button';
+import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/components/ui/card';
+// import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Icons } from "@/components/icons"
 // import { CiUser } from "react-icons/ci";
 import { BsBuildings } from "react-icons/bs";
 import { IoPersonOutline } from "react-icons/io5";
 // import { BsJournalBookmark } from "react-icons/bs";
 import { SiBookstack } from "react-icons/si";
 // import { RiStockLine } from "react-icons/ri";
-import { setActiveRole } from "@/app/lib/actions/api.actions";
-// import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
-// const axios = require('@/app/utils/axios');
+import { setActiveRole } from "@/lib/actions/api.actions";
+// import { getCurrentUserDetails } from "@/lib/actions/user.check";
+// const axios = require('@/utils/axios');
 
   // const user = await getCurrentUserDetails();
   // if (user) {

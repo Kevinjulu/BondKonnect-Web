@@ -5,9 +5,9 @@ import { loginType } from "../../(dashboard)/types/auth/auth";
 import CustomSnackbar from "../../(dashboard)/layouts/shared/snackbar/CustomSnackbar";
 import { Check, ChevronsUpDown } from "lucide-react"
 import { Globe, UserRound } from 'lucide-react';
-import { cn } from "@/app/lib/utils"
-import { Button } from '@/app/components/ui/button';
-import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/app/components/ui/card';
+import { cn } from "@/lib/utils"
+import { Button } from '@/components/ui/button';
+import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/components/ui/card';
 import {
   Command,
   CommandEmpty,
@@ -15,19 +15,19 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/app/components/ui/command"
+} from "@/components/ui/command"
 import {  
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/app/components/ui/popover"
-import { Input } from '@/app/components/ui/input';
-import { Label } from '@/app/components/ui/label';
-import { Checkbox } from "@/app/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
-// const axios = require('@/app/utils/axios');
-import { register } from "@/app/lib/actions/api.actions";
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+} from "@/components/ui/popover"
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+// const axios = require('@/utils/axios');
+import { register } from "@/lib/actions/api.actions";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
   
 const frameworks = [
   {

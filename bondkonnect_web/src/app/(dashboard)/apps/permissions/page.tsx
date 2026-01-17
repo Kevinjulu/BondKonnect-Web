@@ -1,8 +1,8 @@
 import React from "react";
 import PermissionsMappingComponent from "./PermissionsMapping";
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { redirect } from "next/navigation";
-import { ModulePermissions, MODULE_DEPENDENCIES, ActionPermissions } from "@/app/app/config/permissions";
+import { ModulePermissions, MODULE_DEPENDENCIES, ActionPermissions } from "@/app/config/permissions";
 
 // export const hasRequiredPermissions = (
 //   userPermissions: string[],

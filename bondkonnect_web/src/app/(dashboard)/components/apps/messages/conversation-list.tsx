@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getMessagesByUser, markMessageAsRead } from "@/app/lib/actions/api.actions";
+import { getMessagesByUser, markMessageAsRead } from "@/lib/actions/api.actions";
 import { formatDistanceToNow } from "date-fns";
-import { useToast } from "@/app/hooks/use-toast";
-import { Avatar, AvatarFallback } from "@/app/components/ui/avatar";
-import { ScrollArea } from "@/app/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare } from "lucide-react";
-import { cn } from "@/app/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface Message {
   Id: number;

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import PageContainer from "../../components/container/PageContainer";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TransactionTable } from "../../components/apps/transactions/transaction-table-new";
 
 

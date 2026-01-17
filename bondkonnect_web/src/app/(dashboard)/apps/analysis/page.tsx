@@ -1,6 +1,6 @@
 import React from "react";
 import AnalysisComponent from "./Analysis";
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { redirect } from "next/navigation";
 
 const Analysis = async () => {

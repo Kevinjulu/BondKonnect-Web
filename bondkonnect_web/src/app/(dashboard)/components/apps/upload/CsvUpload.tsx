@@ -4,11 +4,11 @@ import { Check, FileIcon, Upload, X } from 'lucide-react'
 import Papa from 'papaparse'
 import axios from 'axios'
 
-import { Button } from '@/app/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
-import {  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from '@/app/components/ui/select'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/app/components/ui/table'
-import { useToast } from "@/app/hooks/use-toast"
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from '@/components/ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useToast } from "@/hooks/use-toast"
 
 
 const tableMapping = {

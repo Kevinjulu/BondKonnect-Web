@@ -1,23 +1,23 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { getUserThread, replyMessage, submitMessage } from "@/app/lib/actions/api.actions";
+import { getUserThread, replyMessage, submitMessage } from "@/lib/actions/api.actions";
 import { formatDistanceToNow } from "date-fns";
-import { useToast } from "@/app/hooks/use-toast";
-import { Avatar, AvatarFallback } from "@/app/components/ui/avatar";
-import { Button } from "@/app/components/ui/button";
-import { Textarea } from "@/app/components/ui/textarea";
-import { ScrollArea } from "@/app/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Trash2, MoreVertical, Paperclip, UserCircle2, Archive } from "lucide-react";
-import { cn } from "@/app/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/app/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
-import { Input } from "@/app/components/ui/input";
+} from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Input } from "@/components/ui/input";
 
 interface Message {
   Id: number;

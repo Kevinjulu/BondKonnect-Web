@@ -3,10 +3,10 @@
 import { useState } from "react"
 import { Plus } from "lucide-react"
 import PageContainer from "../../components/container/PageContainer"
-import { Button } from "@/app/components/ui/button"
+import { Button } from "@/components/ui/button"
 import EmailList from "./EmailsList"
 import { CreateEmailDialog } from "./CreateEmailDialog"
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check"
+import { getCurrentUserDetails } from "@/lib/actions/user.check"
 import { redirect } from "next/navigation"
 import React from "react"
 

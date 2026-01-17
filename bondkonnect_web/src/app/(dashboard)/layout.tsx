@@ -1,13 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import { SidebarProvider } from "@/app/components/ui/sidebar"
-import { AppSidebar } from "@/app/app/(dashboard)/layouts/sidebar/Sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/app/(dashboard)/layouts/sidebar/Sidebar"
 import Header from "./layouts/header/Header"
-import { Toaster } from "@/app/components/ui/toaster"
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+import { Toaster } from "@/components/ui/toaster"
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
-import { WebSocketProvider } from "@/app/components/providers/WebSocketProvider";
+import { WebSocketProvider } from "@/components/providers/WebSocketProvider";
 
 // Simple content loader component using CSS classes
 const ContentLoader = () => {

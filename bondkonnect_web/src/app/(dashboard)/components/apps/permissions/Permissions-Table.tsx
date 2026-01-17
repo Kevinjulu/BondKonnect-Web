@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { Search } from "lucide-react"
-import { Button } from "@/app/components/ui/button"
-import { Card, CardContent } from "@/app/components/ui/card"
-import { Checkbox } from "@/app/components/ui/checkbox"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -12,17 +12,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/app/components/ui/dialog"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/app/components/ui/dropdown-menu"
-import { Input } from "@/app/components/ui/input"
-import { Label } from "@/app/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group"
-import { Switch } from "@/app/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
+} from "@/components/ui/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Switch } from "@/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 // Removed unused tooltip imports
-import { Alert, AlertDescription } from "@/app/components/ui/alert"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
-import { useToast } from "@/app/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import { 
   getRoles, 
   getUsersByRole, 
@@ -31,8 +31,8 @@ import {
   modifyUserPermissions, 
   addUserToNewRole,
   getAllRolesForUser
-} from "@/app/lib/actions/api.actions"
-import { PERMISSION_DESCRIPTIONS, ModulePermissions, ActionPermissions } from "@/app/app/config/permissions"
+} from "@/lib/actions/api.actions"
+import { PERMISSION_DESCRIPTIONS, ModulePermissions, ActionPermissions } from "@/app/config/permissions"
 import { 
   Pagination, 
   PaginationContent, 
@@ -40,14 +40,14 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious
-} from "@/app/components/ui/pagination"
+} from "@/components/ui/pagination"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/app/components/ui/select"
+} from "@/components/ui/select"
 
 // Types
 interface ApiRole {

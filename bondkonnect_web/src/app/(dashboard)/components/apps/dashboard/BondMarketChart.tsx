@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/app/components/ui/chart";
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 // import { TrendingUp } from "lucide-react";
-import { getBondMarketPerformance } from "@/app/lib/actions/api.actions";
+import { getBondMarketPerformance } from "@/lib/actions/api.actions";
 
 export const description = "A multiple line chart";
 

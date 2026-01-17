@@ -1,6 +1,6 @@
 import React from "react";
 import ResearchAssistantComponent from "./ResearchAssistant";
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { redirect } from "next/navigation";
 
 const ResearchAssistant = async () => {

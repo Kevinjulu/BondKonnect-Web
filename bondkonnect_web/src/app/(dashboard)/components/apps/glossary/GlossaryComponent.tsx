@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { Input } from "@/app/components/ui/input"
-import { Button } from "@/app/components/ui/button"
-import { Card, CardContent } from "@/app/components/ui/card"
-import { Badge } from "@/app/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
@@ -12,12 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/app/components/ui/dialog"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/app/components/ui/accordion"
+} from "@/components/ui/dialog"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Search, Share2, Copy, Twitter, Linkedin, Facebook, Plus } from "lucide-react"
-import { Label } from "@/app/components/ui/label"
-import { Textarea } from "@/app/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export function GlossaryComponent() {
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null)

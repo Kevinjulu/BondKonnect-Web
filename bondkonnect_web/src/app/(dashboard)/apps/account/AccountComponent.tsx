@@ -2,7 +2,11 @@
 import PageContainer from "../../components/container/PageContainer";
 import { AccountSettings } from "../../components/apps/account/AccountSettings";
 
-export default function AccountPage() {
+interface AccountPageProps {
+  user: any;
+}
+
+export default function AccountPage({ user }: AccountPageProps) {
 
   return (
 
@@ -16,7 +20,7 @@ export default function AccountPage() {
 
             </div>
           </div>
-          <AccountSettings/>
+          <AccountSettings user={user} />
         </div>      
 
     </PageContainer>
