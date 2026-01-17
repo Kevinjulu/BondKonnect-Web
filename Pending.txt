@@ -1,0 +1,175 @@
+@api.actions.tsx 
+
+
+----------  UI/UX &BACKEND CHANGES REMAINING ----------
+
+@HEADER 
+- @Header.tsx - 
+
+- Add @BondCalc.tsx icon here. 
+- Place a banner if one has assigned role to another person. Indicate they can not perform any actions till they revoke. 
+- @Search.tsx to display navigation items present in the list for the user
+
+@loading.tsx - Fix for especially inside dashboard components
+@Theme.tsx - Fix Dark mode
+@MenuItems.ts Add Hover for active selected menu item
+@mail.php - Redesign Mail Templates
+
+
+@AUTHENTICATION & SECURITY (SIGN UP, LOGIN ETC)
+@AuthController.php 
+- Check before login whether they have assigned their roles to a person. I.E , There is person Assigned tasks theough leave managemnt. If true, disable all actions first. 
+- Check if Subscription is active/not, if it is not, add display banner to @Header.tsx alerting the user to subscribe. Once they click, redirected to subscriptions page.
+- Pick UserAgent once one Logs in
+- Add CSRF token validation to all data entry inputs. - @BondCalc.tsx , @QuoteBook.tsx , 
+- Check Token verification, could be tightened
+- @PermissionManagement.php Limit Page access & Actions  as per relevant Role/Permission set  - Middleware 
+- @ActivityLogging.php - Log all operations in the system with descriptive levels
+- @AuthSignUp.tsx - If User has selected Broker, Hide selectbrokers section
+
+
+@NEWSFEEDS
+Integreate News feeds to Dashboard
+
+
+@TERMS AND CONDITIONS
+- Generate Terms & Conditions & Privacy Policy page
+
+
+1. @DASHBOARD 
+- @BondScreensTable.tsx and @BarbellTable.tsx - Fix Loader to be just spinner
+- # Duration screen- Target Duration should reflect changes realtime
+
+2. @BONDSTATS  
+- @BondStats.tsx - Change all digits to 4dp. 
+- Remove columns "Expected Return" & "Expected Shortfall"
+- Wrap long column headers below. 
+- Indicate clearly pages count
+- #Functionality - Fix 
+
+3. @PORTFOLIOASSISTANT 
+- @PortfolioAssistant.tsx - Color code the table
+- Check FaceValue of bond being sent. Should be >= 50M
+- If user is Broker/Agent/AuthorizedDealer , add a prompt once pushing to Quote Book, "Select Client Performing action on behalf of " - Insert in table field "ViewingParty/OnBehalfOf". 
+- Send Notification & Email , "Broker/Dealer/Agent XXX has sent Quote on your behalf. PlacementNo- XXX" 
+
+4. @QUOTEBOOK 
+- Add "Place Quote " button- Should allow one to place quote directly. They have to select if is Active or not
+- Fix calculations for bonds displayed to be realtime
+@QuoteBook.tsx - Group Quotes by - MySubmissions/All. MySubmissions should also include those under "ViewingParty"/Watching. Mark well in table too. Modify response tocapture that @BondsController.php
+- For MySubmissions. provide/display previous ones that are not active and add "Reactivate Quote" action. Create API
+@BondsController.php - Sort Quotes as per: 1. BondIssueNo. 2. HighOffer <DESC> 3. If they have same Offer,  rank by highest Yield %
+- For Broker/Dealer/Agent,  Add Field "Select Client (ViewingParty) , so the broker can select who he/she is submitting a bid for. List the active clients here
+- After Submitting bid, Send Notification & Email to both "ViewingParty" - "Broker/Dealer/Agent XXX has submitted Quote Bid on your behalf. TransactionNo- XXX" && to "Recipient" - "You have received a Bid for your Quote , TransactionNo - XXX. Login to check"
+**APIs**
+1. activateQuote/suspendQuote
+2. getViewingPartyQuotes
+
+
+
+5. @MYTRANSACTIONS 
+- @Transactions.tsx - Modify Sent Transactions to "Sent/Watching" - Fetch also those the User is "ViewingParty". Modify @BondsController.php response
+
+- In Delegated Transactions, show who assigned the transaction. After Action done, Log the trail. i.e 'Delegatee has Approved Quote Transaction" etc. Also send Notification on the same to "ViewingParty", .   
+- Add Field "ViewingParty" , so the broker can select who he/she is pushing quote on behalf of. List the clients here. 
+In case of successful Transaction(Approval) Under "RECEIVING SECTION"- Send Notification & Email to both "Recipient" - "Your Submitted Bid has been Approved. Log in to Contact with Broker" & "ViewingParty" - "Broker/Dealer/Agent XXX has submitted Quote Bid on your behalf. TransactionNo- XXX"  
+- @Messages.tsx Send Starter Message from system to initiate chat "This is a system generated starter chat". Also, Add "ViewingParty" Provide option for Individual/Corporate to View Broker chats
+- Add Edit Chat Feature -
+**APIs**
+1. auditLeaveTrail
+2. 
+
+6. @HUB 
+- @Hub.tsx - List Intermediaries linked to the user that are servicing the User, If is active or not. 
+Once one clicks Message button, it redirects to Message & Creates chat if not already one
+- Place Leave Management to separate tab
+
+**APIs**
+1. addNewIntermediaryToUser
+2. unlinkIntermediaryFromUser (Must have at least 1 , If all are unlinked, Should be inactive)unlinkIntermediary
+3. getUserLeaveTrail (*create leave trail table*)
+
+
+7. @DMS 
+- @DMS.tsx
+
+**APIs**
+1. uploadFileToDms
+2. getSystemFiles
+
+
+
+8. @MESSAGES 
+- @Messages.tsx - Create Group chats (IsGroupChat,GroupName)- CreateAPI- Members Added should get Notification "You have been added to new group XXX"
+- Implement Close chat feature.- It 
+- Change Avatars to icon colors
+- Hide Names (use Account ID instead)
+- Design banner for first-time request notifications (sender/receiver)
+- Display Attachments in chat. One should download too. SECURE/CHECK FOR EXPLOITATION
+- If user is "ViewingParty", Display chat in conversation list - TAGGED as "ViewingParty" @MessageController.php
+
+9. @EMAILS 
+-**APIs**
+1. sendEmail
+2. getEmailLogs
+3. getEmailTemplates
+
+10. @ACCOUNT 
+- @AuthenticationController.cs Create Update settings API. 
+
+**APIs**
+1. updateAccountSettings
+2. getAccountSettings
+
+
+11. @GLOSSARY 
+
+**APIs**
+1. addGlossaryItems
+2. getGlossaryItems
+
+12. @FAQ  
+**APIs**
+1. addFAQItems
+2. getFAQItems
+
+13. @SUBSCRIPTIONS  
+- @Subscriptions.tsx - Complete Payment via M-Pesa/Card
+- @FinancialController.php Tie each subscription package with relevant Role/Permission set such that when one subscribes ,they can have relevant permissions 
+- After successful Subscription, Send Email, SMS, Notification & Invoice to client. 
+- Log Emails sent to DB  
+- Log Invoices to DMS
+
+14. @FINANCIALS 
+- @Financials.tsx
+- List all Payments done , Dashboard stats. Fetch per different Pay Modes too
+
+15. INVOICES 
+- @Invoices.tsx Pick all Invoices that have been stored from DMS - 
+**APIs**
+1. createInvoice
+2. getAllInvoices
+3. 
+
+
+16. @BILLING 
+- Create and view all different "Pay Modes" i.e M-pesa, Cash, Visa, Stripe etc
+**APIs**
+1. getBillingDetails
+2. addNewPaymentModes
+3. 
+
+17. @ANALYSIS  
+- Create Dashboard Graphs for Portal Statistics
+
+
+
+
+TEST USER ACCOUNTS SET UP & ROLES
+
+Individual-Agent-Corporate-Broker-AuthorizedDealer-Admin
+
+
+Mwangieddie - Broker
+Developingmwas 
+Edumoz20 

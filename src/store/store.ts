@@ -15,10 +15,9 @@ export const store = configureStore({
 
 const rootReducer = combineReducers({
   auth: AuthReducer,
-  customizer: CustomizerReducer,
-  payment: PaymentReducer,
-});
-
+      customizer: CustomizerReducer,
+      payment: PaymentReducer,
+  });
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export type AppState = ReturnType<typeof rootReducer>;

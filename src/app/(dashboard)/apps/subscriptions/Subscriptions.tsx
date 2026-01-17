@@ -18,7 +18,7 @@ export default function SubscriptionPage({ userDetails }: { userDetails: UserDat
 
             </div>
           </div>
-          <SubscriptionsListing userDetails={userDetails}/>
+          <SubscriptionsListing/>
         </div>      
 
     </PageContainer>

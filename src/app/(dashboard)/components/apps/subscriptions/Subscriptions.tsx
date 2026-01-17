@@ -1,4 +1,4 @@
-import { Check, LockIcon, X, Phone, CreditCard, Smartphone } from "lucide-react"
+import { Check, LockIcon, X } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Button } from "@/app/components/ui/button"
 import { Card, CardContent } from "@/app/components/ui/card"
@@ -23,19 +23,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { cn } from "@/app/lib/utils"
-import { 
-  getAllSubscriptionPlans, 
-  getAllFeatures, 
-  getAllFeatureCategories,
-  initiateMpesaStkPush,
-  checkMpesaStatus,
-  createPaypalOrder,
-  capturePaypalOrder 
-} from "@/app/lib/actions/api.actions"
+import { getAllSubscriptionPlans, getAllFeatures, getAllFeatureCategories } from "@/app/lib/actions/api.actions"
 import React from "react"
-import { useToast } from "@/app/hooks/use-toast"
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js"
-import { pollMpesaStatus } from "./payment-utils"
 
 interface FeatureCategory {
   Id: number;
@@ -84,37 +73,46 @@ interface PaymentDetails {
   planId: number;
 }
 
-type PaymentMethod = 'mpesa' | 'paypal' | 'card';
+type PaymentMethod = 'card' | 'apple-pay' | 'google-pay' | 'alipay';
 
 const paymentSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
-  mpesaPhone: z.string().regex(/^254\d{9}$/, "Format: 2547XXXXXXXX").optional(),
-  cardNumber: z.string().regex(/^\d{16}$/, "Invalid card number").optional(),
-  expiryDate: z.string().optional(),
-  cvc: z.string().optional(),
-  cardholderName: z.string().optional(),
+  cardNumber: z.string().regex(/^\d{16}$/, "Please enter a valid 16-digit card number"),
+  expiryDate: z.string().regex(/^(0[1-9]|1[0-2])\/20[2-9]\d$/, "Please enter a valid expiry date (MM/YYYY)"),
+  cvc: z.string().regex(/^\d{3,4}$/, "Please enter a valid CVC"),
+  cardholderName: z.string().min(1, "Please enter the cardholder name"),
+  country: z.string().min(1, "Please select a country"),
+  address: z.string().min(1, "Please enter an address"),
+  state: z.string().min(1, "Please select a state"),
+  city: z.string().min(1, "Please enter a city"),
+  zip: z.string().min(1, "Please enter a ZIP code"),
+  taxId: z.string().optional(),
 })
 
-export function SubscriptionsListing({ userDetails }: { userDetails: any }) {
+export function SubscriptionsListing() {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState<PaymentDetails | null>(null)
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('mpesa')
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('card')
   const [loading, setLoading] = useState(false)
   const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([])
   const [loadingPlans, setLoadingPlans] = useState(true)
   const [allFeatures, setAllFeatures] = useState<Feature[]>([])
   const [featureCategories, setFeatureCategories] = useState<FeatureCategory[]>([])
-  const { toast } = useToast()
 
   const form = useForm({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      email: userDetails?.email || "",
-      mpesaPhone: userDetails?.phone?.replace(/^(0|\+)/, '254') || "254",
+      email: "",
       cardNumber: "",
       expiryDate: "",
       cvc: "",
       cardholderName: "",
+      country: "",
+      address: "",
+      state: "",
+      city: "",
+      zip: "",
+      taxId: "",
     },
   })
 
@@ -151,65 +149,30 @@ export function SubscriptionsListing({ userDetails }: { userDetails: any }) {
     setIsPaymentModalOpen(true)
   }
 
-  const handleMpesaPayment = async (data: any) => {
-    if (!selectedPayment) return;
-    
+  const handlePayment = async (data: z.infer<typeof paymentSchema>) => {
     try {
       setLoading(true)
-      const result = await initiateMpesaStkPush({
-        phone: data.mpesaPhone,
-        amount: selectedPayment.amount,
-        plan_id: selectedPayment.planId,
-        user_email: userDetails.email
-      });
-
-      if (result?.success) {
-        toast({
-          title: "STK Push Sent",
-          description: "Please check your phone and enter your M-Pesa PIN.",
-        });
-        
-        const checkoutId = result.checkout_id;
-        pollMpesaStatus(checkoutId, (status) => {
-          setLoading(false);
-          if (status === 'completed') {
-            toast({ title: "Payment Successful", description: "Your subscription is now active!" });
-            setIsPaymentModalOpen(false);
-          } else if (status === 'failed') {
-            toast({ title: "Payment Failed", description: "The transaction was not successful.", variant: "destructive" });
-          } else if (status === 'timeout') {
-            toast({ title: "Polling Timeout", description: "We couldn't verify the payment in time. Please check your dashboard later.", variant: "destructive" });
-          }
-        });
-
-      } else {
-        toast({
-          title: "Payment Error",
-          description: result?.message || "Failed to initiate M-Pesa payment",
-          variant: "destructive"
-        });
-      }
+      // Here you would integrate with your payment processing service
+      console.log("Processing payment with data:", { ...data, ...selectedPayment })
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // Success
+      setIsPaymentModalOpen(false)
+      form.reset()
+      // You could show a success toast here
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive"
-      });
+      console.error("Payment failed:", error)
+      // You could show an error toast here
     } finally {
       setLoading(false)
     }
   }
 
-  const handleCardPayment = async (data: any) => {
-    toast({
-      title: "Coming Soon",
-      description: "Direct card payments are currently under maintenance. Please use PayPal.",
-    });
-  }
-
   const PaymentModal = () => (
     <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[500px] h-[600px] flex flex-col p-0">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle>Complete your subscription</DialogTitle>
           <DialogDescription>
@@ -218,122 +181,219 @@ export function SubscriptionsListing({ userDetails }: { userDetails: any }) {
         </DialogHeader>
         
         <div className="flex-1 overflow-y-auto">
-          <div className="px-6 py-4 space-y-6">
-            {/* Payment Method Selection */}
-            <div className="grid grid-cols-3 gap-3">
-              <Button
-                type="button"
-                variant={selectedPaymentMethod === 'mpesa' ? 'default' : 'outline'}
-                className={cn("flex flex-col h-20 gap-2", selectedPaymentMethod === 'mpesa' && "border-primary ring-2 ring-primary/20")}
-                onClick={() => setSelectedPaymentMethod('mpesa')}
-              >
-                <Smartphone className="h-5 w-5" />
-                <span className="text-xs">M-Pesa</span>
-              </Button>
-              <Button
-                type="button"
-                variant={selectedPaymentMethod === 'paypal' ? 'default' : 'outline'}
-                className={cn("flex flex-col h-20 gap-2", selectedPaymentMethod === 'paypal' && "border-primary ring-2 ring-primary/20")}
-                onClick={() => setSelectedPaymentMethod('paypal')}
-              >
-                <Smartphone className="h-5 w-5" /> {/* Use generic icon if paypal icon not ready */}
-                <span className="text-xs">PayPal</span>
-              </Button>
-              <Button
-                type="button"
-                variant={selectedPaymentMethod === 'card' ? 'default' : 'outline'}
-                className={cn("flex flex-col h-20 gap-2", selectedPaymentMethod === 'card' && "border-primary ring-2 ring-primary/20")}
-                onClick={() => setSelectedPaymentMethod('card')}
-              >
-                <CreditCard className="h-5 w-5" />
-                <span className="text-xs">Card</span>
-              </Button>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <LockIcon className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground font-medium">Secure Payment Processing</span>
-            </div>
-
-            {/* Dynamic Payment Content */}
-            {selectedPaymentMethod === 'mpesa' && (
-              <form onSubmit={form.handleSubmit(handleMpesaPayment)} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="mpesaPhone">M-Pesa Phone Number</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="mpesaPhone"
-                      placeholder="2547XXXXXXXX"
-                      className="pl-9"
-                      {...form.register("mpesaPhone")}
-                    />
-                  </div>
-                  {form.formState.errors.mpesaPhone && (
-                    <p className="text-xs text-red-500">{form.formState.errors.mpesaPhone.message}</p>
-                  )}
-                  <p className="text-[10px] text-muted-foreground">
-                    Ensure your phone is unlocked and near you to receive the STK Prompt.
-                  </p>
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Sending Prompt..." : `Pay $${selectedPayment?.amount.toFixed(2)} via M-Pesa`}
+          <form onSubmit={form.handleSubmit(handlePayment)} className="px-6">
+            <div className="space-y-4 py-4">
+              {/* Payment Method Buttons */}
+              <div className="flex gap-2 pb-2">
+                <Button
+                  type="button"
+                  variant={selectedPaymentMethod === 'card' ? 'default' : 'outline'}
+                  className="flex-1 py-2 h-auto"
+                  onClick={() => setSelectedPaymentMethod('card')}
+                >
+                  Card
                 </Button>
-              </form>
-            )}
+                <Button
+                  type="button"
+                  variant={selectedPaymentMethod === 'apple-pay' ? 'default' : 'outline'}
+                  className="flex-1 py-2 h-auto"
+                  onClick={() => setSelectedPaymentMethod('apple-pay')}
+                >
+                  Apple Pay
+                </Button>
+                <Button
+                  type="button"
+                  variant={selectedPaymentMethod === 'google-pay' ? 'default' : 'outline'}
+                  className="flex-1 py-2 h-auto"
+                  onClick={() => setSelectedPaymentMethod('google-pay')}
+                >
+                  Google Pay
+                </Button>
+                <Button
+                  type="button"
+                  variant={selectedPaymentMethod === 'alipay' ? 'default' : 'outline'}
+                  className="flex-1 py-2 h-auto"
+                  onClick={() => setSelectedPaymentMethod('alipay')}
+                >
+                  Alipay
+                </Button>
+              </div>
 
-            {selectedPaymentMethod === 'paypal' && (
-              <div className="space-y-4 py-2">
-                <PayPalScriptProvider options={{ 
-                  "clientId": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "sb",
-                  currency: "USD"
-                }}>
-                  <PayPalButtons
-                    style={{ layout: "vertical" }}
-                    createOrder={async () => {
-                      const res = await createPaypalOrder({
-                        amount: selectedPayment?.amount || 0,
-                        plan_id: selectedPayment?.planId || 0
-                      });
-                      return res.order_id;
-                    }}
-                    onApprove={async (data) => {
-                      const res = await capturePaypalOrder({
-                        order_id: data.orderID,
-                        user_email: userDetails.email,
-                        plan_id: selectedPayment?.planId || 0
-                      });
-                      if (res.success) {
-                        toast({ title: "Success", description: "Subscription activated!" });
-                        setIsPaymentModalOpen(false);
-                      }
-                    }}
+              <div className="flex items-center gap-2 pb-2">
+                <LockIcon className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Secure payment link</span>
+              </div>
+
+              {/* Form Fields */}
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="email">Email address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="e.g. john@example.com"
+                    {...form.register("email")}
+                    className={cn("mt-1", form.formState.errors.email && "border-red-500")}
                   />
-                </PayPalScriptProvider>
-              </div>
-            )}
-
-            {selectedPaymentMethod === 'card' && (
-              <div className="space-y-4 opacity-60 pointer-events-none">
-                <p className="text-sm text-center font-medium">Card integration via Stripe coming soon.</p>
-                <div className="space-y-2">
-                  <Label>Card Information</Label>
-                  <Input placeholder="XXXX XXXX XXXX XXXX" disabled />
+                  {form.formState.errors.email && (
+                    <p className="text-xs text-red-500 mt-1">{form.formState.errors.email.message}</p>
+                  )}
                 </div>
-                <Button className="w-full" disabled>Pay with Card</Button>
+
+                {selectedPaymentMethod === 'card' && (
+                  <>
+                    <div>
+                      <Label htmlFor="cardNumber">Card number</Label>
+                      <Input
+                        id="cardNumber"
+                        placeholder="0000 0000 0000 0000"
+                        {...form.register("cardNumber")}
+                        className={cn("mt-1", form.formState.errors.cardNumber && "border-red-500")}
+                      />
+                      {form.formState.errors.cardNumber && (
+                        <p className="text-xs text-red-500 mt-1">{form.formState.errors.cardNumber.message}</p>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor="expiryDate">Expiration date</Label>
+                        <Input
+                          id="expiryDate"
+                          placeholder="MM / YYYY"
+                          {...form.register("expiryDate")}
+                          className={cn("mt-1", form.formState.errors.expiryDate && "border-red-500")}
+                        />
+                        {form.formState.errors.expiryDate && (
+                          <p className="text-xs text-red-500 mt-1">{form.formState.errors.expiryDate.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="cvc">Security code</Label>
+                        <Input
+                          id="cvc"
+                          placeholder="000"
+                          {...form.register("cvc")}
+                          className={cn("mt-1", form.formState.errors.cvc && "border-red-500")}
+                        />
+                        {form.formState.errors.cvc && (
+                          <p className="text-xs text-red-500 mt-1">{form.formState.errors.cvc.message}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="cardholderName">Cardholder name</Label>
+                      <Input
+                        id="cardholderName"
+                        placeholder="Enter Cardholder name"
+                        {...form.register("cardholderName")}
+                        className={cn("mt-1", form.formState.errors.cardholderName && "border-red-500")}
+                      />
+                      {form.formState.errors.cardholderName && (
+                        <p className="text-xs text-red-500 mt-1">{form.formState.errors.cardholderName.message}</p>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                <div>
+                  <Label htmlFor="country">Country</Label>
+                  <Select onValueChange={(value) => form.setValue("country", value)}>
+                    <SelectTrigger className={cn("mt-1", form.formState.errors.country && "border-red-500")}>
+                      <SelectValue placeholder="Select a country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="us">United States</SelectItem>
+                      <SelectItem value="uk">United Kingdom</SelectItem>
+                      <SelectItem value="ca">Canada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {form.formState.errors.country && (
+                    <p className="text-xs text-red-500 mt-1">{form.formState.errors.country.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="address">Address</Label>
+                  <Input
+                    id="address"
+                    placeholder="Address line 1"
+                    {...form.register("address")}
+                    className={cn("mt-1", form.formState.errors.address && "border-red-500")}
+                  />
+                  {form.formState.errors.address && (
+                    <p className="text-xs text-red-500 mt-1">{form.formState.errors.address.message}</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="city">City</Label>
+                    <Input
+                      id="city"
+                      placeholder="City"
+                      {...form.register("city")}
+                      className={cn("mt-1", form.formState.errors.city && "border-red-500")}
+                    />
+                    {form.formState.errors.city && (
+                      <p className="text-xs text-red-500 mt-1">{form.formState.errors.city.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="zip">ZIP</Label>
+                    <Input
+                      id="zip"
+                      placeholder="ZIP"
+                      {...form.register("zip")}
+                      className={cn("mt-1", form.formState.errors.zip && "border-red-500")}
+                    />
+                    {form.formState.errors.zip && (
+                      <p className="text-xs text-red-500 mt-1">{form.formState.errors.zip.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="taxId">Tax ID number (optional)</Label>
+                  <Input
+                    id="taxId"
+                    placeholder="Enter Tax ID number"
+                    {...form.register("taxId")}
+                    className="mt-1"
+                  />
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          </form>
         </div>
 
-        <div className="border-t px-6 py-4 bg-slate-50">
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-muted-foreground">Plan: {selectedPayment?.plan}</span>
-            <span className="font-bold text-primary">${selectedPayment?.amount.toFixed(2)}</span>
+        <div className="border-t px-6 py-4 mt-auto">
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span>${selectedPayment?.amount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between font-medium">
+                <span>Total</span>
+                <span>${selectedPayment?.amount.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <Button 
+              type="submit"
+              className="w-full" 
+              disabled={loading}
+              onClick={form.handleSubmit(handlePayment)}
+            >
+              {loading ? "Processing..." : `Pay $${selectedPayment?.amount.toFixed(2)}`}
+            </Button>
+
+            <p className="text-xs text-center text-muted-foreground">
+              Powered by Supplier • Terms • Privacy
+            </p>
           </div>
-          <p className="text-[10px] text-center text-muted-foreground">
-            Payments are processed securely. By proceeding, you agree to our Terms of Service.
-          </p>
         </div>
       </DialogContent>
     </Dialog>
@@ -397,7 +457,7 @@ export function SubscriptionsListing({ userDetails }: { userDetails: any }) {
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="text-lg font-bold">{plan.Name}</h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2">
+                          <p className="text-sm text-muted-foreground">
                             {plan.Description}
                           </p>
                         </div>
@@ -435,7 +495,7 @@ export function SubscriptionsListing({ userDetails }: { userDetails: any }) {
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="text-lg font-bold">{plan.Name}</h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2">
+                          <p className="text-sm text-muted-foreground">
                             {plan.Description}
                           </p>
                         </div>
@@ -473,7 +533,7 @@ export function SubscriptionsListing({ userDetails }: { userDetails: any }) {
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="text-lg font-bold">{plan.Name}</h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2">
+                          <p className="text-sm text-muted-foreground">
                             {plan.Description}
                           </p>
                         </div>
@@ -501,8 +561,8 @@ export function SubscriptionsListing({ userDetails }: { userDetails: any }) {
       </Tabs>
 
       {/* Features Comparison Table */}
-      <div className="mt-16 overflow-x-auto">
-        <table className="w-full border-collapse min-w-[600px]">
+      <div className="mt-16">
+        <table className="w-full border-collapse">
           <thead>
             <tr className="border-b">
               <th className="text-left py-4 px-4 font-medium">Feature</th>
@@ -517,16 +577,16 @@ export function SubscriptionsListing({ userDetails }: { userDetails: any }) {
             {Object.entries(getFeaturesByCategory()).map(([categoryName, features]) => (
               <React.Fragment key={categoryName}>
                 <tr className="border-b bg-muted/50">
-                  <td colSpan={subscriptionPlans.length + 1} className="py-2 px-4 font-semibold text-sm">
+                  <td colSpan={subscriptionPlans.length + 1} className="py-2 px-4 font-semibold">
                     {categoryName}
                   </td>
                 </tr>
                 {features.map((feature) => (
-                  <tr key={feature.Id} className="border-b hover:bg-slate-50 transition-colors">
+                  <tr key={feature.Id} className="border-b">
                     <td className="py-4 px-4">
                       <div>
-                        <div className="font-medium text-sm">{feature.Name}</div>
-                        <div className="text-xs text-muted-foreground">{feature.Description}</div>
+                        <div className="font-medium">{feature.Name}</div>
+                        <div className="text-sm text-muted-foreground">{feature.Description}</div>
                       </div>
                     </td>
                     {subscriptionPlans.map((plan) => {
@@ -536,7 +596,7 @@ export function SubscriptionsListing({ userDetails }: { userDetails: any }) {
                           {hasFeature ? (
                             <Check className="h-5 w-5 text-primary" />
                           ) : (
-                            <X className="h-5 w-5 text-muted-foreground/30" />
+                            <X className="h-5 w-5 text-warning-foreground" />
                           )}
                         </td>
                       );
@@ -553,3 +613,4 @@ export function SubscriptionsListing({ userDetails }: { userDetails: any }) {
     </div>
   )
 }
+

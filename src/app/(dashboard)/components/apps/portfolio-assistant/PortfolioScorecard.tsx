@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { MoreVertical, FileDown, Loader2, Trash2, ChevronDown, ChevronRight, Info } from "lucide-react"
 import { Button } from "@/app/components/ui/button"
 import { getStatsTable, addNewPortfolio, getUserPortfolios, updatePortfolio, exportPortfolioToExcel, sendToQuoteBook } from "@/app/lib/actions/api.actions"
@@ -1510,6 +1510,9 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [quickTipsOpen, setQuickTipsOpen] = useState(false);
+  
+  // Ref to track current portfolio ID without causing re-renders
+  const selectedPortfolioIdRef = useRef<number | null>(null);
 
   // const { data: session } = useSession();
 
@@ -1538,11 +1541,12 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
         setPortfolios(result.data);
         
         // Maintain current portfolio state if it exists, otherwise use first portfolio
-        const currentPortfolioId = selectedPortfolio?.Id;
+        const currentPortfolioId = selectedPortfolioIdRef.current;
         const portfolioToSelect = currentPortfolioId 
           ? result.data.find((p: any) => p.Id === currentPortfolioId) || result.data[0]
           : result.data[0];
-          
+        
+        selectedPortfolioIdRef.current = portfolioToSelect.Id;
         setSelectedPortfolio(portfolioToSelect);
         setPortfolioName(portfolioToSelect.Name);
         setPortfolioDate(formatDate(portfolioToSelect.ValueDate));
@@ -1589,7 +1593,8 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
     } finally {
       setLoading(false);
     }
-  }, [userDetails?.email, availableBonds, toast, selectedPortfolio?.Id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userDetails?.email, toast]); // Removed availableBonds to prevent re-fetch loops
 
   useEffect(() => {
     if (userDetails?.email) {
@@ -1598,31 +1603,32 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
     } else {
       console.log("No user email available for fetching portfolios");
     }
-  }, [userDetails?.email, fetchPortfolios, selectedPortfolio?.Id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userDetails?.email]); // Only fetch once when email is available
 
 
   // Data Loading
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const result = await getStatsTable();
-        if (!Array.isArray(result)) {
-          console.error("Expected an array from getStatsTable, got:", result);
-          setBonds([]);
-          return;
-        }
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       const result = await getStatsTable();
+  //       if (!Array.isArray(result)) {
+  //         console.error("Expected an array from getStatsTable, got:", result);
+  //         setBonds([]);
+  //         return;
+  //       }
         
-        // Map the bonds to ensure they have all required fields
-        const mappedBonds = result.map(mapBondToStats);
-        setBonds(mappedBonds);
+  //       // Map the bonds to ensure they have all required fields
+  //       const mappedBonds = result.map(mapBondToStats);
+  //       setBonds(mappedBonds);
         
-      } catch {
-        console.error("Error fetching stats table");
-        setBonds([]);
-      }
-    }
-    fetchData();
-  }, []);
+  //     } catch {
+  //       console.error("Error fetching stats table");
+  //       setBonds([]);
+  //     }
+  //   }
+  //   fetchData();
+  // }, []);
 
   // Update the bond mapping function to include all required fields
   const mapBondToStats = (bond: Record<string, unknown>): BondStats => {
@@ -2424,6 +2430,7 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
             const portfolio = portfolios.find(p => p.Id.toString() === portfolioId);
             
             if (portfolio) {
+              selectedPortfolioIdRef.current = portfolio.Id;
               setSelectedPortfolio(portfolio);
               setPortfolioName(portfolio.Name);
               setPortfolioDate(formatDate(portfolio.ValueDate));

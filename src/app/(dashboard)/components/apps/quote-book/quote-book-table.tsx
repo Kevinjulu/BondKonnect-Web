@@ -1707,7 +1707,7 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
                 {/* Basic Information */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-gray-500">Placement No</Label>
+                    <Label className="text-xs text-gray-500">RFQ No</Label>
                     <div className="text-sm font-medium">{selectedQuote.placement_no}</div>
                   </div>
                   <div className="space-y-1.5">
@@ -2103,7 +2103,7 @@ function QuoteTable({
             <TableRow className="bg-gradient-to-r from-gray-100 to-gray-50">
               <TableHead className="font-semibold text-gray-700 min-w-[100px]">Quote Type</TableHead>
               <TableHead className="font-semibold text-gray-700 min-w-[60px]">#</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[120px]">Placement No</TableHead>
+              <TableHead className="font-semibold text-gray-700 min-w-[120px]">RFQ No</TableHead>
               <TableHead className="font-semibold text-gray-700 min-w-[150px]">Bond Issue</TableHead>
               <TableHead className="font-semibold text-gray-700 min-w-[120px]">Settlement Date</TableHead> 
               <TableHead className="font-semibold text-gray-700 min-w-[130px]">Bid Amount (Ksh)</TableHead>
@@ -2401,7 +2401,7 @@ function QuoteTable({
             return (
               <div className="space-y-4 mt-6">
                 <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label className="text-xs font-medium text-gray-600">Placement No</Label>
+                  <Label className="text-xs font-medium text-gray-600">RFQ No</Label>
                   <div className="text-sm font-medium">{selectedQuoteForEdit.placement_no}</div>
                 </div>
                 

@@ -97,14 +97,14 @@ const Menuitems: MenuitemsType[] = [
       // ]
     },
     //Research Assistant
-    {
-      id: uniqueId(),
-      title: "Research Assistant",
-      href: "/apps/research-assistant",
-      icon: GiArchiveResearch ,
-      permissionKey: "RESEARCH_ASSISTANT",
-      requiredPermissions: getRequiredPermissions('research_assistant')
-    },
+    // {
+    //   id: uniqueId(),
+    //   title: "Research Assistant",
+    //   href: "/apps/research-assistant",
+    //   icon: GiArchiveResearch ,
+    //   permissionKey: "RESEARCH_ASSISTANT",
+    //   requiredPermissions: getRequiredPermissions('research_assistant')
+    // },
     //Portfolio
     {
       id: uniqueId(),
