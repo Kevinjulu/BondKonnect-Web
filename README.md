@@ -2,6 +2,14 @@
 
 BondKonnect is a comprehensive bond trading and portfolio management platform designed to provide financial professionals and individual investors with real-time market data, advanced analytical tools, and seamless trading capabilities. The system facilitates efficient portfolio oversight, trade execution, and automated financial reporting.
 
+## Recent Updates & Stability Fixes
+
+The system has recently undergone a major stability and documentation overhaul:
+*   **Repository Consolidation:** Successfully merged latest remote core updates with local custom payment integrations.
+*   **Enhanced Security:** Implemented real-time session management allowing users to monitor and revoke active browser/device sessions.
+*   **Architecture Standardization:** Unified the frontend codebase with consistent path aliases (`@/*`) across 180+ files for better maintainability.
+*   **Integrated Testing Suite:** Established a robust unit testing foundation using Vitest and React Testing Library with 100% initial pass rate.
+
 ## System Architecture
 
 The application is built on a modern, decoupled full-stack architecture ensuring scalability, performance, and security.
@@ -9,17 +17,16 @@ The application is built on a modern, decoupled full-stack architecture ensuring
 ### Backend Application (bondkonnect_api)
 *   **Framework:** Laravel 11
 *   **Language:** PHP 8.2+
-*   **Database:** PostgreSQL
-*   **Authentication:** Laravel Sanctum
+*   **Database:** PostgreSQL / MySQL
+*   **Authentication:** Custom Secure Token System with Multi-Session Support
 *   **Real-time Services:** Pusher & Redis
-*   **Queue Management:** Laravel Horizon
 
 ### Frontend Application (bondkonnect_web)
 *   **Framework:** Next.js 15
 *   **Language:** TypeScript
 *   **State Management:** Redux Toolkit
-*   **Styling:** Tailwind CSS
-*   **UI Components:** Shadcn UI
+*   **Testing:** Vitest & React Testing Library
+*   **Styling:** Tailwind CSS & Shadcn UI
 
 ## Core Features
 
@@ -34,81 +41,43 @@ The application is built on a modern, decoupled full-stack architecture ensuring
 *   **Visual Analytics:** Interactive charts and graphs for yield curves and historical performance.
 
 ### Financial Services
-*   **Payment Integration:** Fully integrated payment gateways supporting M-Pesa (STK Push, C2B) and PayPal for subscription and service payments.
-*   **Subscription Management:** Automated billing cycles, plan upgrades, and feature access control based on subscription tiers.
+*   **Payment Integration:** Fully integrated payment gateways supporting M-Pesa (STK Push, C2B) and PayPal.
+*   **Subscription Management:** Automated billing cycles, plan upgrades, and feature access control based on tiers.
 
 ### User Management & Security
+*   **Active Session Control:** Users can view active login locations and devices, with the ability to revoke specific sessions.
 *   **Role-Based Access Control (RBAC):** Granular permission settings for Admins, Traders, and Viewers.
-*   **Activity Logging:** Detailed audit trails for all critical system actions and user interactions.
-*   **Secure Authentication:** Multi-factor capable authentication system with session management.
-
-### Communication
-*   **Messaging System:** Internal secure messaging platform for direct communication between traders and support.
-*   **Notifications:** Real-time alerts for trade matches, subscription updates, and system announcements.
+*   **Activity Logging:** Detailed audit trails for all critical system actions.
 
 ## Installation and Setup
 
 ### Prerequisites
-Ensure the following are installed on your development environment:
-*   PHP 8.2 or higher
-*   Composer
-*   Node.js (v18 or higher)
-*   PostgreSQL
+*   PHP 8.2+ & Composer
+*   Node.js (v18+) & npm
+*   PostgreSQL or MySQL
 *   Redis
 
 ### Backend Configuration
-1.  Navigate to the API directory:
-    ```bash
-    cd bondkonnect_api
-    ```
-2.  Install PHP dependencies:
-    ```bash
-    composer install
-    ```
-3.  Configure the environment:
-    *   Copy `.env.example` to `.env`.
-    *   Update database credentials and third-party API keys (M-Pesa, PayPal, Pusher).
-4.  Generate the application key:
-    ```bash
-    php artisan key:generate
-    ```
-5.  Run database migrations and seeders:
-    ```bash
-    php artisan migrate --seed
-    ```
-6.  Start the development server:
-    ```bash
-    php artisan serve
-    ```
+1.  Navigate to `bondkonnect_api`.
+2.  Run `composer install`.
+3.  Configure `.env` with database and third-party keys (M-Pesa, PayPal, Pusher).
+4.  Run `php artisan key:generate`.
+5.  Run `php artisan migrate --seed`.
+6.  Start server: `php artisan serve`.
 
 ### Frontend Configuration
-1.  Navigate to the Web directory:
-    ```bash
-    cd bondkonnect_web
-    ```
-2.  Install JavaScript dependencies:
-    ```bash
-    npm install
-    ```
-3.  Configure the environment:
-    *   Create a `.env.local` file.
-    *   Set the `NEXT_PUBLIC_API_URL` to point to your backend server (default: `http://localhost:8000`).
-4.  Start the development server:
-    ```bash
-    npm run dev
-    ```
+1.  Navigate to `bondkonnect_web`.
+2.  Run `npm install`.
+3.  Configure `.env.local` with `NEXT_PUBLIC_API_URL`.
+4.  Start development server: `npm run dev`.
 
 ## Testing
 
-The project maintains a rigorous testing standard.
+The project maintains high code quality through automated testing.
 
-*   **Backend Tests:** Run PHPUnit tests via `php artisan test`.
-*   **Frontend Tests:** Run Vitest suites via `npm test`.
-
-## Contribution
-
-We welcome contributions to improve BondKonnect. Please ensure all pull requests follow the established coding standards and include relevant test coverage.
+*   **Backend:** Execute PHPUnit tests via `php artisan test`.
+*   **Frontend:** Execute Vitest suite via `npm test`.
 
 ## License
 
-This project is proprietary software. Unauthorized copying, distribution, or use is strictly prohibited.
+Proprietary software. Unauthorized copying, distribution, or use is strictly prohibited.
