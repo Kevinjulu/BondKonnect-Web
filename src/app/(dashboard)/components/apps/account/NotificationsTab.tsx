@@ -1,5 +1,5 @@
-import { Switch } from "@/app/components/ui/switch"
-import { Label } from "@/app/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
 export function NotificationsTab() {
   return (

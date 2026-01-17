@@ -1,25 +1,25 @@
 "use client"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { MoreVertical, FileDown, Loader2, Trash2, ChevronDown, ChevronRight, Info } from "lucide-react"
-import { Button } from "@/app/components/ui/button"
-import { getStatsTable, addNewPortfolio, getUserPortfolios, updatePortfolio, exportPortfolioToExcel, sendToQuoteBook } from "@/app/lib/actions/api.actions"
+import { Button } from "@/components/ui/button"
+import { getStatsTable, addNewPortfolio, getUserPortfolios, updatePortfolio, exportPortfolioToExcel, sendToQuoteBook } from "@/lib/actions/api.actions"
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select"
-import { Input } from "@/app/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/app/components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/app/components/ui/dropdown-menu"
-import { Checkbox } from "@/app/components/ui/checkbox"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/app/components/ui/dialog"
-import { Label } from "@/app/components/ui/label"
-import { Textarea } from "@/app/components/ui/textarea"
-import { useToast } from "@/app/hooks/use-toast"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/app/components/ui/collapsible"
-import { Alert, AlertDescription } from "@/app/components/ui/alert"
+} from "@/components/ui/dropdown-menu"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/hooks/use-toast"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ClientSelectionDialog } from "../quote-book/client-selection-dialog"
 import * as XLSX from 'xlsx'
 

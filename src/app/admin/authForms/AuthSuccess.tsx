@@ -5,14 +5,14 @@ import { redirect, useRouter } from "next/navigation";
 import { loginType } from "../../(dashboard)/types/auth/auth";
 import CustomSnackbar from "../../(dashboard)/layouts/shared/snackbar/CustomSnackbar";
 
-// import { Button } from '@/app/components/ui/button';
-import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/app/components/ui/card';
-// import { Input } from '@/app/components/ui/input';
-// import { Label } from '@/app/components/ui/label';
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+// import { Button } from '@/components/ui/button';
+import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/components/ui/card';
+// import { Input } from '@/components/ui/input';
+// import { Label } from '@/components/ui/label';
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import React from "react";
 
-// const axios = require('@/app/utils/axios');
+// const axios = require('@/utils/axios');
 
 
 const AuthSuccess = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => {

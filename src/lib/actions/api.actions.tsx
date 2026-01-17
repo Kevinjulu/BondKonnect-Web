@@ -1,17 +1,5 @@
 "use server";
-
-// import TokenManager from "../utils/token-manager";
-import { ModulePermissions, ActionPermissions } from "@/app/app/config/permissions";
-// const TOKEN_EXPIRY_MINUTES = 15;
-// const TOKEN_KEY = "bondkonnect_token";
-
-// interface ApiError extends Error {
-//    response?: {
-//      data: any;
-//      status: number;
-//    };
-//  }
-
+import { ModulePermissions, ActionPermissions } from "@/app/config/permissions";
 export const getCurrentApiUrl = async () => {
   const APP_ENVIRONMENT = process.env.APP_ENV;
   let BASE_URL = "";

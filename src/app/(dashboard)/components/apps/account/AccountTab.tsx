@@ -1,17 +1,58 @@
-import { Button } from "@/app/components/ui/button"
-import { Input } from "@/app/components/ui/input"
-import { Label } from "@/app/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select"
-import { Slider } from "@/app/components/ui/slider"
-import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar"
+"use client";
+import { useState } from "react";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Slider } from "@/components/ui/slider"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import axios from "@/utils/axios";
+import { useToast } from "@/hooks/use-toast";
 
-export function AccountTab() {
+interface AccountTabProps {
+  user: any;
+}
+
+export function AccountTab({ user }: AccountTabProps) {
+  // Split name into first and last name if possible, otherwise just use name for first name
+  const names = user?.name ? user.name.split(' ') : [''];
+  const initialFirstName = names[0] || '';
+  const initialLastName = names.length > 1 ? names.slice(1).join(' ') : '';
+
+  const [firstName, setFirstName] = useState(initialFirstName);
+  const [lastName, setLastName] = useState(initialLastName);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      await axios.post('/V1/auth/update-profile', {
+        first_name: firstName,
+        last_name: lastName
+      });
+      
+      toast({
+        title: "Success",
+        description: "Profile updated successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to update profile.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center space-x-8">
         <Avatar className="h-24 w-24">
           <AvatarImage src="/placeholder-user.jpg" alt="User" />
-          <AvatarFallback>UN</AvatarFallback>
+          <AvatarFallback>{user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
         </Avatar>
         <Button>Edit photo</Button>
       </div>
@@ -21,16 +62,26 @@ export function AccountTab() {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
-            <Input id="name" placeholder="John" />
+            <Input 
+              id="name" 
+              value={firstName} 
+              onChange={(e) => setFirstName(e.target.value)} 
+              placeholder="First Name" 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="surname">Surname</Label>
-            <Input id="surname" placeholder="Doe" />
+            <Input 
+              id="surname" 
+              value={lastName} 
+              onChange={(e) => setLastName(e.target.value)} 
+              placeholder="Last Name" 
+            />
           </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="john.doe@example.com" />
+          <Input id="email" type="email" defaultValue={user?.email || ''} placeholder="email@example.com" readOnly className="bg-muted" />
         </div>
       </div>
       {/* <div className="space-y-2">
@@ -98,8 +149,9 @@ export function AccountTab() {
           </div>
         </div>
       </div> */}
-      <Button>Save changes</Button>
+      <Button onClick={handleSave} disabled={loading}>
+        {loading ? "Saving..." : "Save changes"}
+      </Button>
     </div>
   )
 }
-

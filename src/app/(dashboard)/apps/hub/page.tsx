@@ -1,6 +1,6 @@
 import React from "react";
 import HubComponent from "./Hub";
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { redirect } from "next/navigation";
 
 const Hub = async () => {

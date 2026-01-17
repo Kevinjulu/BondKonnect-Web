@@ -1,19 +1,19 @@
 import React from 'react';
 import { useState,useEffect, useCallback } from 'react';
 import { Calendar, Home, Inbox, Search, Settings,ChevronDown,ChevronUp,User2,Plus } from "lucide-react"
-import { Sidebar,SidebarHeader,SidebarFooter,SidebarGroupAction, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem,} from "@/app/components/ui/sidebar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,} from "@/app/components/ui/dropdown-menu"
+import { Sidebar,SidebarHeader,SidebarFooter,SidebarGroupAction, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem,} from "@/components/ui/sidebar"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
 import { usePathname, useRouter } from "next/navigation";
-import { AppState } from '@/app/store/store';
-import { useDispatch, useSelector } from '@/app/store/hooks';
-import { setUserRole, clearUserRole } from '@/app/store/apps/auth/AuthSlice';
+import { AppState } from '@/store/store';
+import { useDispatch, useSelector } from '@/store/hooks';
+import { setUserRole, clearUserRole } from '@/store/apps/auth/AuthSlice';
 import { FaAudible } from "react-icons/fa";
 import { TbSquareLetterB } from "react-icons/tb";
 
-import { ScrollArea,ScrollBar  } from "@/app/components/ui/scroll-area"
+import { ScrollArea,ScrollBar  } from "@/components/ui/scroll-area"
 import Menuitems from '../MenuItems';
 
-import { ModulePermissions,ActionPermissions, Permission,permissionMap, PermissionKey, MODULE_PERMISSION_REQUIREMENTS, MODULE_DEPENDENCIES } from "@/app/app/config/permissions";
+import { ModulePermissions,ActionPermissions, Permission,permissionMap, PermissionKey, MODULE_PERMISSION_REQUIREMENTS, MODULE_DEPENDENCIES } from "@/app/config/permissions";
 interface MenuitemsType {
     [x: string]: any;
     id?: string;

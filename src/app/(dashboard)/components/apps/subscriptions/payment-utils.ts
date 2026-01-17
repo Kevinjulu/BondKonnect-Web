@@ -1,4 +1,4 @@
-import { checkMpesaStatus } from "@/app/lib/actions/api.actions";
+import { checkMpesaStatus } from "@/lib/actions/api.actions";
 
 /**
  * Polls for M-Pesa transaction status

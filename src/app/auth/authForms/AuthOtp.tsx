@@ -4,17 +4,17 @@ import { redirect, useRouter,useSearchParams } from "next/navigation";
 import { loginType } from "../../(dashboard)/types/auth/auth";
 import CustomSnackbar from "../../(dashboard)/layouts/shared/snackbar/CustomSnackbar";
 
-import { Button } from '@/app/components/ui/button';
-import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/app/components/ui/card';
-import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot, } from "@/app/components/ui/input-otp"
+import { Button } from '@/components/ui/button';
+import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/components/ui/card';
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot, } from "@/components/ui/input-otp"
   
-// import { Input } from '@/app/components/ui/input';
-// import { Label } from '@/app/components/ui/label';
-// const axios = require('@/app/utils/axios');
-import { otpVerify, resendOtp, getIPAddress, } from "@/app/lib/actions/api.actions";
+// import { Input } from '@/components/ui/input';
+// import { Label } from '@/components/ui/label';
+// const axios = require('@/utils/axios');
+import { otpVerify, resendOtp, getIPAddress, } from "@/lib/actions/api.actions";
 import { createSession } from "../session/auth1";
 
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
 
 const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => {
     const otpRef = useRef<HTMLInputElement>(null);

@@ -3,22 +3,22 @@ import React, { useState, useEffect } from 'react'
 
 import { Check, ChevronsUpDown } from 'lucide-react'
 
-import { cn } from "@/app/lib/utils"
-import { Button } from "@/app/components/ui/button"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@/app/components/ui/command"
+} from "@/components/ui/command"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/app/components/ui/popover"
+} from "@/components/ui/popover"
 
-import { getStatsTable } from '@/app/lib/actions/api.actions'
+import { getStatsTable } from '@/lib/actions/api.actions'
 
 
 export type Bond = {

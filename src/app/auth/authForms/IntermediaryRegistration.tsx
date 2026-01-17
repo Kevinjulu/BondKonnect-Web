@@ -1,12 +1,12 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from '@/app/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { Input } from '@/app/components/ui/input';
-import { Label } from '@/app/components/ui/label';
-import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import CustomSnackbar from "../../(dashboard)/layouts/shared/snackbar/CustomSnackbar";
-import { completeIntermediaryRegistration } from "@/app/lib/actions/api.actions";
+import { completeIntermediaryRegistration } from "@/lib/actions/api.actions";
 
 interface IntermediaryRegistrationProps {
   icon?: React.ReactNode;

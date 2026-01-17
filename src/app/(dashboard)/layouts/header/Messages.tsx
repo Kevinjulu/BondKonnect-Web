@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { Button } from "@/app/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/app/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { TbMessage } from "react-icons/tb";
-import { getAllUnreadMessagesForUser, markMessageAsRead } from "@/app/lib/actions/api.actions";
-import { useToast } from "@/app/hooks/use-toast";
+import { getAllUnreadMessagesForUser, markMessageAsRead } from "@/lib/actions/api.actions";
+import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
-import { cn } from "@/app/lib/utils";
+import { cn } from "@/lib/utils";
 import { MessageSquare, Send, UserCircle2, MessageCircle } from "lucide-react";
 
 interface Message {

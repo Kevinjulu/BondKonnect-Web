@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
-import { Badge } from "@/app/components/ui/badge"
-import { Button } from "@/app/components/ui/button"
-import { Input } from "@/app/components/ui/input"
-import { Tabs, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Archive, Mail, Search, Trash } from "lucide-react"
 import EmailView from "./EmailsView"
 

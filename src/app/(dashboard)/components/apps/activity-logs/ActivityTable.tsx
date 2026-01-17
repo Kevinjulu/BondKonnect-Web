@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react"
 import { Eye, AlertTriangle, AlertCircle, Info, Check } from "lucide-react"
-import { Button } from "@/app/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/app/components/ui/dialog"
-import { Input } from "@/app/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/app/components/ui/table"
-import { Checkbox } from "@/app/components/ui/checkbox"
-import { getActivityLogs } from "@/app/lib/actions/api.actions"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Checkbox } from "@/components/ui/checkbox"
+import { getActivityLogs } from "@/lib/actions/api.actions"
 import { format, parse, getMonth } from "date-fns"
 import { Loader2 } from "lucide-react"
 import {
@@ -28,14 +28,14 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious
-} from "@/app/components/ui/pagination"
+} from "@/components/ui/pagination"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/app/components/ui/select"
+} from "@/components/ui/select"
 
 // Activity log type based on the API response
 interface ActivityLog {

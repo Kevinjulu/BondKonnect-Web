@@ -1,8 +1,8 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
-import MpesaForm from "@/app/components/payment/MpesaForm";
-import PaypalForm from "@/app/components/payment/PaypalForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MpesaForm from "@/components/payment/MpesaForm";
+import PaypalForm from "@/components/payment/PaypalForm";
 
 export default function PaymentsPage() {
   return (

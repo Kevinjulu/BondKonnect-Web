@@ -1,11 +1,11 @@
 "use client";
   import * as React from 'react'
-  import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "@/app/components/ui/card"
-  import { Checkbox } from '@/app/components/ui/checkbox'
-  import { Label } from "@/app/components/ui/label"
+  import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card"
+  import { Checkbox } from '@/components/ui/checkbox'
+  import { Label } from "@/components/ui/label"
   import { CartesianGrid, Line, LineChart, XAxis,ResponsiveContainer, Tooltip,YAxis, Legend } from "recharts"
-  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/app/components/ui/table'
-import { getHistoricalBonds, getProjectionBands, getSpotYieldCurve, getTableParams } from '@/app/lib/actions/api.actions';
+  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { getHistoricalBonds, getProjectionBands, getSpotYieldCurve, getTableParams } from '@/lib/actions/api.actions';
   
 
   // Add this interface before the SpotYieldChart component

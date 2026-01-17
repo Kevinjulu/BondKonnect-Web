@@ -1,9 +1,9 @@
 "use client";
 import { useEffect,useState } from 'react';
 import * as React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/app/components/ui/table"
-import { getBarbellAndBullet } from '@/app/lib/actions/api.actions';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { getBarbellAndBullet } from '@/lib/actions/api.actions';
 
 import { RefreshCw } from 'lucide-react';
 

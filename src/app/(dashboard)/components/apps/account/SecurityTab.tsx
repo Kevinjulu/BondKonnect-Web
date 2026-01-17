@@ -1,19 +1,62 @@
-import React from "react"
-import { Button } from "@/app/components/ui/button"
-import { Input } from "@/app/components/ui/input"
-import { Label } from "@/app/components/ui/label"
-import { Switch } from "@/app/components/ui/switch"
+"use client";
+import React, { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import axios from "@/utils/axios";
+import { useToast } from "@/hooks/use-toast";
+import { Laptop, Smartphone, Trash2 } from "lucide-react";
+
+interface Session {
+  id: number;
+  is_current: boolean;
+  ip_address: string;
+  last_active: string;
+  device: string;
+}
 
 export function SecurityTab() {
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  const fetchSessions = async () => {
+    try {
+      const response = await axios.get('/V1/auth/active-sessions');
+      if (response.data.success) {
+        setSessions(response.data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch sessions", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
+
+  const handleRevoke = async (sessionId: number) => {
+    try {
+      await axios.post('/V1/auth/revoke-session', { session_id: sessionId });
+      toast({
+        title: "Success",
+        description: "Session revoked successfully.",
+      });
+      fetchSessions(); // Refresh list
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to revoke session.",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* <div className="flex items-center justify-between p-4 bg-blue-100 rounded-lg">
-        <div>
-          <h3 className="font-semibold">Your account security is 90%</h3>
-          <p className="text-sm text-muted-foreground">Please review your account security settings regularly and update your password.</p>
-        </div>
-        <Button variant="outline">Review security</Button>
-      </div> */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold">Basics</h2>
         <div className="space-y-2">
@@ -36,36 +79,39 @@ export function SecurityTab() {
         <h2 className="text-2xl font-bold">Browsers and devices</h2>
         <p className="text-muted-foreground">These browsers and devices are currently signed in to your account. Remove any unrecognized devices.</p>
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <svg xmlns="http://www.w3.org/2000/
-svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-orange-500"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-              <div>
-                <p className="font-medium">Brave on Mac OS X</p>
-                <p className="text-sm text-muted-foreground">Juja, Kenya • Current session</p>
+          {loading ? (
+            <p>Loading sessions...</p>
+          ) : sessions.length > 0 ? (
+            sessions.map((session) => (
+              <div key={session.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center space-x-4">
+                  {session.device.includes('iPhone') || session.device.includes('Android') ? (
+                    <Smartphone className="h-6 w-6 text-gray-500" />
+                  ) : (
+                    <Laptop className="h-6 w-6 text-gray-500" />
+                  )}
+                  <div>
+                    <p className="font-medium">
+                      {session.device} {session.is_current && <span className="text-green-600 text-xs ml-2">(Current session)</span>}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {session.ip_address} • Last active {session.last_active}
+                    </p>
+                  </div>
+                </div>
+                {!session.is_current && (
+                  <Button variant="ghost" size="icon" onClick={() => handleRevoke(session.id)}>
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                    <span className="sr-only">Remove device</span>
+                  </Button>
+                )}
               </div>
-            </div>
-            <Button variant="ghost" size="icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-              <span className="sr-only">Remove device</span>
-            </Button>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
-              <div>
-                <p className="font-medium">Olive&apos;s MacBook Pro</p>
-                <p className="text-sm text-muted-foreground">Mombasa, Kenya • Current session</p>
-              </div>
-            </div>
-            <Button variant="ghost" size="icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-              <span className="sr-only">Remove device</span>
-            </Button>
-          </div>
+            ))
+          ) : (
+            <p>No active sessions found.</p>
+          )}
         </div>
       </div>
     </div>
   )
 }
-

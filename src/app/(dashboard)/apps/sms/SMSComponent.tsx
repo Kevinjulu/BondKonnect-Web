@@ -1,13 +1,13 @@
     "use client"
 
 import { useState } from "react"
-import { Input } from "@/app/components/ui/input"
-import { Button } from "@/app/components/ui/button"
-import { Card, CardContent } from "@/app/components/ui/card"
-import { Badge } from "@/app/components/ui/badge"
-import { Tabs, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/app/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -15,10 +15,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/app/components/ui/dialog"
-import { Textarea } from "@/app/components/ui/textarea"
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
 import { Search, ChevronRight, Star, Settings, MessageSquare } from "lucide-react"
-import { Progress } from "@/app/components/ui/progress"
+import { Progress } from "@/components/ui/progress"
 import { useRouter } from "next/navigation"
 
 export function SMSComponent({ userDetails }: { userDetails: UserData }) {

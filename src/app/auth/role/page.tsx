@@ -1,20 +1,20 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
 
-// import { Button } from '@/app/components/ui/button';
+// import { Button } from '@/components/ui/button';
 import { Grid, Box, Stack, Typography } from "@mui/material";
-import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/app/components/ui/card';
-// import { Input } from '@/app/components/ui/input';
-// import { Label } from '@/app/components/ui/label';
+import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/components/ui/card';
+// import { Input } from '@/components/ui/input';
+// import { Label } from '@/components/ui/label';
 import PageContainer from '../../(dashboard)/components/container/PageContainer';
 // import AuthLogin from '../authForms/AuthLogin';
 import AuthRole from '../authForms/AuthRole';
 import { FaUsersCog } from "react-icons/fa";
 import { useSearchParams } from "next/navigation";
-// import { setActiveRole } from "@/app/lib/actions/api.actions";
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
+// import { setActiveRole } from "@/lib/actions/api.actions";
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
 // import Logo from '../../(dashboard)/layouts/shared/logo/Logo';
-import { Icons } from "@/app/components/icons"
+import { Icons } from "@/components/icons"
 // next import
 import Image from "next/image";
 

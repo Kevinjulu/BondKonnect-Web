@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { PermissionMappingTable } from "../../components/apps/permissions/Permissions-Table"
 import PageContainer from "../../components/container/PageContainer";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function MapPermissionsPage({ userDetails }: { userDetails: UserData }) {

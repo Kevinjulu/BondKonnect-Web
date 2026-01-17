@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage, } from "@/app/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage, } from "@/components/ui/avatar"
 import { Calendar, Home, Inbox, Search, Settings,ChevronDown,ChevronUp,User2, } from "lucide-react"
-import { Button } from "@/app/components/ui/button"
-import { DropdownMenu,  DropdownMenuContent,  DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger, } from "@/app/components/ui/dropdown-menu"
-import { getCurrentUserDetails } from "@/app/lib/actions/user.check";
-import { logout,setActiveRole } from "@/app/lib/actions/api.actions";
+import { Button } from "@/components/ui/button"
+import { DropdownMenu,  DropdownMenuContent,  DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
+import { getCurrentUserDetails } from "@/lib/actions/user.check";
+import { logout,setActiveRole } from "@/lib/actions/api.actions";
 import { useRouter } from "next/navigation";
 
   export function Profile({ userDetails }: { userDetails: UserData }) {

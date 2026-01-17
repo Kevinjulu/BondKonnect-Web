@@ -5,7 +5,7 @@ import { Box } from "@mui/material";
 import PageContainer from '../../(dashboard)/components/container/PageContainer';
 import AuthForgot from '../authForms/AuthForgot';
 import { GoQuestion } from "react-icons/go";
-import { getCurrentUserDetails } from '@/app/lib/actions/user.check';
+import { getCurrentUserDetails } from '@/lib/actions/user.check';
 import Image from 'next/image';
 
 const ForgotPasword = () => {

@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { pollMpesaStatus } from '../payment-utils'
-import * as apiActions from '@/app/lib/actions/api.actions'
+import * as apiActions from '@/lib/actions/api.actions'
 
 // Mock the API actions
-vi.mock('@/app/lib/actions/api.actions', () => ({
+vi.mock('@/lib/actions/api.actions', () => ({
   checkMpesaStatus: vi.fn(),
 }))
 

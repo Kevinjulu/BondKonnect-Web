@@ -21,7 +21,7 @@ import { GrVmMaintenance } from "react-icons/gr";
 import { IoMailOutline } from "react-icons/io5";
 import { FaCommentSms } from "react-icons/fa6";
 import { GiArchiveResearch } from "react-icons/gi";
-import { ModulePermissions,ActionPermissions, Permission, PermissionKey, MODULE_PERMISSION_REQUIREMENTS, MODULE_DEPENDENCIES } from "@/app/app/config/permissions";
+import { ModulePermissions,ActionPermissions, Permission, PermissionKey, MODULE_PERMISSION_REQUIREMENTS, MODULE_DEPENDENCIES } from "@/app/config/permissions";
 interface MenuitemsType {
     [x: string]: any;
     id?: string;
