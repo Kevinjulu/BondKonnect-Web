@@ -1,114 +1,114 @@
 # BondKonnect
 
-BondKonnect is a comprehensive bond trading and portfolio management platform that provides real-time market data, trading capabilities, and portfolio analytics.
+BondKonnect is a comprehensive bond trading and portfolio management platform designed to provide financial professionals and individual investors with real-time market data, advanced analytical tools, and seamless trading capabilities. The system facilitates efficient portfolio oversight, trade execution, and automated financial reporting.
 
-## Project Structure
+## System Architecture
 
-The project is organized into three main components:
+The application is built on a modern, decoupled full-stack architecture ensuring scalability, performance, and security.
 
-- `bondkonnect_api/`: Backend API service
-- `bondkonnect_web/`: Frontend web application
-- `bondkonnect_db/`: Database management and migrations
+### Backend Application (bondkonnect_api)
+*   **Framework:** Laravel 11
+*   **Language:** PHP 8.2+
+*   **Database:** PostgreSQL
+*   **Authentication:** Laravel Sanctum
+*   **Real-time Services:** Pusher & Redis
+*   **Queue Management:** Laravel Horizon
 
-## Features
+### Frontend Application (bondkonnect_web)
+*   **Framework:** Next.js 15
+*   **Language:** TypeScript
+*   **State Management:** Redux Toolkit
+*   **Styling:** Tailwind CSS
+*   **UI Components:** Shadcn UI
 
-- Real-time bond market data
-- Portfolio management and analytics
-- Trading capabilities
-- P&L calculations (Realized and Unrealized)
-- User authentication and authorization
-- Market data visualization
+## Core Features
 
-## Getting Started
+### Market Data & Trading
+*   **Real-time Market Data:** Live updates on bond yields, prices, and market movements using WebSocket connections.
+*   **Quote Management:** Create, view, and manage buy/sell quotes with real-time status tracking.
+*   **Transaction Processing:** Secure handling of trade execution from initiation to settlement.
+
+### Portfolio Management
+*   **Portfolio Analysis:** Comprehensive tools for tracking portfolio performance, including realized and unrealized P&L.
+*   **Bond Calculator:** Built-in financial calculators for yield-to-maturity (YTM), duration, and convexity.
+*   **Visual Analytics:** Interactive charts and graphs for yield curves and historical performance.
+
+### Financial Services
+*   **Payment Integration:** Fully integrated payment gateways supporting M-Pesa (STK Push, C2B) and PayPal for subscription and service payments.
+*   **Subscription Management:** Automated billing cycles, plan upgrades, and feature access control based on subscription tiers.
+
+### User Management & Security
+*   **Role-Based Access Control (RBAC):** Granular permission settings for Admins, Traders, and Viewers.
+*   **Activity Logging:** Detailed audit trails for all critical system actions and user interactions.
+*   **Secure Authentication:** Multi-factor capable authentication system with session management.
+
+### Communication
+*   **Messaging System:** Internal secure messaging platform for direct communication between traders and support.
+*   **Notifications:** Real-time alerts for trade matches, subscription updates, and system announcements.
+
+## Installation and Setup
 
 ### Prerequisites
+Ensure the following are installed on your development environment:
+*   PHP 8.2 or higher
+*   Composer
+*   Node.js (v18 or higher)
+*   PostgreSQL
+*   Redis
 
-- Node.js (v16 or higher)
-- PostgreSQL
-- npm or yarn
+### Backend Configuration
+1.  Navigate to the API directory:
+    ```bash
+    cd bondkonnect_api
+    ```
+2.  Install PHP dependencies:
+    ```bash
+    composer install
+    ```
+3.  Configure the environment:
+    *   Copy `.env.example` to `.env`.
+    *   Update database credentials and third-party API keys (M-Pesa, PayPal, Pusher).
+4.  Generate the application key:
+    ```bash
+    php artisan key:generate
+    ```
+5.  Run database migrations and seeders:
+    ```bash
+    php artisan migrate --seed
+    ```
+6.  Start the development server:
+    ```bash
+    php artisan serve
+    ```
 
-### Installation
+### Frontend Configuration
+1.  Navigate to the Web directory:
+    ```bash
+    cd bondkonnect_web
+    ```
+2.  Install JavaScript dependencies:
+    ```bash
+    npm install
+    ```
+3.  Configure the environment:
+    *   Create a `.env.local` file.
+    *   Set the `NEXT_PUBLIC_API_URL` to point to your backend server (default: `http://localhost:8000`).
+4.  Start the development server:
+    ```bash
+    npm run dev
+    ```
 
-1. Clone the repository:
-```bash
-git clone https://github.com/your-username/bondkonnect_new.git
-cd bondkonnect
-```
+## Testing
 
-2. Install dependencies for each component:
-```bash
-# Install API dependencies
-cd bondkonnect_api
-npm install
+The project maintains a rigorous testing standard.
 
-# Install Web dependencies
-cd ../bondkonnect_web
-npm install
-```
+*   **Backend Tests:** Run PHPUnit tests via `php artisan test`.
+*   **Frontend Tests:** Run Vitest suites via `npm test`.
 
-3. Set up environment variables:
-   - Create `.env` files in both `bondkonnect_api` and `bondkonnect_web` directories
-   - Refer to `.env.example` files for required variables
+## Contribution
 
-4. Set up the database:
-```bash
-cd bondkonnect_db
-# Follow database setup instructions
-```
-
-### Running the Application
-
-1. Start the API server:
-```bash
-cd bondkonnect_api
-npm run dev
-```
-
-2. Start the web application:
-```bash
-cd bondkonnect_web
-npm run dev
-```
-
-3. Access the application at `http://localhost:3000`
-
-## Development
-
-### Code Style
-
-- Follow TypeScript best practices
-- Use ESLint and Prettier for code formatting
-- Write meaningful commit messages
-
-### Testing
-
-```bash
-# Run tests for API
-cd bondkonnect_api
-npm test
-
-# Run tests for Web
-cd bondkonnect_web
-npm test
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+We welcome contributions to improve BondKonnect. Please ensure all pull requests follow the established coding standards and include relevant test coverage.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For support, please open an issue in the GitHub repository or contact the development team.
-
-## Acknowledgments
-
-- List any third-party libraries or resources used
-- Thank contributors and maintainers 
+This project is proprietary software. Unauthorized copying, distribution, or use is strictly prohibited.
