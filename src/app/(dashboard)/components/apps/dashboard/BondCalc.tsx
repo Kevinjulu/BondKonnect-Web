@@ -503,12 +503,17 @@ export function BondCalc() {
 
         // Fetch secondary market bonds
         const secondaryResponse = await getSecondaryMarketBonds();
-        if (Array.isArray(secondaryResponse) && secondaryResponse.length > 0) {
-          setSecondaryMarketBonds(secondaryResponse);
+        // Handle both array and wrapped response formats
+        const secondaryBonds = Array.isArray(secondaryResponse) 
+          ? secondaryResponse 
+          : (secondaryResponse?.data && Array.isArray(secondaryResponse.data) ? secondaryResponse.data : []);
+        
+        if (secondaryBonds.length > 0) {
+          setSecondaryMarketBonds(secondaryBonds);
           
           // Set first bond as default only if no bond is selected
           if (!state.selectedBond) {
-            const firstBond = secondaryResponse[0];
+            const firstBond = secondaryBonds[0];
             setState(prev => ({ 
               ...prev, 
               selectedBond: firstBond.Id.toString(),
@@ -520,8 +525,13 @@ export function BondCalc() {
 
         // Fetch primary market bonds
         const primaryResponse = await getPrimaryMarketBonds();
-        if (Array.isArray(primaryResponse)) {
-          setPrimaryMarketBonds(primaryResponse);
+        // Handle both array and wrapped response formats
+        const primaryBonds = Array.isArray(primaryResponse) 
+          ? primaryResponse 
+          : (primaryResponse?.data && Array.isArray(primaryResponse.data) ? primaryResponse.data : []);
+        
+        if (primaryBonds.length > 0) {
+          setPrimaryMarketBonds(primaryBonds);
         }
       } catch (error) {
         console.error("Error fetching bond data:", error);
