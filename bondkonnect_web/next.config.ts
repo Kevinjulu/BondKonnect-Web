@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   
   // Production optimizations
   poweredByHeader: false,
-  compress: false, // Disabled for build speed/debug
+  compress: true,
   
   // Image optimization for cPanel
   images: {
@@ -19,19 +19,6 @@ const nextConfig: NextConfig = {
 
   /* config options here */
   devIndicators: false,
-  
-  typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    ignoreDuringBuilds: true,
-  },
 
 };
 

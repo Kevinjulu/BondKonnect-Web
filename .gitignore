@@ -1,50 +1,3 @@
-# Operating System files
-Thumbs.db
-.DS_Store
-
-# IDEs and editors
-.vscode/
-.idea/
-
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Next.js build outputs
-.next/
-out/
-dist/
-
-# Laravel / PHP
-/vendor/
-composer.phar
-
-# Environment files (do NOT commit secrets)
-/.env
-*.env
-.env.local
-**/bondkonnect_api/.env
-**/bondkonnect_api/.env.local
-**/bondkonnect_web/.env.local
-
-# Build log files
-build_output*.txt
-build_bg*.txt
-*.log
-
-# Laravel storage and cache
-/storage/*.key
-/bootstrap/cache/*.php
-storage/logs/
-
-# Coverage
-coverage/
-
-# Misc
-.cache/
-/.parcel-cache/
 
 .codegpt
 .vscode/
@@ -193,7 +146,3 @@ bondkonnect_web/yarn.lock
 .fake
 bondkonnect_api/.env
 bondkonnect_db/BondKonnect.Blazor.Server/appsettings.json
-
-# Project specific documentation and AI context
-# docs/
-GEMINI.md

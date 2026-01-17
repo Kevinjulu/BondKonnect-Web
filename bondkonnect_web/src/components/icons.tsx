@@ -129,13 +129,6 @@ export const Icons = {
       />
     </svg>
   ),
-  mpesa: (props: IconProps) => (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-      <rect x="5" y="2" width="14" height="20" rx="3" stroke="currentColor" strokeWidth="2"/>
-      <path d="M12 18h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      <path d="M9 18h6" stroke="#4EB525" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-  ),
   spinner: (props: IconProps) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
