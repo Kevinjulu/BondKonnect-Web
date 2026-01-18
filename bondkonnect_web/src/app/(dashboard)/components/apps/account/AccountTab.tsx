@@ -14,10 +14,9 @@ interface AccountTabProps {
 }
 
 export function AccountTab({ user }: AccountTabProps) {
-  // Split name into first and last name if possible, otherwise just use name for first name
-  const names = user?.name ? user.name.split(' ') : [''];
-  const initialFirstName = names[0] || '';
-  const initialLastName = names.length > 1 ? names.slice(1).join(' ') : '';
+  // Use first_name and other_names directly from the user object
+  const initialFirstName = user?.first_name || '';
+  const initialLastName = user?.other_names || '';
 
   const [firstName, setFirstName] = useState(initialFirstName);
   const [lastName, setLastName] = useState(initialLastName);
@@ -52,7 +51,7 @@ export function AccountTab({ user }: AccountTabProps) {
       <div className="flex items-center space-x-8">
         <Avatar className="h-24 w-24">
           <AvatarImage src="/placeholder-user.jpg" alt="User" />
-          <AvatarFallback>{user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
+          <AvatarFallback>{user?.first_name ? user.first_name.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
         </Avatar>
         <Button>Edit photo</Button>
       </div>
