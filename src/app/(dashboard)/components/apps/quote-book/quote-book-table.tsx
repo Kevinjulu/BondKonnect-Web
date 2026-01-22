@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreHorizontal, Eye, Trash2,Power, PowerOff, Download,ChevronDown,ChevronUp, Plus, User, FileText, Loader2, Settings, Search, Filter, RefreshCw, Calendar, Clock, DollarSign, TrendingUp, ArrowUpDown, CheckCircle2, ExternalLink, BarChart3, PieChart, Info } from "lucide-react"
+import { MoreHorizontal, Eye, Trash2,Power, PowerOff, Download,ChevronDown,ChevronUp, Plus, User, FileText, Loader2, Settings, Search, Filter, RefreshCw, Calendar, Clock, DollarSign, TrendingUp, ArrowUpDown, CheckCircle2, ExternalLink, BarChart3, PieChart, Info, AlertTriangle, Calculator, Briefcase, Target, ArrowRight } from "lucide-react"
 import { useState, useEffect, useCallback } from "react"
 import { useToast } from "@/hooks/use-toast"
 import {
@@ -619,35 +619,6 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
       // Calculate the dirty price using BondCalc logic
       const dirtyPrice = calculateBondPriceHelper(yield_rate, coupon, couponsDue, nextCouponDays, dailyBasis);
       
-      // Debug: Compare with expected BondCalc values
-      // console.log("=== Quote Book vs BondCalc Comparison ===");
-      // console.log("Expected BondCalc values:");
-      // console.log("  Yield: 15.6914%");
-      // console.log("  Coupon: 9.486%");
-      // console.log("  Next Coupon Days: 98");
-      // console.log("  Coupons Due: 4");
-      // console.log("  Daily Basis: 364");
-      // console.log("  Expected Result: 92.869786");
-      // console.log("");
-      // console.log("Quote Book actual values:");
-      // console.log("  Yield:", yield_rate + "%");
-      // console.log("  Coupon:", coupon + "%");
-      // console.log("  Next Coupon Days:", nextCouponDays);
-      // console.log("  Coupons Due:", couponsDue);
-      // console.log("  Daily Basis:", dailyBasis);
-      // console.log("  Calculated Result:", dirtyPrice);
-      // console.log("  Settlement Date:", settlementDate);
-      // console.log("  Issue Date:", issueDate.toISOString().split('T')[0]);
-      // console.log("  Maturity Date:", maturityDate.toISOString().split('T')[0]);
-      // console.log("==========================================");
-      
-      // Test with exact BondCalc values
-      console.log("=== Testing with exact BondCalc values ===");
-      const testResult = calculateBondPriceHelper(15.6914, 9.486, 4, 98, 364);
-      // console.log("Test calculation result:", testResult);
-      // console.log("Should be approximately: 92.869786");
-      // console.log("===========================================");
-      
       return dirtyPrice;
     } catch (error) {
       console.error("Error calculating bond price:", error);
@@ -1124,136 +1095,80 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
 
   return (
     <div>
-      <div className="rounded-md border">
-        <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-600 to-blue-400">
-          <h2 className="text-xl font-semibold text-white">QUOTE BOOK</h2>
-          <Button onClick={() => setIsPlaceQuoteOpen(true)} variant="secondary" className="bg-white text-blue-600 font-semibold">Place Quote</Button>
-          <span className="text-white">{new Date().toLocaleDateString()}</span>
+      <div className="rounded-md border border-neutral-200 bg-white">
+        <div className="flex justify-between items-center p-4 bg-neutral-50 border-b border-neutral-200">
+          <h2 className="text-xl font-bold text-black tracking-tight uppercase">Quote Book</h2>
+          <Button onClick={() => setIsPlaceQuoteOpen(true)} className="bg-black text-white hover:bg-neutral-800 font-bold px-6 shadow-md transition-all active:scale-95">
+            <Plus className="mr-2 h-4 w-4" /> Place Quote
+          </Button>
+          <span className="text-neutral-500 font-bold text-sm">{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
         </div>
         
-        <div className="flex justify-between px-4 py-2 bg-gray-50 text-sm">
-          <span className="text-gray-600 font-medium">Lower bid goes top</span>
+        <div className="flex justify-between px-4 py-2 bg-white text-xs border-b border-neutral-100">
+          <span className="text-neutral-400 font-bold uppercase tracking-widest">Lower bid goes top</span>
           <div className="flex items-center gap-4">
             <Button 
               onClick={fetchQuotes} 
               variant="outline" 
               size="sm"
-              className="flex items-center gap-2 hover:bg-blue-50"
+              className="flex items-center gap-2 bg-white border-neutral-200 text-black hover:bg-neutral-50 font-bold h-7 px-3"
               disabled={isLoading}
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
-            <span className="text-gray-600 font-medium">Higher Offer goes on top</span>
+            <span className="text-neutral-400 font-bold uppercase tracking-widest">Higher Offer goes on top</span>
           </div>
         </div>
 
         {/* Quick Tips Section */}
-        <div className="px-4 mb-4">
+        <div className="px-4 mb-4 mt-4">
           <Collapsible>
             <CollapsibleTrigger asChild>
               <Button
                 variant="outline"
-                className="flex items-center justify-between w-full p-4 bg-gradient-to-r from-cyan-50 to-blue-50 border-cyan-200 hover:from-cyan-100 hover:to-blue-100"
+                className="flex items-center justify-between w-full p-4 bg-neutral-50 border-neutral-200 hover:bg-neutral-100 text-black rounded-xl shadow-sm transition-all"
               >
                 <div className="flex items-center">
-                  <Info className="h-5 w-5 text-cyan-600 mr-2" />
-                  <span className="font-medium text-cyan-900">Quick Tips for Quote Book</span>
+                  <Info className="h-5 w-5 text-neutral-500 mr-2" />
+                  <span className="font-bold text-sm uppercase tracking-wide">Usage Analytics & Quick Tips</span>
                 </div>
-                <ChevronDown className="h-4 w-4 text-cyan-600" />
+                <ChevronDown className="h-4 w-4 text-neutral-500" />
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-2">
-              <div className="bg-white border border-cyan-200 rounded-lg p-6 shadow-sm">
+              <div className="bg-white border border-neutral-200 rounded-xl p-6 shadow-sm">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-                      <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">1</span>
+                    <h4 className="font-bold text-black mb-3 flex items-center text-sm uppercase tracking-wider">
+                      <div className="bg-black text-white rounded-lg w-6 h-6 flex items-center justify-center text-xs mr-2 font-black">01</div>
                       Quote Identification
                     </h4>
-                    <ul className="space-y-2 text-sm text-gray-600">
+                    <ul className="space-y-2 text-sm text-neutral-600">
                       <li className="flex items-start">
-                        <span className="inline-block w-3 h-3 bg-green-500 rounded-full mr-2 mt-1 flex-shrink-0"></span>
-                        <span><strong>Green numbers:</strong> Your submitted quotes</span>
+                        <span className="inline-block w-3 h-3 bg-neutral-800 rounded-full mr-2 mt-1 flex-shrink-0"></span>
+                        <span><strong>Primary indicators:</strong> Your active submissions</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="inline-block w-3 h-3 bg-purple-500 rounded-full mr-2 mt-1 flex-shrink-0"></span>
-                        <span><strong>Purple numbers:</strong> Delegated quotes assigned to you</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-cyan-500 mr-2">•</span>
-                        Use the # column to quickly identify quote ownership
+                        <span className="inline-block w-3 h-3 bg-neutral-300 rounded-full mr-2 mt-1 flex-shrink-0"></span>
+                        <span><strong>Secondary indicators:</strong> Managed delegated entries</span>
                       </li>
                     </ul>
                   </div>
                   
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-                      <span className="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">2</span>
-                      Edit My Quotes
+                    <h4 className="font-bold text-black mb-3 flex items-center text-sm uppercase tracking-wider">
+                      <div className="bg-black text-white rounded-lg w-6 h-6 flex items-center justify-center text-xs mr-2 font-black">02</div>
+                      Management Workflow
                     </h4>
-                    <ul className="space-y-2 text-sm text-gray-600">
+                    <ul className="space-y-2 text-sm text-neutral-600">
                       <li className="flex items-start">
-                        <span className="text-green-500 mr-2">•</span>
-                        Click the "Edit" button to modify quote parameters
+                        <span className="text-black mr-2 font-black">→</span>
+                        Modify quote yields to trigger real-time re-valuation
                       </li>
                       <li className="flex items-start">
-                        <span className="text-green-500 mr-2">•</span>
-                        Values are automatically recalculated when you make changes
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-green-500 mr-2">•</span>
-                        <span><strong>Green indicators:</strong> Yields within indicative range</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-red-500 mr-2">•</span>
-                        <span><strong>Red indicators:</strong> Yields outside indicative range</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-green-500 mr-2">•</span>
-                        Use "Submit Bid" button in edit drawer to place quotes
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-                      <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">3</span>
-                      Actions & Confirmations
-                    </h4>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="flex items-start">
-                        <span className="text-orange-500 mr-2">•</span>
-                        All critical actions require confirmation before execution
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-orange-500 mr-2">•</span>
-                        Suspend/Activate quotes with safety prompts
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-orange-500 mr-2">•</span>
-                        Place quotes with detailed confirmation dialogs
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-                      <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">4</span>
-                      Market Analysis
-                    </h4>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="flex items-start">
-                        <span className="text-purple-500 mr-2">•</span>
-                        View all market quotes in the "All Quotes" section
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-purple-500 mr-2">•</span>
-                        Monitor indicative yield ranges for better pricing
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-purple-500 mr-2">•</span>
-                        Submit competitive bids directly from the market view
+                        <span className="text-black mr-2 font-black">→</span>
+                        High contrast text identifies yields within market spread
                       </li>
                     </ul>
                   </div>
@@ -1265,29 +1180,32 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
 
         <Tabs defaultValue="my" className="w-full" onValueChange={setActiveTab}>
           <div className="px-4 pt-2">
-            <TabsList className="grid w-full max-w-[800px] grid-cols-2">
-              <TabsTrigger value="my">Edit My Quotes</TabsTrigger>
-              <TabsTrigger value="all">All Quotes</TabsTrigger>
+            <TabsList className="grid w-full max-w-[400px] grid-cols-2 bg-neutral-100 p-1 rounded-xl">
+              <TabsTrigger 
+                value="my" 
+                className="data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm text-neutral-500 font-bold uppercase text-[10px] tracking-widest rounded-lg h-9"
+              >
+                My Portfolio
+              </TabsTrigger>
+              <TabsTrigger 
+                value="all"
+                className="data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm text-neutral-500 font-bold uppercase text-[10px] tracking-widest rounded-lg h-9"
+              >
+                Market Stream
+              </TabsTrigger>
             </TabsList>
           </div>
 
           <TabsContent value="my" className="pt-2">
             {/* Tab Description */}
             <div className="px-4 mb-4">
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-4 shadow-sm">
                 <div className="flex items-start space-x-3">
-                  <Settings className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Settings className="h-5 w-5 text-black mt-0.5 flex-shrink-0" />
                   <div>
-                    <h3 className="font-semibold text-blue-900 mb-1">Edit My Quotes</h3>
-                    <p className="text-sm text-blue-700 leading-relaxed">
-                      Manage and edit your submitted quotes and delegated quotes. Use the Edit button to modify quote details, 
-                      activate/suspend quotes, and track transaction status. 
-                      <span className="inline-flex items-center ml-1">
-                        <span className="inline-block w-3 h-3 bg-green-500 rounded-full mr-1"></span>
-                        <span className="text-xs">My Quotes</span>
-                        <span className="inline-block w-3 h-3 bg-purple-500 rounded-full ml-2 mr-1"></span>
-                        <span className="text-xs">Delegated</span>
-                      </span>
+                    <h3 className="font-bold text-black mb-1 text-sm uppercase tracking-tight">Active Portfolio Management</h3>
+                    <p className="text-xs text-neutral-500 leading-relaxed font-medium">
+                      Control center for your active market positions. Edit, activate, or suspend quotes to maintain optimal portfolio liquidity.
                     </p>
                   </div>
                 </div>
@@ -1323,14 +1241,13 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
           <TabsContent value="all" className="pt-2">
             {/* Tab Description */}
             <div className="px-4 mb-4">
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+              <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-4 shadow-sm">
                 <div className="flex items-start space-x-3">
-                  <BarChart3 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <BarChart3 className="h-5 w-5 text-black mt-0.5 flex-shrink-0" />
                   <div>
-                    <h3 className="font-semibold text-green-900 mb-1">All Quotes</h3>
-                    <p className="text-sm text-green-700 leading-relaxed">
-                      View all available quotes in the market. Submit bids, analyze market trends, and explore trading opportunities. 
-                      This section displays all active quotes from various participants in the bond market.
+                    <h3 className="font-bold text-black mb-1 text-sm uppercase tracking-tight">Public Market Stream</h3>
+                    <p className="text-xs text-neutral-500 leading-relaxed font-medium">
+                      Real-time aggregation of market-wide bond quotes. Engage with public offers and analyze institutional liquidity flow.
                     </p>
                   </div>
                 </div>
@@ -1364,9 +1281,9 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
           </TabsContent>
         </Tabs>
 
-        <div className="flex justify-between items-center px-4 py-2 bg-gray-50">
-          <span className="text-sm text-gray-600">
-            Showing {startIndex + 1} to {Math.min(endIndex, currentQuotes.length)} of {currentQuotes.length} entries
+        <div className="flex justify-between items-center px-4 py-3 bg-neutral-50 border-t border-neutral-200 rounded-b-md">
+          <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">
+            Index {startIndex + 1} - {Math.min(endIndex, currentQuotes.length)} of {currentQuotes.length} Total
           </span>
           <div className="flex space-x-2">
             <Button
@@ -1374,7 +1291,7 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
               size="sm"
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="hover:bg-blue-50"
+              className="bg-white border-neutral-200 text-black hover:bg-neutral-100 font-bold h-8 px-4 rounded-lg shadow-sm text-xs"
             >
               Previous
             </Button>
@@ -1383,7 +1300,7 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
               size="sm"
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="hover:bg-blue-50"
+              className="bg-white border-neutral-200 text-black hover:bg-neutral-100 font-bold h-8 px-4 rounded-lg shadow-sm text-xs"
             >
               Next
             </Button>
@@ -1391,228 +1308,229 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
         </div>
       </div>
 
-      {/* Place Quote Sheet */}
+      {/* Place Quote Sheet - Polished & Modern */}
       <Sheet open={isPlaceQuoteOpen} onOpenChange={setIsPlaceQuoteOpen}>
-        <SheetContent className="overflow-y-auto w-[500px] sm:w-[600px]">
-          <SheetHeader>
-            <SheetTitle className="text-xl font-bold text-gray-800">Place New Quote</SheetTitle>
-            <SheetDescription className="text-gray-600">
-              Select bond and enter quote details
-            </SheetDescription>
-          </SheetHeader>
+        <SheetContent className="overflow-y-auto w-[500px] sm:w-[600px] bg-white text-black border-l border-neutral-200 p-0">
+          <div className="bg-black p-8 text-white relative">
+            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+               <Calculator size={120} />
+            </div>
+            <SheetHeader className="relative z-10">
+              <SheetTitle className="text-2xl font-bold text-white uppercase tracking-tight flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
+                  <Calculator className="h-6 w-6 text-white" />
+                </div>
+                Place New Quote
+              </SheetTitle>
+              <SheetDescription className="text-neutral-400 text-base">
+                Market entry module for bond placement and RFQ generation.
+              </SheetDescription>
+            </SheetHeader>
+          </div>
 
-          <div className="grid gap-6 py-4">
-            {/* Market Type Selection */}
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Market Type</Label>
-              <Select
-                value={placeQuoteState.marketType}
-                onValueChange={(value: 'secondary' | 'primary') =>
-                  setPlaceQuoteState(prev => ({ ...prev, marketType: value, selectedBond: '' }))
-                }
-              >
-                <SelectTrigger className="h-9 border-2 border-blue-200 hover:border-blue-300 focus:border-blue-400 bg-blue-50">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="secondary">Secondary Market</SelectItem>
-                  <SelectItem value="primary">Primary Auction</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="p-8 space-y-8">
+            {/* Market Selection Block */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Briefcase className="h-4 w-4 text-neutral-400" />
+                <Label className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Market Selection</Label>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-bold text-black">Trading Venue</Label>
+                  <Select
+                    value={placeQuoteState.marketType}
+                    onValueChange={(value: 'secondary' | 'primary') =>
+                      setPlaceQuoteState(prev => ({ ...prev, marketType: value, selectedBond: '' }))
+                    }
+                  >
+                    <SelectTrigger className="h-11 border-neutral-200 bg-white text-black focus:ring-black font-bold text-base shadow-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-neutral-200">
+                      <SelectItem value="secondary" className="font-medium focus:bg-neutral-100">Secondary Market</SelectItem>
+                      <SelectItem value="primary" className="font-medium focus:bg-neutral-100">Primary Auction</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-bold text-black">Instrument Selection</Label>
+                  <Select
+                    value={placeQuoteState.selectedBond}
+                    onValueChange={(value) =>
+                      setPlaceQuoteState(prev => ({ ...prev, selectedBond: value }))
+                    }
+                  >
+                    <SelectTrigger className="h-11 border-neutral-200 bg-white text-black focus:ring-black font-bold text-base shadow-sm">
+                      <SelectValue placeholder="Select Bond Issue..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-neutral-200 max-h-[300px]">
+                      {getBondsList().map((bond) => (
+                        <SelectItem key={bond.Id} value={bond.Id.toString()} className="font-medium focus:bg-neutral-100">
+                          {bond.BondIssueNo}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
 
-            {/* Bond Selection */}
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Bond Selection</Label>
-              <Select
-                value={placeQuoteState.selectedBond}
-                onValueChange={(value) =>
-                  setPlaceQuoteState(prev => ({ ...prev, selectedBond: value }))
-                }
-              >
-                <SelectTrigger className="h-9 border-2 border-blue-200 hover:border-blue-300 focus:border-blue-400 bg-blue-50">
-                  <SelectValue placeholder="Select Bond" />
-                </SelectTrigger>
-                <SelectContent>
-                  {getBondsList().map((bond) => (
-                    <SelectItem key={bond.Id} value={bond.Id.toString()}>
-                      {bond.BondIssueNo}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Bond Information Display */}
+            {/* Instrument Data Display */}
             {placeQuoteState.selectedBond && (
-              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+              <div className="bg-neutral-50 rounded-2xl border border-neutral-200 p-5 space-y-4 shadow-inner">
+                <div className="flex items-center gap-2 border-b border-neutral-200 pb-2 mb-2">
+                  <Info className="h-4 w-4 text-neutral-400" />
+                  <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Live Instrument Data</span>
+                </div>
                 {(() => {
                   const selectedBond = getBondsList().find(b => b.Id.toString() === placeQuoteState.selectedBond);
                   if (!selectedBond) return null;
                   
                   return (
-                    <>
-                      <div className="grid grid-cols-2 gap-3 items-center">
-                        <Label className="text-xs font-medium text-gray-600">Issue Date</Label>
-                        <Input
-                          value={formatDate(selectedBond.IssueDate)}
-                          className="h-8 bg-white border-gray-200 font-semibold text-gray-700"
-                          readOnly
-                        />
+                    <div className="grid grid-cols-2 gap-y-4">
+                      <div className="space-y-1">
+                        <Label className="text-[10px] font-bold text-neutral-400 uppercase">Issue Date</Label>
+                        <div className="text-sm font-bold text-black">{formatDate(selectedBond.IssueDate)}</div>
                       </div>
-                      <div className="grid grid-cols-2 gap-3 items-center">
-                        <Label className="text-xs font-medium text-gray-600">Maturity Date</Label>
-                        <Input
-                          value={formatDate(selectedBond.MaturityDate)}
-                          className="h-8 bg-white border-gray-200 font-semibold text-gray-700"
-                          readOnly
-                        />
+                      <div className="space-y-1">
+                        <Label className="text-[10px] font-bold text-neutral-400 uppercase">Maturity Date</Label>
+                        <div className="text-sm font-bold text-black">{formatDate(selectedBond.MaturityDate)}</div>
                       </div>
-                      <div className="grid grid-cols-2 gap-3 items-center">
-                        <Label className="text-xs font-medium text-gray-600">Indicative Range</Label>
-                        <Input
-                          value={calculateIndicativeRange(selectedBond)}
-                          className="h-8 bg-white border-gray-200 font-semibold text-gray-700"
-                          readOnly
-                        />
+                      <div className="col-span-2 space-y-1 pt-2 border-t border-neutral-200/50">
+                        <Label className="text-[10px] font-bold text-neutral-400 uppercase">Current Indicative Range</Label>
+                        <div className="text-lg font-black text-black tracking-tight">{calculateIndicativeRange(selectedBond)}</div>
                       </div>
-                    </>
+                    </div>
                   );
                 })()}
               </div>
             )}
 
-            <Separator />
+            <Separator className="bg-neutral-100" />
 
-            {/* Quote Type Selection */}
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Quote Type</Label>
-              <RadioGroup
-                value={placeQuoteState.quoteType}
-                onValueChange={(value: 'bid' | 'offer') =>
-                  setPlaceQuoteState(prev => ({ ...prev, quoteType: value }))
-                }
-                className="flex space-x-4"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="bid" id="bid" />
-                  <Label htmlFor="bid">Bid (Buy)</Label>
+            {/* Quote Configuration */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="h-4 w-4 text-neutral-400" />
+                <Label className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Quote Parameters</Label>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <Label className="text-sm font-bold text-black">Direction</Label>
+                  <RadioGroup
+                    value={placeQuoteState.quoteType}
+                    onValueChange={(value: 'bid' | 'offer') =>
+                      setPlaceQuoteState(prev => ({ ...prev, quoteType: value }))
+                    }
+                    className="flex gap-4"
+                  >
+                    <div className={cn(
+                      "flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm",
+                      placeQuoteState.quoteType === 'bid' ? "border-black bg-black text-white" : "border-neutral-100 bg-neutral-50 text-neutral-500 hover:border-neutral-200"
+                    )} onClick={() => setPlaceQuoteState(prev => ({ ...prev, quoteType: 'bid' }))}>
+                      <RadioGroupItem value="bid" id="bid" className="sr-only" />
+                      <Label htmlFor="bid" className="cursor-pointer font-black uppercase text-xs tracking-widest">Bid (Buy)</Label>
+                    </div>
+                    <div className={cn(
+                      "flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm",
+                      placeQuoteState.quoteType === 'offer' ? "border-black bg-black text-white" : "border-neutral-100 bg-neutral-50 text-neutral-500 hover:border-neutral-200"
+                    )} onClick={() => setPlaceQuoteState(prev => ({ ...prev, quoteType: 'offer' }))}>
+                      <RadioGroupItem value="offer" id="offer" className="sr-only" />
+                      <Label htmlFor="offer" className="cursor-pointer font-black uppercase text-xs tracking-widest">Offer (Sell)</Label>
+                    </div>
+                  </RadioGroup>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="offer" id="offer" />
-                  <Label htmlFor="offer">Offer (Sell)</Label>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-bold text-black">Settlement Date</Label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                      <Input
+                        type="date"
+                        value={placeQuoteState.settlementDate}
+                        onChange={(e) => setPlaceQuoteState(prev => ({ ...prev, settlementDate: e.target.value }))}
+                        className="h-11 pl-10 border-neutral-200 bg-white text-black font-bold focus:border-black shadow-sm"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </RadioGroup>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-bold text-black">
+                      Target Yield (%)
+                    </Label>
+                    <div className="relative">
+                      <TrendingUp className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                      <Input
+                        type="number"
+                        step="0.0001"
+                        value={placeQuoteState.quoteType === 'bid' ? placeQuoteState.bidYield : placeQuoteState.offerYield}
+                        onChange={(e) =>
+                          setPlaceQuoteState(prev => ({ 
+                            ...prev, 
+                            [placeQuoteState.quoteType === 'bid' ? 'bidYield' : 'offerYield']: e.target.value 
+                          }))
+                        }
+                        className="h-11 pl-10 border-neutral-200 bg-white text-black font-black focus:border-black shadow-sm text-lg"
+                        placeholder="0.0000"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-bold text-black">Face Value (KES)</Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                      <Input
+                        type="number"
+                        value={placeQuoteState.quoteType === 'bid' ? placeQuoteState.bidAmount : placeQuoteState.offerAmount}
+                        onChange={(e) =>
+                          setPlaceQuoteState(prev => ({ 
+                            ...prev, 
+                            [placeQuoteState.quoteType === 'bid' ? 'bidAmount' : 'offerAmount']: e.target.value 
+                          }))
+                        }
+                        className="h-11 pl-10 border-neutral-200 bg-white text-black font-black focus:border-black shadow-sm"
+                        placeholder="Amount"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-black text-white flex items-center justify-between shadow-lg mt-2 border border-white/10">
+                  <div className="space-y-0.5">
+                    <Label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Calculated Valuation</Label>
+                    <div className="text-sm font-medium text-neutral-300">Clean Price Approximation</div>
+                  </div>
+                  <div className="text-2xl font-black text-white tracking-tighter">
+                    {(placeQuoteState.quoteType === 'bid' ? calculatedBidPrice : calculatedOfferPrice).toFixed(6)}
+                  </div>
+                </div>
+              </div>
             </div>
-
-            {/* Settlement Date */}
-            <div className="grid grid-cols-2 gap-3 items-center">
-              <Label className="text-xs font-medium text-gray-600">Settlement Date</Label>
-              <Input
-                type="date"
-                value={placeQuoteState.settlementDate}
-                onChange={(e) =>
-                  setPlaceQuoteState(prev => ({ ...prev, settlementDate: e.target.value }))
-                }
-                className="h-8 border-2 border-orange-200 hover:border-orange-300 focus:border-orange-400 bg-orange-50 font-semibold"
-              />
-            </div>
-
-            {/* Bid Fields */}
-            {placeQuoteState.quoteType === 'bid' && (
-              <>
-                <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label className="text-xs font-medium text-gray-600">Bid Yield (%)</Label>
-                  <Input
-                    type="number"
-                    step="0.0001"
-                    value={placeQuoteState.bidYield}
-                    onChange={(e) =>
-                      setPlaceQuoteState(prev => ({ ...prev, bidYield: e.target.value }))
-                    }
-                    className="h-8 border-2 border-yellow-200 hover:border-yellow-300 focus:border-yellow-400 bg-yellow-50 font-semibold"
-                    placeholder="Enter bid yield"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label className="text-xs font-medium text-gray-600">Bid Amount (KES)</Label>
-                  <Input
-                    type="number"
-                    value={placeQuoteState.bidAmount}
-                    onChange={(e) =>
-                      setPlaceQuoteState(prev => ({ ...prev, bidAmount: e.target.value }))
-                    }
-                    className="h-8 border-2 border-yellow-200 hover:border-yellow-300 focus:border-yellow-400 bg-yellow-50 font-semibold"
-                    placeholder="Enter bid amount"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label className="text-xs font-medium text-gray-600">Calculated Bid Price</Label>
-                  <Input
-                    value={calculatedBidPrice.toFixed(6)}
-                    className="h-8 bg-gray-100 text-gray-700 font-medium"
-                    readOnly
-                  />
-                </div>
-              </>
-            )}
-
-            {/* Offer Fields */}
-            {placeQuoteState.quoteType === 'offer' && (
-              <>
-                <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label className="text-xs font-medium text-gray-600">Offer Yield (%)</Label>
-                  <Input
-                    type="number"
-                    step="0.0001"
-                    value={placeQuoteState.offerYield}
-                    onChange={(e) =>
-                      setPlaceQuoteState(prev => ({ ...prev, offerYield: e.target.value }))
-                    }
-                    className="h-8 border-2 border-yellow-200 hover:border-yellow-300 focus:border-yellow-400 bg-yellow-50 font-semibold"
-                    placeholder="Enter offer yield"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label className="text-xs font-medium text-gray-600">Offer Amount (KES)</Label>
-                  <Input
-                    type="number"
-                    value={placeQuoteState.offerAmount}
-                    onChange={(e) =>
-                      setPlaceQuoteState(prev => ({ ...prev, offerAmount: e.target.value }))
-                    }
-                    className="h-8 border-2 border-yellow-200 hover:border-yellow-300 focus:border-yellow-400 bg-yellow-50 font-semibold"
-                    placeholder="Enter offer amount"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label className="text-xs font-medium text-gray-600">Calculated Offer Price</Label>
-                  <Input
-                    value={calculatedOfferPrice.toFixed(6)}
-                    className="h-8 bg-gray-100 text-gray-700 font-medium"
-                    readOnly
-                  />
-                </div>
-              </>
-            )}
           </div>
 
-          <SheetFooter className="mt-8 sticky bottom-0 bg-background pt-4 border-t border-gray-200">
-            <div className="grid grid-cols-2 gap-3">
+          <SheetFooter className="p-8 sticky bottom-0 bg-white border-t border-neutral-200 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+            <div className="grid grid-cols-2 gap-4 w-full">
               <Button 
                 variant="outline"
                 onClick={resetPlaceQuoteForm}
                 disabled={isSubmitting}
-                className="h-10 border-2 border-gray-300 hover:border-gray-400 font-medium"
+                className="h-12 border-neutral-200 text-black hover:bg-neutral-50 font-bold text-base transition-all active:scale-95 bg-white"
               >
-                Reset
+                Reset Module
               </Button>
               <Button 
                 onClick={handlePlaceQuote}
                 disabled={isSubmitting || !placeQuoteState.selectedBond}
-                className="h-10 bg-blue-600 hover:bg-blue-700 font-medium shadow-md"
+                className="h-12 bg-black text-white hover:bg-neutral-800 font-bold text-base transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl"
               >
-                {isSubmitting ? 'Submitting...' : 'Submit Quote'}
+                {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <>Place Quote <ArrowRight className="h-4 w-4" /></>}
               </Button>
             </div>
           </SheetFooter>
@@ -1621,72 +1539,84 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
 
       {/* Counter Bid Dialog */}
       <Dialog open={isCounterBidOpen} onOpenChange={setIsCounterBidOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Counter Bid</DialogTitle>
-          </DialogHeader>
-          {counterBidState && (
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label>Original Transaction</Label>
-                <div className="text-sm text-gray-600">
-                  Transaction No: {counterBidState.originalTransaction.transaction_no}
+        <DialogContent className="max-w-md bg-white border-neutral-200 text-black p-0 overflow-hidden shadow-2xl rounded-2xl">
+          <div className="bg-black p-6 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-white font-bold text-xl uppercase tracking-tight">Counter Bid Entry</DialogTitle>
+            </DialogHeader>
+          </div>
+          <div className="p-6">
+            {counterBidState && (
+              <div className="grid gap-6 py-2">
+                <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200 border-dashed">
+                  <Label className="text-neutral-500 font-bold uppercase text-[10px] block mb-1">Targeting Transaction</Label>
+                  <div className="text-sm text-black font-black">
+                    REF: {counterBidState.originalTransaction.transaction_no}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold text-black uppercase">New Bid Yield (%)</Label>
+                    <Input
+                      type="number"
+                      step="0.0001"
+                      value={counterBidState.newBidYield}
+                      onChange={(e) =>
+                        setCounterBidState(prev => prev ? { ...prev, newBidYield: e.target.value } : null)
+                      }
+                      className="h-10 border-neutral-200 bg-white text-black font-black focus:border-black"
+                    />
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold text-black uppercase">New Bid Amount</Label>
+                    <Input
+                      type="number"
+                      value={counterBidState.newBidAmount}
+                      onChange={(e) =>
+                        setCounterBidState(prev => prev ? { ...prev, newBidAmount: e.target.value } : null)
+                      }
+                      className="h-10 border-neutral-200 bg-white text-black font-black focus:border-black"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold text-black uppercase">New Offer Yield (%)</Label>
+                    <Input
+                      type="number"
+                      step="0.0001"
+                      value={counterBidState.newOfferYield}
+                      onChange={(e) =>
+                        setCounterBidState(prev => prev ? { ...prev, newOfferYield: e.target.value } : null)
+                      }
+                      className="h-10 border-neutral-200 bg-white text-black font-black focus:border-black"
+                    />
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold text-black uppercase">New Offer Amount</Label>
+                    <Input
+                      type="number"
+                      value={counterBidState.newOfferAmount}
+                      onChange={(e) =>
+                        setCounterBidState(prev => prev ? { ...prev, newOfferAmount: e.target.value } : null)
+                      }
+                      className="h-10 border-neutral-200 bg-white text-black font-black focus:border-black"
+                    />
+                  </div>
                 </div>
               </div>
-              
-              <div className="grid grid-cols-2 gap-3 items-center">
-                <Label>New Bid Yield (%)</Label>
-                <Input
-                  type="number"
-                  step="0.0001"
-                  value={counterBidState.newBidYield}
-                  onChange={(e) =>
-                    setCounterBidState(prev => prev ? { ...prev, newBidYield: e.target.value } : null)
-                  }
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3 items-center">
-                <Label>New Bid Amount</Label>
-                <Input
-                  type="number"
-                  value={counterBidState.newBidAmount}
-                  onChange={(e) =>
-                    setCounterBidState(prev => prev ? { ...prev, newBidAmount: e.target.value } : null)
-                  }
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3 items-center">
-                <Label>New Offer Yield (%)</Label>
-                <Input
-                  type="number"
-                  step="0.0001"
-                  value={counterBidState.newOfferYield}
-                  onChange={(e) =>
-                    setCounterBidState(prev => prev ? { ...prev, newOfferYield: e.target.value } : null)
-                  }
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3 items-center">
-                <Label>New Offer Amount</Label>
-                <Input
-                  type="number"
-                  value={counterBidState.newOfferAmount}
-                  onChange={(e) =>
-                    setCounterBidState(prev => prev ? { ...prev, newOfferAmount: e.target.value } : null)
-                  }
-                />
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCounterBidOpen(false)}>
+            )}
+          </div>
+          <DialogFooter className="p-6 bg-neutral-50 border-t border-neutral-200">
+            <Button variant="outline" onClick={() => setIsCounterBidOpen(false)} className="border-neutral-200 bg-white text-black hover:bg-neutral-100 font-bold h-11 px-6 rounded-xl">
               Cancel
             </Button>
-            <Button onClick={submitCounterBid} disabled={isSubmitting}>
-              {isSubmitting ? 'Submitting...' : 'Submit Counter Bid'}
+            <Button onClick={submitCounterBid} disabled={isSubmitting} className="bg-black text-white hover:bg-neutral-800 font-bold h-11 px-8 rounded-xl shadow-lg">
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Submit Counter Offer'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1694,99 +1624,97 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
 
       {/* View Quote Sheet */}
       <Sheet open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <SheetContent className="sm:max-w-[500px]">
-          <SheetHeader>
-            <SheetTitle>Quote Details</SheetTitle>
-            <SheetDescription>
-              View quote information and calculations
-            </SheetDescription>
-          </SheetHeader>
-          <ScrollArea className="h-[calc(100vh-200px)] pr-4">
+        <SheetContent className="sm:max-w-[500px] bg-white border-l border-neutral-200 text-black p-0">
+          <div className="bg-neutral-900 p-8 text-white">
+            <SheetHeader>
+              <SheetTitle className="text-white font-bold text-xl uppercase tracking-tighter">Instrument Profile</SheetTitle>
+              <SheetDescription className="text-neutral-400">
+                Detailed valuation and transactional parameters
+              </SheetDescription>
+            </SheetHeader>
+          </div>
+          <ScrollArea className="h-[calc(100vh-180px)] p-8">
             {selectedQuote && (
-              <div className="grid gap-4 py-4">
+              <div className="grid gap-8">
                 {/* Basic Information */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-6 bg-neutral-50 p-5 rounded-2xl border border-neutral-200 shadow-sm">
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-gray-500">RFQ No</Label>
-                    <div className="text-sm font-medium">{selectedQuote.placement_no}</div>
+                    <Label className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Placement ID</Label>
+                    <div className="text-sm font-black text-black">{selectedQuote.placement_no}</div>
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-gray-500">Bond Issue</Label>
-                    <div className="text-sm font-medium text-amber-600">{selectedQuote.bond_issue_no}</div>
+                    <Label className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Bond Issue</Label>
+                    <div className="text-sm font-black text-black">{selectedQuote.bond_issue_no}</div>
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-gray-500">Settlement Date</Label>
-                    <div className="text-sm font-medium">{formatDate(selectedQuote.settlement_date)}</div>
+                    <Label className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Settlement</Label>
+                    <div className="text-sm font-black text-black">{formatDate(selectedQuote.settlement_date)}</div>
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-gray-500">Quote Type</Label>
-                    <div className="text-sm font-medium">
-                      <Badge variant="outline" className={selectedQuote.IsBid ? "bg-purple-100 text-purple-800" : "bg-green-100 text-green-800"}>
-                        {selectedQuote.IsBid ? "Bid (Buy)" : "Offer (Sell)"}
+                    <Label className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Quote Mode</Label>
+                    <div className="mt-1">
+                      <Badge variant="outline" className={cn(
+                        "font-black text-[10px] uppercase border-none rounded-md px-2 py-0.5",
+                        selectedQuote.IsBid ? "bg-black text-white" : "bg-neutral-200 text-black"
+                      )}>
+                        {selectedQuote.IsBid ? "Buy / Bid" : "Sell / Offer"}
                       </Badge>
                     </div>
-                    
                   </div>
                 </div>
 
-                {/* Bid and Offer Details */}
-                <div className="border-t pt-4 mt-4">
-                  <h4 className="text-sm font-semibold mb-3">Quote Details</h4>
+                {/* Quote Block */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-black text-black uppercase tracking-widest flex items-center gap-2">
+                    <div className="h-1 w-4 bg-black rounded-full" />
+                    Market Pricing
+                  </h4>
                   <div className="grid grid-cols-2 gap-4">
-                    {/* Bid Details */}
-                    <div className="space-y-3">
-                      <h5 className="text-xs font-semibold text-purple-600 uppercase">Bid (Buy)</h5>
-                      <div className="space-y-2">
-                        <div className="space-y-1">
-                          <Label className="text-xs text-gray-500">Bid Amount (KES)</Label>
-                      <div className="text-sm font-medium">
-                            {(selectedQuote.BidAmount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </div>
-                    </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs text-gray-500">Bid Yield (%)</Label>
-                          <div className="text-sm font-medium">{Number(selectedQuote.bid || 0).toFixed(4)}%</div>
+                    <div className="space-y-3 bg-neutral-50 p-4 rounded-2xl border border-neutral-200 shadow-sm">
+                      <h5 className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Buy Side (Bid)</h5>
+                      <div className="space-y-2.5 pt-1">
+                        <div className="flex justify-between items-end border-b border-neutral-200 pb-2">
+                          <Label className="text-[10px] font-bold text-neutral-500 uppercase">Amount</Label>
+                          <div className="text-sm font-black text-black">{(selectedQuote.BidAmount || 0).toLocaleString()}</div>
                         </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs text-gray-500">Bid Price</Label>
-                          <div className="text-sm font-medium">{Number(selectedQuote.bid_price || 0).toFixed(6)}</div>
+                        <div className="flex justify-between items-end border-b border-neutral-200 pb-2">
+                          <Label className="text-[10px] font-bold text-neutral-500 uppercase">Yield</Label>
+                          <div className="text-sm font-black text-black">{Number(selectedQuote.bid || 0).toFixed(4)}%</div>
+                        </div>
+                        <div className="flex justify-between items-end">
+                          <Label className="text-[10px] font-bold text-neutral-500 uppercase">Price</Label>
+                          <div className="text-sm font-black text-black">{Number(selectedQuote.bid_price || 0).toFixed(6)}</div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Offer Details */}
-                    <div className="space-y-3">
-                      <h5 className="text-xs font-semibold text-green-600 uppercase">Offer (Sell)</h5>
-                      <div className="space-y-2">
-                        <div className="space-y-1">
-                          <Label className="text-xs text-gray-500">Offer Amount (KES)</Label>
-                      <div className="text-sm font-medium">
-                            {(selectedQuote.OfferAmount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </div>
-                    </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs text-gray-500">Offer Yield (%)</Label>
-                          <div className="text-sm font-medium">{Number(selectedQuote.offer || 0).toFixed(4)}%</div>
+                    <div className="space-y-3 bg-neutral-50 p-4 rounded-2xl border border-neutral-200 shadow-sm">
+                      <h5 className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Sell Side (Offer)</h5>
+                      <div className="space-y-2.5 pt-1">
+                        <div className="flex justify-between items-end border-b border-neutral-200 pb-2">
+                          <Label className="text-[10px] font-bold text-neutral-500 uppercase">Amount</Label>
+                          <div className="text-sm font-black text-black">{(selectedQuote.OfferAmount || 0).toLocaleString()}</div>
                         </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs text-gray-500">Offer Price</Label>
-                          <div className="text-sm font-medium">{Number(selectedQuote.offer_price || 0).toFixed(6)}</div>
+                        <div className="flex justify-between items-end border-b border-neutral-200 pb-2">
+                          <Label className="text-[10px] font-bold text-neutral-500 uppercase">Yield</Label>
+                          <div className="text-sm font-black text-black">{Number(selectedQuote.offer || 0).toFixed(4)}%</div>
+                        </div>
+                        <div className="flex justify-between items-end">
+                          <Label className="text-[10px] font-bold text-neutral-500 uppercase">Price</Label>
+                          <div className="text-sm font-black text-black">{Number(selectedQuote.offer_price || 0).toFixed(6)}</div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                      <Label className="text-xs text-gray-500">Indicative Range</Label>
-                    <div className="text-sm font-medium text-orange-600">
-                      {calculateIndicativeRange(bonds.find(b => b.BondIssueNo === selectedQuote.bond_issue_no))}
                     </div>
                   </div>
                 </div>
 
-                {/* Calculations & Fees */}
-                <div className="border-t pt-4 mt-4">
-                  <h4 className="text-sm font-semibold mb-3">Financial Calculations</h4>
-                  <div className="grid grid-cols-2 gap-4">
+                {/* Financial Summary */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-black text-black uppercase tracking-widest flex items-center gap-2">
+                    <div className="h-1 w-4 bg-black rounded-full" />
+                    Financial Disclosure
+                  </h4>
+                  <div className="bg-white border-2 border-black rounded-2xl p-5 shadow-[8px_8px_0px_rgba(0,0,0,0.05)]">
                     {(() => {
                       const amount = selectedQuote.IsBid ? selectedQuote.BidAmount : selectedQuote.OfferAmount;
                       const price = selectedQuote.IsBid ? selectedQuote.bid_price : selectedQuote.offer_price;
@@ -1797,96 +1725,42 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
                       const totalReceivable = consideration - commission - otherLevies;
 
                       return (
-                        <>
-                          <div className="space-y-1.5">
-                            <Label className="text-xs text-gray-500">Consideration</Label>
-                            <div className="text-sm font-medium">
-                              {consideration.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-end pb-3 border-b border-neutral-100">
+                            <Label className="text-[10px] font-bold text-neutral-400 uppercase">Consideration</Label>
+                            <div className="text-base font-black text-black">{formatCurrency(consideration)}</div>
+                          </div>
+                          <div className="flex justify-between items-end pb-3 border-b border-neutral-100">
+                            <div className="space-y-0.5">
+                              <Label className="text-[10px] font-bold text-neutral-400 uppercase block">Brokerage (NSE)</Label>
+                              <span className="text-[9px] text-neutral-400">0.024% (Min KES 1,000)</span>
+                            </div>
+                            <div className="text-sm font-bold text-black">{formatCurrency(commission)}</div>
+                          </div>
+                          <div className="flex justify-between items-end pb-3 border-b border-neutral-100">
+                            <div className="space-y-0.5">
+                              <Label className="text-[10px] font-bold text-neutral-400 uppercase block">Regulatory Levies (CMA)</Label>
+                              <span className="text-[9px] text-neutral-400">0.011% Total</span>
+                            </div>
+                            <div className="text-sm font-bold text-black">{formatCurrency(otherLevies)}</div>
+                          </div>
+                          <div className="flex justify-between items-center pt-2">
+                            <Label className="text-sm font-black text-black uppercase">Net Total</Label>
+                            <div className="text-2xl font-black text-black tracking-tighter">
+                              {formatCurrency(selectedQuote.IsBid ? totalPayable : totalReceivable)}
                             </div>
                           </div>
-                          <div className="space-y-1.5">
-                            <Label className="text-xs text-gray-500">Commission (NSE)</Label>
-                            <div className="text-sm font-medium">
-                              {commission.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </div>
-                            <div className="text-xs text-gray-500">0.024% (min. KES 1,000)</div>
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label className="text-xs text-gray-500">Other Levies (CMA)</Label>
-                            <div className="text-sm font-medium">
-                              {otherLevies.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </div>
-                            <div className="text-xs text-gray-500">0.011% of consideration</div>
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label className="text-xs text-gray-500">Total Payable</Label>
-                            <div className="text-sm font-medium text-red-600">
-                              {totalPayable.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </div>
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label className="text-xs text-gray-500">Total Receivable</Label>
-                            <div className="text-sm font-medium text-green-600">
-                              {totalReceivable.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </div>
-                          </div>
-                        </>
+                        </div>
                       );
                     })()}
-                  </div>
-                </div>
-
-                {/* Bond Details */}
-                {(() => {
-                  const bond = bonds.find(b => b.BondIssueNo === selectedQuote.bond_issue_no);
-                  if (!bond) return null;
-                  return (
-                    <div className="border-t pt-4 mt-4">
-                      <h4 className="text-sm font-semibold mb-3">Bond Information</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <Label className="text-xs text-gray-500">Issue Date</Label>
-                          <div className="text-sm font-medium">{bond.IssueDate ? formatDate(bond.IssueDate) : 'N/A'}</div>
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label className="text-xs text-gray-500">Maturity Date</Label>
-                          <div className="text-sm font-medium">{bond.MaturityDate ? formatDate(bond.MaturityDate) : 'N/A'}</div>
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label className="text-xs text-gray-500">Coupon Rate</Label>
-                          <div className="text-sm font-medium">{Number(bond.Coupon).toFixed(3)}%</div>
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label className="text-xs text-gray-500">Duration</Label>
-                          <div className="text-sm font-medium">{Number(bond.Duration).toFixed(4)}</div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* Additional Information */}
-                <div className="border-t pt-4 mt-4">
-                  <h4 className="text-sm font-semibold mb-3">Additional Information</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-gray-500">Assigned By</Label>
-                      <div className="text-sm font-medium">{selectedQuote.assigned_by || 'N/A'}</div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-gray-500">Face Value</Label>
-                      <div className="text-sm font-medium">
-                        {(selectedQuote.face_value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
             )}
           </ScrollArea>
-          <SheetFooter className="mt-4">
-            <Button variant="outline" onClick={() => setIsViewOpen(false)}>
-              Close
+          <SheetFooter className="p-8 border-t border-neutral-200">
+            <Button onClick={() => setIsViewOpen(false)} className="w-full bg-black text-white hover:bg-neutral-800 font-black h-12 rounded-xl text-base transition-all active:scale-95 shadow-xl">
+              DONE
             </Button>
           </SheetFooter>
         </SheetContent>
@@ -2006,7 +1880,7 @@ function QuoteTable({
     });
   };
 
-  const executeAction = () => {
+  const executeConfirmAction = () => {
     if (!confirmDialog.quote || !confirmDialog.type) return;
 
     switch (confirmDialog.type) {
@@ -2021,548 +1895,290 @@ function QuoteTable({
         break;
     }
 
-    setConfirmDialog({ open: false, type: null, quote: null, title: '', description: '' });
+    setConfirmDialog({ ...confirmDialog, open: false });
   };
 
-  const isAssignedBy = (quote: EditableQuoteData) => quote.assigned_by === userEmail;
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-black opacity-20" />
+        <span className="ml-3 font-medium text-neutral-500">Loading quotes...</span>
+      </div>
+    );
+  }
 
-  // Check if yield is within indicative range
-  const getYieldColorClass = (yield_value: number, bond: Bond | undefined): string => {
-    if (!bond || !yield_value) return 'bg-gray-100 text-gray-600';
-    
-    let spotYTM = 0;
-    let spread = 0;
-    
-    if ('spotYTM' in bond && typeof bond.spotYTM === 'number') {
-      spotYTM = bond.spotYTM;
-    } else if ('SpotYield' in bond) {
-      spotYTM = typeof bond.SpotYield === 'number' ? bond.SpotYield : parseFloat(bond.SpotYield);
-    } else if ('SpotRate' in bond) {
-      spotYTM = parseFloat((bond as any)['SpotRate'].replace('%', '')) / 100;
-    }
-    
-    if ('Spread' in bond && typeof bond.Spread === 'number') {
-      spread = bond.Spread;
-    } else if ('Spread' in bond && typeof bond.Spread === 'string') {
-      spread = parseFloat(bond.Spread);
-    }
-    
-    // Use the same calculation as calculateIndicativeRange function
-    const lowerBound = Math.max(0, Math.round((spotYTM - spread) * 10000) / 100);
-    const upperBound = Math.round((spotYTM + spread) * 10000) / 100;
-    
-    // Debug logging to see what's happening
-    console.log(`DEBUG - Bond: ${bond.BondIssueNo || 'Unknown'}, Yield: ${yield_value}%, SpotYTM: ${spotYTM}, Spread: ${spread}, Range: ${lowerBound}% - ${upperBound}%`);
-    
-    // Check if yield is within the indicative range
-    if (yield_value >= lowerBound && yield_value <= upperBound) {
-      console.log(`✅ GREEN: ${yield_value}% is within ${lowerBound}% - ${upperBound}%`);
-      return 'bg-green-100 text-green-700 border-green-300';
-    }
-    // Yield is outside range
-    console.log(`❌ RED: ${yield_value}% is outside ${lowerBound}% - ${upperBound}%`);
-    return 'bg-red-100 text-red-700 border-red-300';
-  };
-
-  // Helper function to check if yield is within range (for validation)
-  const isYieldInRange = (yield_value: number, bond: Bond | undefined): boolean => {
-    if (!bond || !yield_value) return false;
-    
-    let spotYTM = 0;
-    let spread = 0;
-    
-    if ('spotYTM' in bond && typeof bond.spotYTM === 'number') {
-      spotYTM = bond.spotYTM;
-    } else if ('SpotYield' in bond) {
-      spotYTM = typeof bond.SpotYield === 'number' ? bond.SpotYield : parseFloat(bond.SpotYield);
-    } else if ('SpotRate' in bond) {
-      spotYTM = parseFloat((bond as any)['SpotRate'].replace('%', '')) / 100;
-    }
-    
-    if ('Spread' in bond && typeof bond.Spread === 'number') {
-      spread = bond.Spread;
-    } else if ('Spread' in bond && typeof bond.Spread === 'string') {
-      spread = parseFloat(bond.Spread);
-    }
-    
-    // Use the same calculation as calculateIndicativeRange function
-    const lowerBound = Math.max(0, Math.round((spotYTM - spread) * 10000) / 100);
-    const upperBound = Math.round((spotYTM + spread) * 10000) / 100;
-    
-    const inRange = yield_value >= lowerBound && yield_value <= upperBound;
-    console.log(`isYieldInRange - Yield: ${yield_value}%, Range: ${lowerBound}% - ${upperBound}%, InRange: ${inRange}`);
-    
-    return inRange;
-  };
+  if (!quotes || quotes.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-neutral-500 bg-neutral-50 rounded-xl border border-neutral-200 mt-4">
+        <FileText className="h-12 w-12 mb-4 opacity-20" />
+        <p className="font-bold uppercase tracking-widest text-xs">No entries detected</p>
+        <p className="text-xs mt-1">Adjust filters or initialize a new placement.</p>
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className="rounded-md border overflow-x-auto">
-        <Table className="min-w-full">
+      <div className="overflow-x-auto">
+        <Table>
           <TableHeader>
-            <TableRow className="bg-gradient-to-r from-gray-100 to-gray-50">
-              <TableHead className="font-semibold text-gray-700 min-w-[100px]">Quote Type</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[60px]">#</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[120px]">RFQ No</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[150px]">Bond Issue</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[120px]">Settlement Date</TableHead> 
-              <TableHead className="font-semibold text-gray-700 min-w-[130px]">Bid Amount (Ksh)</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[100px]">Bid Price</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[110px]">Bid Yield (%)</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[140px]">Indicative Range</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[120px]">Offer Yield (%)</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[100px]">Offer Price</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[140px]">Offer Amount(Ksh)</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[120px]">Actions</TableHead>
+            <TableRow className="bg-neutral-50 border-b border-neutral-200 hover:bg-neutral-50">
+              <TableHead className="w-[50px] font-bold text-black uppercase text-[10px] tracking-widest">#</TableHead>
+              <TableHead className="font-bold text-black uppercase text-[10px] tracking-widest">Instrument</TableHead>
+              <TableHead className="font-bold text-black uppercase text-[10px] tracking-widest">Settlement</TableHead>
+              <TableHead className="text-center font-bold text-black uppercase text-[10px] tracking-widest bg-neutral-100/50">Bid (Buy)</TableHead>
+              <TableHead className="text-center font-bold text-black uppercase text-[10px] tracking-widest bg-neutral-100/50">Offer (Sell)</TableHead>
+              <TableHead className="text-right font-bold text-black uppercase text-[10px] tracking-widest">Status</TableHead>
+              <TableHead className="text-right font-bold text-black uppercase text-[10px] tracking-widest">Action</TableHead>
             </TableRow>
           </TableHeader>
-        <TableBody>
-          {isLoading ? (
-            <TableRow>
-              <TableCell colSpan={13} className="h-24 text-center">
-                <Loader2 className="w-6 h-6 animate-spin mx-auto" />
-                <p className="mt-2 text-gray-500">Loading quotes...</p>
-              </TableCell>
-            </TableRow>
-          ) : quotes.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={13} className="h-24 text-center text-gray-500">
-                No quotes available
-              </TableCell>
-            </TableRow>
-          ) : (
-            quotes.map((quote, index) => {
-              const assignedBy = isAssignedBy(quote);
-              const disableBid = quote.IsBid || assignedBy;
-              const disableOffer = quote.IsOffer || assignedBy;
-              const bond = bonds.find(b => b.BondIssueNo === quote.bond_issue_no);
-              
-              return (
-                <React.Fragment key={quote.id}>
-                  <TableRow className={index % 2 === 0 ? 'bg-white hover:bg-blue-50' : 'bg-gray-50 hover:bg-blue-50'}>
-                    <TableCell>
-                      <Badge 
-                        variant="outline" 
-                        className={quote.IsBid ? "bg-purple-100 text-purple-800 border-purple-200" : "bg-green-100 text-green-800 border-green-200"}
-                      >
-                        {quote.IsBid ? "Bid" : "Offer"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      <div className={cn(
-                        "w-5 h-5 rounded-full flex items-center justify-center text-white text-sm font-bold",
-                        quote.assigned_by === userEmail || !quote.assigned_by
-                          ? "bg-green-500" 
-                          : "bg-purple-500"
-                      )}>
-                        {index + 1}
+          <TableBody>
+            {quotes.map((quote, index) => (
+              <React.Fragment key={quote.id}>
+                <TableRow className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                  <TableCell className="font-bold text-neutral-300 text-xs tracking-tighter">{index + 1}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-black text-black text-sm tracking-tight">{quote.bond_issue_no}</span>
+                      <span className="text-[10px] text-neutral-400 font-bold uppercase">{quote.placement_no}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-black font-bold text-xs">{formatDate(quote.settlement_date)}</TableCell>
+                  
+                  {/* Bid Column */}
+                  <TableCell className="bg-neutral-50/30">
+                    {quote.IsBid ? (
+                      <div className="flex flex-col items-center">
+                        <span className="font-black text-black text-lg tracking-tighter">{Number(quote.bid).toFixed(4)}%</span>
+                        <div className="flex flex-col items-center text-[10px] text-neutral-500 font-bold">
+                          <span>KES {formatCurrency(quote.BidAmount || 0)}</span>
+                          <span className="text-[9px] opacity-60">PRC: {Number(quote.bid_price).toFixed(4)}</span>
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell className="font-medium">{quote.placement_no}</TableCell>
-                    <TableCell>
-                      <span className="text-amber-600 font-medium">{quote.bond_issue_no}</span>
-                    </TableCell>
-                    <TableCell>{formatDate(quote.settlement_date)}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="text-right font-medium">
-                        {formatCurrency(quote.BidAmount || 0)}
+                    ) : (
+                      <div className="flex justify-center text-neutral-200 opacity-20 font-black">---</div>
+                    )}
+                  </TableCell>
+
+                  {/* Offer Column */}
+                  <TableCell className="bg-neutral-50/30">
+                    {quote.IsOffer ? (
+                      <div className="flex flex-col items-center">
+                        <span className="font-black text-black text-lg tracking-tighter">{Number(quote.offer).toFixed(4)}%</span>
+                        <div className="flex flex-col items-center text-[10px] text-neutral-500 font-bold">
+                          <span>KES {formatCurrency(quote.OfferAmount || 0)}</span>
+                          <span className="text-[9px] opacity-60">PRC: {Number(quote.offer_price).toFixed(4)}</span>
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="text-right font-medium">
-                        {formatNumber(quote.bid_price)}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className={cn(
-                        "text-right font-medium px-2 py-1 rounded",
-                        getYieldColorClass(quote.bid_yield || 0, bond)
-                      )}>
-                        {quote.bid_yield ? `${quote.bid_yield.toFixed(4)}%` : '-'}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-xs font-medium">
-                        {calculateIndicativeRange(bond)}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className={cn(
-                        "text-right font-medium px-2 py-1 rounded",
-                        getYieldColorClass(quote.offer_yield || 0, bond)
-                      )}>
-                        {quote.offer_yield ? `${quote.offer_yield.toFixed(4)}%` : '-'}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="text-right font-medium">
-                        {formatNumber(quote.offer_price)}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="text-right font-medium">
-                        {formatCurrency(quote.OfferAmount || 0)}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        {showActions && (
-                          <>
-                            {showEdit && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEditClick(quote)}
-                                className="flex items-center gap-1 hover:bg-blue-100 text-blue-700"
-                              >
-                                <Settings className="h-4 w-4" />
-                                Edit
-                              </Button>
-                            )}
-                            {showView && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onView(quote)}
-                                className="flex items-center gap-1 hover:bg-gray-100"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            )}
-                            {showSubmitBid && !assignedBy && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleConfirmAction('place', quote)}
-                                className="flex items-center gap-1 hover:bg-green-100 text-green-700"
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            )}
-                            {assignedBy && quote.is_active && showSuspend ? (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleConfirmAction('suspend', quote)}
-                                className="flex items-center gap-1 hover:bg-red-100 text-red-700"
-                              >
-                                <PowerOff className="h-4 w-4" />
-                              </Button>
-                            ) : assignedBy && showActivate && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleConfirmAction('activate', quote)}
-                                className="flex items-center gap-1 hover:bg-green-100"
-                              >
-                                <Power className="h-4 w-4" />
-                                Activate
-                              </Button>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                  {quote.transactions && quote.transactions.length > 0 && (
-                    <TableRow>
-                      <TableCell colSpan={13} className="p-0">
-                        <Collapsible
-                          open={openRows.includes(quote.id)}
-                          onOpenChange={() => toggleRow(quote.id)}
+                    ) : (
+                      <div className="flex justify-center text-neutral-200 opacity-20 font-black">---</div>
+                    )}
+                  </TableCell>
+
+                  <TableCell className="text-right">
+                    <Badge variant="outline" className={cn(
+                      "font-black text-[10px] uppercase border-2 px-3 py-0.5 rounded-md tracking-tighter transition-all",
+                      quote.is_active 
+                        ? "bg-black text-white border-black" 
+                        : "bg-white text-neutral-300 border-neutral-100"
+                    )}>
+                      {quote.is_active ? "Live" : "Suspended"}
+                    </Badge>
+                  </TableCell>
+
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      {showEdit && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleEditClick(quote)}
+                          className="h-8 border-neutral-200 text-black hover:bg-neutral-50 font-black text-[10px] uppercase tracking-widest rounded-lg shadow-sm"
                         >
-                          <CollapsibleTrigger className="w-full px-4 py-2 flex items-center bg-blue-50 hover:bg-blue-100">
-                            <span className="text-sm font-medium flex items-center gap-2">
-                              {openRows.includes(quote.id) ? (
-                                <ChevronUp className="h-4 w-4 text-blue-600" />
-                              ) : (
-                                <ChevronDown className="h-4 w-4 text-blue-600" />
-                              )}
-                              Transactions ({quote.transactions.length})
-                            </span>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <div className="p-4">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow>
-                                    <TableHead>Transaction No</TableHead>
-                                    <TableHead>Bid Amount</TableHead>
-                                    <TableHead>Bid Price</TableHead>
-                                    <TableHead>Bid Yield</TableHead>
-                                    <TableHead>Offer Yield</TableHead>
-                                    <TableHead>Offer Price</TableHead>
-                                    <TableHead>Offer Amount</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Created On</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {quote.transactions.map((transaction) => (
-                                    <TableRow key={transaction.id}>
-                                      <TableCell>{transaction.transaction_no}</TableCell>
-                                      <TableCell>{Number(transaction.bid_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                                      <TableCell>{Number(transaction.bid_price).toFixed(4)}</TableCell>
-                                      <TableCell>{Number(transaction.bid_yield).toFixed(4)}</TableCell>
-                                      <TableCell>{Number(transaction.offer_yield).toFixed(4)}</TableCell>
-                                      <TableCell>{Number(transaction.offer_price).toFixed(4)}</TableCell>
-                                      <TableCell>{Number(transaction.offer_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                                      <TableCell>
-                                        <Badge
-                                          variant="outline"
-                                          className={
-                                            transaction.is_accepted
-                                              ? "bg-green-100 text-green-800 border-green-200"
-                                              : transaction.is_rejected
-                                              ? "bg-red-100 text-red-800 border-red-200"
-                                              : transaction.is_pending
-                                              ? "bg-yellow-100 text-yellow-800 border-yellow-200"
-                                              : "bg-gray-100 text-gray-800 border-gray-200"
-                                          }
-                                        >
-                                          {transaction.is_accepted
-                                            ? "Accepted"
-                                            : transaction.is_rejected
-                                            ? "Rejected"
-                                            : transaction.is_pending
-                                            ? "Pending"
-                                            : "Delegated"}
-                                        </Badge>
-                                      </TableCell>
-                                      <TableCell>{formatDate(transaction.created_on)}</TableCell>
-                                      <TableCell>
-                                        <div className="flex gap-2">
-                                          {(activeTab === 'my' || activeTab === 'delegated') && assignedBy && (
-                                            <>
-                                              <Button 
-                                                size="sm" 
-                                                variant="outline" 
-                                                onClick={() => onMarkTransactionStatus(transaction.id, 'accept')}
-                                                disabled={transaction.is_accepted}
-                                              >
-                                                Accept
-                                              </Button>
-                                              <Button 
-                                                size="sm" 
-                                                variant="outline" 
-                                                onClick={() => onView(quote)}
-                                              >
-                                                View
-                                              </Button>
-                                            </>
-                                          )}
-                                          {!assignedBy && (
-                                            <Button 
-                                              size="sm" 
-                                              variant="outline" 
-                                              onClick={() => onCounterBid(transaction)}
-                                              className="flex items-center gap-1"
-                                            >
-                                              <Plus className="h-3 w-3" />
-                                              Counter Bid
-                                            </Button>
-                                          )}
-                                        </div>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </div>
-                          </CollapsibleContent>
-                        </Collapsible>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </React.Fragment>
-              );
-            })
-          )}
-        </TableBody>
-      </Table>
+                          Modify
+                        </Button>
+                      )}
+                      
+                      {showView && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => onView(quote)}
+                          className="h-8 w-8 p-0 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-lg transition-all"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      )}
+
+                      {(showSubmitBid && quote.is_active) && (
+                        <Button 
+                          size="sm" 
+                          onClick={() => handleConfirmAction('place', quote)}
+                          className="h-8 bg-black text-white hover:bg-neutral-800 font-black text-[10px] uppercase tracking-widest rounded-lg shadow-lg transition-all active:scale-90"
+                        >
+                          Place
+                        </Button>
+                      )}
+
+                      {showSuspend && quote.is_active && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleConfirmAction('suspend', quote)}
+                          className="h-8 w-8 p-0 text-neutral-300 hover:text-black hover:bg-neutral-50 rounded-lg transition-all"
+                        >
+                          <PowerOff className="h-4 w-4" />
+                        </Button>
+                      )}
+
+                      {showActivate && !quote.is_active && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleConfirmAction('activate', quote)}
+                          className="h-8 w-8 p-0 text-neutral-300 hover:text-black hover:bg-neutral-50 rounded-lg transition-all"
+                        >
+                          <Power className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              </React.Fragment>
+            ))}
+          </TableBody>
+        </Table>
       </div>
 
-      {/* Edit Quote Drawer */}
-      <Sheet open={editDrawerOpen} onOpenChange={setEditDrawerOpen}>
-        <SheetContent className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Edit Quote</SheetTitle>
-            <SheetDescription>
-              Modify quote details and parameters. Changes will be automatically calculated.
-            </SheetDescription>
-          </SheetHeader>
-          
-          {selectedQuoteForEdit && (() => {
-            const selectedBond = bonds.find(b => b.BondIssueNo === selectedQuoteForEdit.bond_issue_no);
-            const bidYieldInRange = isYieldInRange(selectedQuoteForEdit.bid_yield || 0, selectedBond);
-            const offerYieldInRange = isYieldInRange(selectedQuoteForEdit.offer_yield || 0, selectedBond);
-            
-            return (
-              <div className="space-y-4 mt-6">
-                <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label className="text-xs font-medium text-gray-600">RFQ No</Label>
-                  <div className="text-sm font-medium">{selectedQuoteForEdit.placement_no}</div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label className="text-xs font-medium text-gray-600">Bond Issue</Label>
-                  <div className="text-sm font-medium text-amber-600">{selectedQuoteForEdit.bond_issue_no}</div>
-                </div>
-                
-                {/* Indicative Range Display */}
-                {selectedBond && (
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label className="text-xs font-medium text-gray-600">Indicative Range</Label>
-                    <div className="text-xs font-medium bg-blue-50 px-2 py-1 rounded border border-blue-200">
-                      {calculateIndicativeRange(selectedBond)}
-                    </div>
-                  </div>
-                )}
-                
-                <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label className="text-xs font-medium text-gray-600">Bid Amount (KES)</Label>
-                  <Input
-                    type="number"
-                    value={selectedQuoteForEdit.BidAmount || ''}
-                    onChange={(e) => onEdit(selectedQuoteForEdit, 'BidAmount', e.target.value)}
-                    className="h-8 border-2 border-blue-200 hover:border-blue-300 focus:border-blue-400 bg-blue-50"
-                    placeholder="Enter bid amount"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label className="text-xs font-medium text-gray-600 flex items-center">
-                    Bid Yield (%)
-                    {selectedQuoteForEdit.bid_yield && (
-                      <span className={`ml-2 w-3 h-3 rounded-full ${bidYieldInRange ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                    )}
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      type="number"
-                      step="0.0001"
-                      value={selectedQuoteForEdit.bid_yield || ''}
-                      onChange={(e) => onEdit(selectedQuoteForEdit, 'bid_yield', e.target.value)}
-                      className={`h-8 border-2 ${
-                        selectedQuoteForEdit.bid_yield 
-                          ? bidYieldInRange 
-                            ? 'border-green-300 bg-green-50 hover:border-green-400 focus:border-green-500' 
-                            : 'border-red-300 bg-red-50 hover:border-red-400 focus:border-red-500'
-                          : 'border-green-200 bg-green-50 hover:border-green-300 focus:border-green-400'
-                      }`}
-                      placeholder="Enter bid yield"
-                    />
-                    {selectedQuoteForEdit.bid_yield && !bidYieldInRange && (
-                      <div className="absolute -bottom-5 left-0 text-xs text-red-600">
-                        Outside indicative range
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3 items-center mt-6">
-                  <Label className="text-xs font-medium text-gray-600">Offer Amount (KES)</Label>
-                  <Input
-                    type="number"
-                    value={selectedQuoteForEdit.OfferAmount || ''}
-                    onChange={(e) => onEdit(selectedQuoteForEdit, 'OfferAmount', e.target.value)}
-                    className="h-8 border-2 border-purple-200 hover:border-purple-300 focus:border-purple-400 bg-purple-50"
-                    placeholder="Enter offer amount"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3 items-center">
-                  <Label className="text-xs font-medium text-gray-600 flex items-center">
-                    Offer Yield (%)
-                    {selectedQuoteForEdit.offer_yield && (
-                      <span className={`ml-2 w-3 h-3 rounded-full ${offerYieldInRange ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                    )}
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      type="number"
-                      step="0.0001"
-                      value={selectedQuoteForEdit.offer_yield || ''}
-                      onChange={(e) => onEdit(selectedQuoteForEdit, 'offer_yield', e.target.value)}
-                      className={`h-8 border-2 ${
-                        selectedQuoteForEdit.offer_yield 
-                          ? offerYieldInRange 
-                            ? 'border-green-300 bg-green-50 hover:border-green-400 focus:border-green-500' 
-                            : 'border-red-300 bg-red-50 hover:border-red-400 focus:border-red-500'
-                          : 'border-orange-200 bg-orange-50 hover:border-orange-300 focus:border-orange-400'
-                      }`}
-                      placeholder="Enter offer yield"
-                    />
-                    {selectedQuoteForEdit.offer_yield && !offerYieldInRange && (
-                      <div className="absolute -bottom-5 left-0 text-xs text-red-600">
-                        Outside indicative range
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3 items-center mt-6">
-                  <Label className="text-xs font-medium text-gray-600">Settlement Date</Label>
-                  <Input
-                    type="date"
-                    value={selectedQuoteForEdit.settlement_date || ''}
-                    onChange={(e) => onEdit(selectedQuoteForEdit, 'settlement_date', e.target.value)}
-                    className="h-8 border-2 border-gray-200 hover:border-gray-300 focus:border-gray-400"
-                  />
-                </div>
-              </div>
-            );
-          })()}
-          
-          <SheetFooter className="mt-6">
-            <div className="flex gap-3 w-full">
-              <Button variant="outline" onClick={() => setEditDrawerOpen(false)} className="flex-1">
-                Close
-              </Button>
-              {selectedQuoteForEdit && (
-                <Button 
-                  onClick={() => {
-                    handleConfirmAction('place', selectedQuoteForEdit);
-                    setEditDrawerOpen(false);
-                  }}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  Submit Bid
-                </Button>
-              )}
-            </div>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-
       {/* Confirmation Dialog */}
-      <Dialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{confirmDialog.title}</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-gray-600">{confirmDialog.description}</p>
+      <Dialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}>
+        <DialogContent className="bg-white border-neutral-200 text-black p-0 overflow-hidden shadow-2xl rounded-2xl">
+          <div className="bg-black p-6 text-white">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-white font-black uppercase tracking-tight">
+                <AlertTriangle className="h-5 w-5 text-neutral-400" />
+                {confirmDialog.title}
+              </DialogTitle>
+            </DialogHeader>
           </div>
-          <DialogFooter>
+          <div className="p-8">
+            <p className="text-black font-medium leading-relaxed">{confirmDialog.description}</p>
+          </div>
+          <DialogFooter className="p-6 bg-neutral-50 border-t border-neutral-100 flex gap-3">
             <Button 
               variant="outline" 
-              onClick={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
+              onClick={() => setConfirmDialog({ ...confirmDialog, open: false })}
+              className="flex-1 border-neutral-200 text-black hover:bg-white font-bold h-11 rounded-xl"
             >
               Cancel
             </Button>
             <Button 
-              onClick={executeAction}
-              className={confirmDialog.type === 'suspend' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}
+              onClick={executeConfirmAction}
+              className="flex-1 bg-black text-white hover:bg-neutral-800 font-bold h-11 rounded-xl shadow-lg"
             >
-              {confirmDialog.type === 'suspend' ? 'Suspend' : 
-               confirmDialog.type === 'activate' ? 'Activate' : 'Place Quote'}
+              Confirm
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Drawer */}
+      <Sheet open={editDrawerOpen} onOpenChange={setEditDrawerOpen}>
+        <SheetContent className="overflow-y-auto w-[500px] sm:w-[600px] bg-white text-black border-l border-neutral-200 p-0">
+          <div className="bg-neutral-900 p-8 text-white relative shadow-xl">
+            <SheetHeader>
+              <SheetTitle className="text-xl font-bold text-white uppercase tracking-tighter">Edit active Quote</SheetTitle>
+              <SheetDescription className="text-neutral-400">
+                Modify transactional parameters for this instrument
+              </SheetDescription>
+            </SheetHeader>
+          </div>
+
+          {selectedQuoteForEdit && (
+            <div className="grid gap-8 p-8">
+              {/* Quote Information */}
+              <div className="bg-neutral-50 p-5 rounded-2xl border border-neutral-200 space-y-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Bond Issue</Label>
+                    <div className="font-black text-black text-lg tracking-tight">{selectedQuoteForEdit.bond_issue_no}</div>
+                  </div>
+                  <div>
+                    <Label className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Settlement</Label>
+                    <div className="font-black text-black text-lg tracking-tight">{formatDate(selectedQuoteForEdit.settlement_date)}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Edit Fields */}
+              <div className="space-y-6">
+                <div className="space-y-4 bg-white p-5 rounded-2xl border-2 border-neutral-100 shadow-sm">
+                  <h4 className="font-black text-black uppercase text-xs tracking-widest flex items-center gap-2">
+                    <div className="h-1 w-3 bg-black" /> Bid Parameters
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-neutral-500 uppercase">Yield (%)</Label>
+                      <Input
+                        type="number"
+                        step="0.0001"
+                        value={selectedQuoteForEdit.bid}
+                        onChange={(e) => onEdit(selectedQuoteForEdit, 'bid', e.target.value)}
+                        className="h-11 border-neutral-200 bg-white text-black font-black text-lg focus:border-black shadow-sm"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-neutral-500 uppercase">Face Value</Label>
+                      <Input
+                        type="number"
+                        value={selectedQuoteForEdit.BidAmount}
+                        onChange={(e) => onEdit(selectedQuoteForEdit, 'BidAmount', e.target.value)}
+                        className="h-11 border-neutral-200 bg-white text-black font-black focus:border-black shadow-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 bg-white p-5 rounded-2xl border-2 border-neutral-100 shadow-sm">
+                  <h4 className="font-black text-black uppercase text-xs tracking-widest flex items-center gap-2">
+                    <div className="h-1 w-3 bg-neutral-300" /> Offer Parameters
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-neutral-500 uppercase">Yield (%)</Label>
+                      <Input
+                        type="number"
+                        step="0.0001"
+                        value={selectedQuoteForEdit.offer}
+                        onChange={(e) => onEdit(selectedQuoteForEdit, 'offer', e.target.value)}
+                        className="h-11 border-neutral-200 bg-white text-black font-black text-lg focus:border-black shadow-sm"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-neutral-500 uppercase">Face Value</Label>
+                      <Input
+                        type="number"
+                        value={selectedQuoteForEdit.OfferAmount}
+                        onChange={(e) => onEdit(selectedQuoteForEdit, 'OfferAmount', e.target.value)}
+                        className="h-11 border-neutral-200 bg-white text-black font-black focus:border-black shadow-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <SheetFooter className="p-8 sticky bottom-0 bg-white pt-4 border-t border-neutral-200 pb-8">
+            <Button 
+              onClick={() => setEditDrawerOpen(false)}
+              className="w-full bg-black text-white hover:bg-neutral-800 font-black h-12 rounded-xl text-base tracking-widest transition-all active:scale-95 shadow-xl"
+            >
+              SAVE & UPDATE
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

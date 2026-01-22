@@ -3,22 +3,21 @@ import { useState } from "react";
 import Image from "next/image";
 import PageContainer from "../../components/container/PageContainer";
 import UserManagementPage from "../../components/apps/manage-users/UserManagementTable";
+
+interface UserData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  // Add other properties as needed
+}
+
 export default function ManageUsersPage({ userDetails }: { userDetails: UserData }) {
   return (
-
-    <PageContainer title="User Management Page" description="this is User Management page">
-        <div className=" space-y-4 p-8 pt-6">
-          <div className="flex items-center justify-between space-y-2">
-            {/* <h2 className="text-3xl font-bold tracking-tight">User management</h2> */}
-            <div className="flex items-center space-x-2">
-
-           
-
-            </div>
-          </div>
-          <UserManagementPage/>
-        </div>      
-
+    <PageContainer title="User Management" description="Manage system users and permissions">
+      <div className="min-h-screen bg-white text-black p-4 md:p-8">
+        <UserManagementPage />
+      </div>      
     </PageContainer>
   );
 }

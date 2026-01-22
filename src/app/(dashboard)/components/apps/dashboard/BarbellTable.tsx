@@ -4,8 +4,7 @@ import * as React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { getBarbellAndBullet } from '@/lib/actions/api.actions';
-
-import { RefreshCw } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface BondData {
   type: 'Short' | 'Long' | 'Average' | 'Medium'
@@ -34,10 +33,7 @@ interface ApiBondData {
   Last91Days: string
 }
 
-
-
 export function Barbell() {
-
   const [bondData, setBondData] = useState<BondData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,19 +41,15 @@ export function Barbell() {
     if (spotYield === null) {
       return '';
     }
-  
     const lowerBound = ((spotYield - spread) * 100).toFixed(2);
     const upperBound = ((spotYield + spread) * 100).toFixed(2);
-  
     return `${lowerBound}% - ${upperBound}%`;
   };
-  
   
   useEffect(() => {
     async function fetchData() {
       try {
         const data = await getBarbellAndBullet();
-        console.log("Fetched barbell and bullet data:", data);
         const formattedData = [
           ...data.short.map((bond: ApiBondData) => ({
             type: 'Short' as const,
@@ -72,7 +64,6 @@ export function Barbell() {
             spotYield: parseFloat(bond.SpotYield),
             spread: parseFloat(bond.Spread),
             last91Days: parseFloat(bond.Last91Days),
-
           })),
           ...data.long.map((bond: ApiBondData) => ({
             type: 'Long' as const,
@@ -118,91 +109,83 @@ export function Barbell() {
   };
 
   return (
-    <Card className="col-span-12">
-      <CardHeader className="">
-        <CardTitle className="text-center text-xl font-semibold text-[#8B6B07]">
+    <Card className="col-span-12 border border-neutral-200 shadow-sm bg-white text-black">
+      <CardHeader className="border-b border-neutral-100 bg-neutral-50">
+        <CardTitle className="text-center text-xl font-bold text-black uppercase tracking-tight">
           Barbell vs Bullet Indicators
         </CardTitle>
       </CardHeader>
       {loading && (
-        <div className="flex items-center justify-center py-4">
-          <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-          <span className="text-sm text-muted-foreground font-semibold text-green-500" >Loading...</span>
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-black opacity-20" />
+          <span className="ml-2 text-sm font-bold text-neutral-500">Synchronizing Indicators...</span>
         </div>
       )}
-        <CardContent>
+        <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="bg-primary text-primary-foreground">Bond Issue</TableHead>
-                <TableHead className="bg-primary text-primary-foreground text-right">Coupon</TableHead>
-                <TableHead className="bg-primary text-primary-foreground text-right">Maturity (Yrs)*</TableHead>
-                <TableHead className="bg-primary text-primary-foreground text-right">M Duration</TableHead>
-                {/* <TableHead className="bg-primary text-primary-foreground text-right">Indicative Bid-Offer</TableHead> */}
-                <TableHead className="bg-primary text-primary-foreground text-right">Spot YTM</TableHead>
-                {/* <TableHead className="bg-primary text-primary-foreground text-right">Expected Return</TableHead> */}
-                <TableHead className="bg-primary text-primary-foreground text-right">Last 91 Days</TableHead>
-                <TableHead className="bg-primary text-primary-foreground text-center">Liquidity</TableHead>
+              <TableRow className="bg-neutral-50 border-b border-neutral-200 hover:bg-neutral-50">
+                <TableHead className="font-bold text-neutral-600 uppercase text-xs">Bond Issue</TableHead>
+                <TableHead className="font-bold text-neutral-600 uppercase text-xs text-right">Coupon</TableHead>
+                <TableHead className="font-bold text-neutral-600 uppercase text-xs text-right">Maturity (Yrs)*</TableHead>
+                <TableHead className="font-bold text-neutral-600 uppercase text-xs text-right">M Duration</TableHead>
+                <TableHead className="font-bold text-neutral-600 uppercase text-xs text-right">Spot YTM</TableHead>
+                <TableHead className="font-bold text-neutral-600 uppercase text-xs text-right">Last 91 Days</TableHead>
+                <TableHead className="font-bold text-neutral-600 uppercase text-xs text-center">Liquidity</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {/* Barbell Section */}
-              <TableRow className="bg-muted/50">
-                <TableCell colSpan={8} className="font-semibold">Barbell:</TableCell>
+              <TableRow className="bg-neutral-50 border-b border-neutral-200">
+                <TableCell colSpan={7} className="font-bold text-black py-2 px-4">Barbell:</TableCell>
               </TableRow>
               {bondData.filter(bond => bond.type === 'Short' || bond.type === 'Long').map((bond, index) => (
-                <TableRow key={index} className={bond.type === 'Average' ? 'bg-muted/30' : ''}>
-                  <TableCell>
+                <TableRow key={index} className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                  <TableCell className="px-4">
                     <div className="flex gap-4">
-                      <span className="w-16 text-muted-foreground">{bond.type}</span>
-                      <span>{bond.bondIssue}</span>
+                      <span className="w-16 text-neutral-400 font-medium">{bond.type}</span>
+                      <span className="font-semibold">{bond.bondIssue}</span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">{bond.coupon.toFixed(3)}</TableCell>
                   <TableCell className="text-right">{bond.dtmDtc.toFixed(4)}</TableCell>
-                  <TableCell className="text-right text-[#8B6B07]">{bond.duration.toFixed(3)}</TableCell>
-                  {/* <TableCell className="text-right">{bond.indicativeBidOffer}</TableCell> */}
+                  <TableCell className="text-right font-bold text-black">{bond.duration.toFixed(3)}</TableCell>
                   <TableCell className="text-right">{(bond.spotYtm * 100).toFixed(4)}%</TableCell>
-                  {/* <TableCell className="text-right">{(bond.expectedReturn * 100).toFixed(2)}%</TableCell> */}
                   <TableCell className="text-right">{bond.last91Days ? bond.last91Days.toFixed(2) : 'N/A'}</TableCell>
                   <TableCell className="text-center">{bond.liquidity}</TableCell>
                 </TableRow>
               ))}
               {/* Average for Barbell */}
-              <TableRow className="bg-muted/30">
-                <TableCell>
+              <TableRow className="bg-neutral-50/50 border-b border-neutral-200">
+                <TableCell className="px-4">
                   <div className="flex gap-4">
-                    <span className="w-16 text-muted-foreground">Average</span>
+                    <span className="w-16 text-black font-bold">Average</span>
                   </div>
                 </TableCell>
-                <TableCell className="text-right">{calculateAverage('Short', 'coupon').toFixed(3)}</TableCell>
-                <TableCell className="text-right">{calculateAverage('Short', 'dtmDtc').toFixed(4)}</TableCell>
-                <TableCell className="text-right text-[#8B6B07]">{calculateAverage('Short', 'duration').toFixed(3)}</TableCell>
-                {/* <TableCell className="text-right">-</TableCell> */}
-                <TableCell className="text-right">{(calculateAverage('Short', 'spotYtm') * 100).toFixed(4)}%</TableCell>
-                {/* <TableCell className="text-right">{(calculateAverage('Short', 'expectedReturn') * 100).toFixed(2)}%</TableCell> */}
+                <TableCell className="text-right font-medium">{calculateAverage('Short', 'coupon').toFixed(3)}</TableCell>
+                <TableCell className="text-right font-medium">{calculateAverage('Short', 'dtmDtc').toFixed(4)}</TableCell>
+                <TableCell className="text-right font-bold text-black">{calculateAverage('Short', 'duration').toFixed(3)}</TableCell>
+                <TableCell className="text-right font-bold">{(calculateAverage('Short', 'spotYtm') * 100).toFixed(4)}%</TableCell>
                 <TableCell className="text-right">-</TableCell>
                 <TableCell className="text-center">-</TableCell>
               </TableRow>
                           
               {/* Bullet Section */}
-              <TableRow className="bg-muted/50">
-                <TableCell colSpan={8} className="font-semibold">Bullet:</TableCell>
+              <TableRow className="bg-neutral-50 border-b border-neutral-200">
+                <TableCell colSpan={7} className="font-bold text-black py-2 px-4">Bullet:</TableCell>
               </TableRow>
               {bondData.filter(bond => bond.type === 'Medium').map((bond, index) => (
-                <TableRow key={index}>
-                  <TableCell>
+                <TableRow key={index} className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                  <TableCell className="px-4">
                     <div className="flex gap-4">
-                      <span className="w-16 text-muted-foreground">{bond.type}</span>
-                      <span>{bond.bondIssue}</span>
+                      <span className="w-16 text-neutral-400 font-medium">{bond.type}</span>
+                      <span className="font-semibold">{bond.bondIssue}</span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">{bond.coupon.toFixed(3)}</TableCell>
                   <TableCell className="text-right">{bond.dtmDtc.toFixed(4)}</TableCell>
-                  <TableCell className="text-right text-[#8B6B07]">{bond.duration.toFixed(3)}</TableCell>
-                  {/* <TableCell className="text-right">{bond.indicativeBidOffer}</TableCell> */}
+                  <TableCell className="text-right font-bold text-black">{bond.duration.toFixed(3)}</TableCell>
                   <TableCell className="text-right">{(bond.spotYtm * 100).toFixed(4)}%</TableCell>
-                  {/* <TableCell className="text-right">{(bond.expectedReturn * 100).toFixed(2)}%</TableCell> */}
                   <TableCell className="text-right">{bond.last91Days ? bond.last91Days.toFixed(2) : 'N/A'}</TableCell>
                   <TableCell className="text-center">{bond.liquidity}</TableCell>
                 </TableRow>
@@ -210,7 +193,6 @@ export function Barbell() {
             </TableBody>
           </Table>
         </CardContent>
-      
     </Card>
   )
 }

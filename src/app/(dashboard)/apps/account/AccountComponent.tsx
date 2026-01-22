@@ -7,22 +7,16 @@ interface AccountPageProps {
 }
 
 export default function AccountPage({ user }: AccountPageProps) {
-
   return (
-
-    <PageContainer title="Dashboard Page" description="this is Dashboard page">
-        <div className=" space-y-4 p-8 pt-6">
-          <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">Account Settings</h2>
-            <div className="flex items-center space-x-2">
-
-           
-
-            </div>
-          </div>
-          <AccountSettings user={user} />
-        </div>      
-
+    <PageContainer title="Account Settings" description="Manage your account preferences and security">
+      <div className="space-y-8 p-8 max-w-[1200px] mx-auto">
+        <div className="flex flex-col gap-2 border-b border-black pb-8">
+          <h1 className="text-4xl font-bold tracking-tighter text-black uppercase">Settings</h1>
+          <p className="text-sm text-gray-500 font-medium uppercase tracking-widest">Manage your workspace and personal account preferences.</p>
+        </div>
+        
+        <AccountSettings user={user} />
+      </div>      
     </PageContainer>
   );
 }
