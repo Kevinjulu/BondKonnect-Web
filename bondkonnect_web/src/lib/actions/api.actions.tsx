@@ -2592,3 +2592,107 @@ export const suspendQuote = async (data: {
     };
   }
 };
+
+// PAYMENTS
+
+export const initiateMpesaStkPush = async (data: {
+  phone: string;
+  amount: number;
+  plan_id: number;
+  user_email: string;
+}) => {
+  try {
+    const BASE_URL = await getCurrentApiUrl();
+    if (!BASE_URL) throw new Error("API URL not found");
+
+    const response = await fetch(`${BASE_URL}/V1/payments/mpesa/stk-push`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to initiate M-Pesa push");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error initiating M-Pesa push:", error);
+    throw error;
+  }
+};
+
+export const checkMpesaStatus = async (checkoutId: string) => {
+  try {
+    const BASE_URL = await getCurrentApiUrl();
+    if (!BASE_URL) throw new Error("API URL not found");
+
+    const response = await fetch(`${BASE_URL}/V1/payments/mpesa/check-status?checkout_id=${checkoutId}`, {
+      method: "GET",
+      headers: {
+        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
+      },
+    });
+
+    if (!response.ok) throw new Error("Failed to check M-Pesa status");
+    return await response.json();
+  } catch (error) {
+    console.error("Error checking M-Pesa status:", error);
+    throw error;
+  }
+};
+
+export const createPaypalOrder = async (data: {
+  amount: number;
+  plan_id: number;
+}) => {
+  try {
+    const BASE_URL = await getCurrentApiUrl();
+    if (!BASE_URL) throw new Error("API URL not found");
+
+    const response = await fetch(`${BASE_URL}/V1/payments/paypal/create-order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) throw new Error("Failed to create PayPal order");
+    return await response.json();
+  } catch (error) {
+    console.error("Error creating PayPal order:", error);
+    throw error;
+  }
+};
+
+export const capturePaypalOrder = async (data: {
+  order_id: string;
+  user_email: string;
+  plan_id: number;
+}) => {
+  try {
+    const BASE_URL = await getCurrentApiUrl();
+    if (!BASE_URL) throw new Error("API URL not found");
+
+    const response = await fetch(`${BASE_URL}/V1/payments/paypal/capture-order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) throw new Error("Failed to capture PayPal order");
+    return await response.json();
+  } catch (error) {
+    console.error("Error capturing PayPal order:", error);
+    throw error;
+  }
+};

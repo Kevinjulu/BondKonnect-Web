@@ -6,13 +6,13 @@ import { addDays, format } from "date-fns"
 import { DateRange } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components//ui/button"
-import { Calendar } from "@/components//ui/calendar"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components//ui/popover"
+} from "@/components/ui/popover"
 
 export function CalendarDateRangePicker({
   className,
@@ -30,11 +30,11 @@ export function CalendarDateRangePicker({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[260px] justify-start text-left font-normal",
-              !date && "text-muted-foreground"
+              "w-[260px] justify-start text-left font-bold text-black border-neutral-200 bg-white hover:bg-neutral-50 shadow-sm",
+              !date && "text-neutral-400"
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
+            <CalendarIcon className="mr-2 h-4 w-4 text-neutral-400" />
             {date?.from ? (
               date.to ? (
                 <>
@@ -49,7 +49,7 @@ export function CalendarDateRangePicker({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="end">
+        <PopoverContent className="w-auto p-0 bg-white border border-neutral-200 shadow-xl" align="end">
           <Calendar
             initialFocus
             mode="range"
@@ -57,6 +57,7 @@ export function CalendarDateRangePicker({
             selected={date}
             onSelect={setDate}
             numberOfMonths={2}
+            className="text-black"
           />
         </PopoverContent>
       </Popover>

@@ -1,19 +1,17 @@
 "use client";
 import * as React from 'react'
 import { useState, useEffect, useCallback } from "react";
-// import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
-// import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-// import { Calendar } from "@/components/ui/calendar"
 import { Separator } from "@/components/ui/separator"
 import { Sheet,  SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { getBondCalcDetails, getPrimaryMarketBonds, getSecondaryMarketBonds } from '@/lib/actions/api.actions';
+import { Loader2, Calculator } from 'lucide-react';
 
 interface BondCalcState {
   valueDate: Date
@@ -92,6 +90,19 @@ interface BondCalcResult {
 function addDays(date: Date, days: number): Date {
   const result = new Date(date);
   result.setDate(result.getDate() + days);
+  return result;
+}
+
+function addBusinessDays(date: Date, days: number): Date {
+  let count = 0;
+  const result = new Date(date);
+  while (count < days) {
+    result.setDate(result.getDate() + 1);
+    const day = result.getDay();
+    if (day !== 0 && day !== 6) { // Skip Sunday (0) and Saturday (6)
+      count++;
+    }
+  }
   return result;
 }
 
@@ -195,10 +206,8 @@ function calculateAccruedInterest(
   if (!previousCoupon || !nextCouponDate) return 0;
   
   const couponPeriod = dailyBasis === 364 ? 182 : dailyBasis / 2;
-  // const daysSinceLastCoupon = daysBetween(previousCoupon, settlementDate);
   const nextCouponDays = daysBetween(settlementDate, nextCouponDate);
   
-  // return (daysSinceLastCoupon / couponPeriod) * (coupon / 2);
   return ((couponPeriod - nextCouponDays) / couponPeriod) * (coupon / 2);
 }
 
@@ -275,17 +284,12 @@ function calculateFinancialValues(
   bondTermOver10: number,
   ifbRate: number
 ) {
-  // Fix consideration calculation to match Excel: =ROUNDDOWN(C56*C53%,0)
-  // For yield calc: Excel shows 2,021,530 vs calc shows 2,021,519 (diff of 11)
-  // This suggests Excel uses the full precision price for yield calculations
   let consideration = 0;
   if (faceValue === 0) {
     consideration = 0;
   } else if (calculationType === 'yield') {
-    // For yield calculations, use full precision price
     consideration = Math.floor(faceValue * (pricePerHundred / 100));
   } else {
-    // For price calculations, truncate price to 3 decimal places
     const excelPrice = Math.floor(pricePerHundred * 1000) / 1000;
     consideration = Math.floor(faceValue * (excelPrice / 100));
   }
@@ -296,28 +300,16 @@ function calculateFinancialValues(
   const otherLevies = consideration === 0 ? 0 : 
     consideration * 0.00011;
   
-  // Fix withholding tax to match Excel formula logic
-  // =IF(OR($B$8=1,$C$33>=100),0,IF(AND($B$8=2,LEFT($C$40,3)="IFB",$C$33<100),(100-C33)*C6*C57/100,IF(AND($B$8=2,LEFT($C$40,3)<>"IFB",$C$33<100,C42<10),(100-C33)*C4*C57/100,IF(AND($B$8=2,LEFT($C$40,3)<>"IFB",$C$33<100,C42>=10),(100-C33)*C5*C57/100,0))))
   let withholdingTax = 0;
   
-  // Excel logic: B$8=1 means yield calculation, B$8=2 means price calculation
-  // According to Excel formula: IF(OR($B$8=1, $C$33>=100), 0, ...)
-  // This means: if yield calculation OR clean price >= 100, then withholding tax = 0
   if (calculationType === 'yield' || cleanPrice >= 100) {
-    // For yield calculations or when clean price >= 100, withholding tax = 0
     withholdingTax = 0;
   } else if (calculationType === 'price' && cleanPrice < 100 && faceValue > 0) {
-    // For price calculations with clean price < 100 (discount bonds)
     const discount = 100 - cleanPrice;
     
     if (bondIssueNo.startsWith('IFB')) {
       withholdingTax = discount * (ifbRate / 100) * (consideration / 100);
     }
-    //  else if (termToMaturity < 10) {
-    //   withholdingTax = discount * (bondTermUnder10 / 100) * (consideration / 100);
-    // } else {
-    //   withholdingTax = discount * (bondTermOver10 / 100) * (consideration / 100);
-    // }
   } else {
     withholdingTax = 0;
   }
@@ -382,7 +374,6 @@ function calculateBondValues(params: {
     : 0;
   
   const bondDailyBasis = marketType === 'secondary'
-    // ? (bondData as SecondaryMarketBond).Basis || dailyBasis
     ? dailyBasis
     : (bondData as PrimaryMarketBond).DayCount;
   
@@ -465,7 +456,7 @@ export function BondCalc() {
     marketType: 'secondary',
     selectedBond: '',
     calculationType: 'yield',
-    settlementDate: format(new Date(), 'yyyy-MM-dd'),
+    settlementDate: format(addBusinessDays(new Date(), 3), 'yyyy-MM-dd'),
     dirtyPrice: '101.0766',
     yieldTM: '15.6914',
     coupon: '12.5000',
@@ -503,7 +494,6 @@ export function BondCalc() {
 
         // Fetch secondary market bonds
         const secondaryResponse = await getSecondaryMarketBonds();
-        // Handle both array and wrapped response formats
         const secondaryBonds = Array.isArray(secondaryResponse) 
           ? secondaryResponse 
           : (secondaryResponse?.data && Array.isArray(secondaryResponse.data) ? secondaryResponse.data : []);
@@ -525,7 +515,6 @@ export function BondCalc() {
 
         // Fetch primary market bonds
         const primaryResponse = await getPrimaryMarketBonds();
-        // Handle both array and wrapped response formats
         const primaryBonds = Array.isArray(primaryResponse) 
           ? primaryResponse 
           : (primaryResponse?.data && Array.isArray(primaryResponse.data) ? primaryResponse.data : []);
@@ -542,7 +531,7 @@ export function BondCalc() {
     };
 
     fetchData();
-  }, [state.selectedBond]); // Remove the circular dependencies
+  }, [state.selectedBond]);
 
   // Update selected bond data when bond selection changes
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -584,7 +573,7 @@ export function BondCalc() {
       setSelectedBondData(firstBond);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [secondaryMarketBonds.length, isLoading, state.selectedBond]); // Intentionally excluding full bond arrays to prevent infinite loops
+  }, [secondaryMarketBonds.length, isLoading, state.selectedBond]);
 
   // Calculate bond values
   const handleCalculate = useCallback(async () => {
@@ -641,8 +630,7 @@ export function BondCalc() {
   // Auto-calculate when relevant inputs change
   useEffect(() => {
     if (selectedBondData && state.settlementDate && !isLoading) {
-      // Immediate calculation for calculation type changes, debounced for others
-      const delay = 50; // Fast response for all changes to ensure financial summary updates
+      const delay = 50;
       
       const timeoutId = setTimeout(() => {
         handleCalculate();
@@ -678,525 +666,277 @@ export function BondCalc() {
 
   if (isLoading) {
     return (
-      <ScrollArea className="whitespace-nowrap rounded-md">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button disabled>Loading Bond Calculator...</Button>
-          </SheetTrigger>
-        </Sheet>
-      </ScrollArea>
+      <Button disabled className="bg-black text-white">
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        Loading...
+      </Button>
     );
   }
 
   return (
-    <ScrollArea className="whitespace-nowrap rounded-md">
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button>Bond Calculator</Button>
-        </SheetTrigger>
-        <SheetContent className="overflow-y-auto w-[500px] sm:w-[600px]">
-          <SheetHeader>
-            <SheetTitle className="text-xl font-bold text-gray-800">Bond Calculator</SheetTitle>
-            <SheetDescription className="text-gray-600">
-              Calculate bond yields and prices for secondary and primary market bonds
-            </SheetDescription>
-          </SheetHeader>
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button className="bg-black text-white hover:bg-neutral-800">
+          <Calculator className="mr-2 h-4 w-4" />
+          Bond Calculator
+        </Button>
+      </SheetTrigger>
+      <SheetContent className="overflow-y-auto w-[500px] sm:w-[600px] bg-white text-black border-l border-neutral-200">
+        <SheetHeader className="border-b border-neutral-100 pb-4">
+          <SheetTitle className="text-2xl font-bold text-black uppercase tracking-tight">Bond Calculator</SheetTitle>
+          <SheetDescription className="text-neutral-500">
+            Professional analytics for secondary and primary market bonds
+          </SheetDescription>
+        </SheetHeader>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
-              <p className="font-medium">{error}</p>
-            </div>
-          )}
+        {error && (
+          <div className="bg-neutral-50 border border-neutral-200 text-black px-4 py-3 rounded-lg my-4 text-sm font-bold">
+            <p>{error}</p>
+          </div>
+        )}
 
-          <div className="grid gap-6 py-4">
-            {/* Details Section */}
-            {/* <div className="space-y-3">
-              <Label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Details</Label>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
-                  <div className="font-medium text-gray-600">Value Date</div>
-                  <div className="font-semibold text-gray-800">{details.ValueDate ? format(new Date(details.ValueDate), "dd/MM/yyyy") : format(new Date(), "dd/MM/yyyy")}</div>
-                  <div className="font-medium text-gray-600">Daily Basis</div>
-                  <div className="font-semibold text-gray-800">{details.DailyBasis}</div>
-                  <div className="font-medium text-gray-600">Bond Term (Yrs) &lt; 10</div>
-                  <div className="font-semibold text-gray-800">{details.PercentUnderTenYrs}%</div>
-                  <div className="font-medium text-gray-600">Bond Term (Yrs) &gt;= 10</div>
-                  <div className="font-semibold text-gray-800">{details.PercentUnderTenYrs}%</div>
-                  <div className="font-medium text-gray-600">IFB N.5 (Yrs)</div>
-                  <div className="font-semibold text-gray-800">{details.IfbFiveYrs}%</div>
-                </div>
-              </div>
-            </div> */}
-
-            <Separator />
-
-            {/* Rate Viewer Section */}
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Rate Viewer</Label>
-              <div className="text-xs font-medium text-gray-500 mb-3">Select Type of Bond Market & Specific Bond</div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs font-medium text-gray-600">Market Type</Label>
-                  <Select
-                    value={state.marketType}
-                    onValueChange={handleMarketTypeChange}
-                  >
-                    <SelectTrigger className="h-9 border-2 border-blue-200 hover:border-blue-300 focus:border-blue-400 bg-blue-50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="secondary">Secondary Market</SelectItem>
-                      <SelectItem value="primary">Primary Auction</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-1">
-                  <Label className="text-xs font-medium text-gray-600">Bond</Label>
-                  <Select
-                    value={state.selectedBond}
-                    onValueChange={(value) => setState(prev => ({ ...prev, selectedBond: value }))}
-                  >
-                    <SelectTrigger className="h-9 border-2 border-blue-200 hover:border-blue-300 focus:border-blue-400 bg-blue-50">
-                      <SelectValue placeholder="Select Bond" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getBondsList().map((bond) => (
-                        <SelectItem key={bond.Id} value={bond.Id.toString()}>
-                          {bond.BondIssueNo}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+        <div className="grid gap-6 py-6">
+          {/* Rate Viewer Section */}
+          <div className="space-y-4">
+            <Label className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Rate Viewer</Label>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-neutral-600">Market Type</Label>
+                <Select
+                  value={state.marketType}
+                  onValueChange={handleMarketTypeChange}
+                >
+                  <SelectTrigger className="h-10 bg-white border-neutral-200 text-black focus:ring-black">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-neutral-200">
+                    <SelectItem value="secondary">Secondary Market</SelectItem>
+                    <SelectItem value="primary">Primary Auction</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              {/* Bond Information Display */}
-              {selectedBondData && (
-                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label className="text-xs font-medium text-gray-600">
-                      {state.marketType === 'secondary' ? 'Duration-to-Maturity (Yrs)' : 'Average Life (Yrs)'}
-                    </Label>
-                    <Input
-                      value={
-                        state.marketType === 'secondary' 
-                          ? parseFloat((selectedBondData as SecondaryMarketBond).DtmYrs).toFixed(4)
-                          : parseFloat((selectedBondData as PrimaryMarketBond).DtmOrWal).toFixed(4)
-                      }
-                      className="h-8 bg-white border-gray-200 font-semibold text-gray-700"
-                      readOnly
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label className="text-xs font-medium text-gray-600">Spot Rate</Label>
-                    <Input
-                      value={
-                        state.marketType === 'secondary'
-                          ? formatPercentage(parseFloat((selectedBondData as SecondaryMarketBond).SpotYield) * 100)
-                          : (selectedBondData as PrimaryMarketBond).SpotRate
-                      }
-                      className="h-8 bg-white border-gray-200 font-semibold text-gray-700"
-                      readOnly
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 items-center">
-                    <Label className="text-xs font-medium text-gray-600">Indicative Range (Bid-Offer)</Label>
-                    <Input
-                      value={calculationResult?.indicativeRange || ""}
-                      className="h-8 bg-white border-gray-200 font-semibold text-gray-700"
-                      readOnly
-                    />
-                  </div>
-
-                  {/* Primary Market specific fields */}
-                  {state.marketType === 'primary' && (
-                    <>
-                      {(selectedBondData as PrimaryMarketBond).FirstCallDate && (
-                        <div className="grid grid-cols-2 gap-3 items-center">
-                          <Label className="text-xs font-medium text-gray-600">1st Redemption Date</Label>
-                          <Input
-                            value={format(new Date((selectedBondData as PrimaryMarketBond).FirstCallDate!), "dd/MM/yyyy")}
-                            className="h-8 bg-white border-gray-200 font-semibold text-gray-700"
-                            readOnly
-                          />
-                        </div>
-                      )}
-                      {(selectedBondData as PrimaryMarketBond).SecondCallDate && (
-                        <div className="grid grid-cols-2 gap-3 items-center">
-                          <Label className="text-xs font-medium text-gray-600">2nd Redemption Date</Label>
-                          <Input
-                            value={format(new Date((selectedBondData as PrimaryMarketBond).SecondCallDate!), "dd/MM/yyyy")}
-                            className="h-8 bg-white border-gray-200 font-semibold text-gray-700"
-                            readOnly
-                          />
-                        </div>
-                      )}
-                      {(selectedBondData as PrimaryMarketBond).ParCall1Percent && (
-                        <div className="grid grid-cols-2 gap-3 items-center">
-                          <Label className="text-xs font-medium text-gray-600">1st Redemption %</Label>
-                          <Input
-                            value={(selectedBondData as PrimaryMarketBond).ParCall1Percent + '%'}
-                            className="h-8 bg-white border-gray-200 font-semibold text-gray-700"
-                            readOnly
-                          />
-                        </div>
-                      )}
-                      {(selectedBondData as PrimaryMarketBond).ParCall2Percent && (
-                        <div className="grid grid-cols-2 gap-3 items-center">
-                          <Label className="text-xs font-medium text-gray-600">2nd Redemption %</Label>
-                          <Input
-                            value={(selectedBondData as PrimaryMarketBond).ParCall2Percent + '%'}
-                            className="h-8 bg-white border-gray-200 font-semibold text-gray-700"
-                            readOnly
-                          />
-                        </div>
-                      )}
-                      {/* Show both Dirty Price and Clean Price for Primary Market */}
-                      {calculationResult && (
-                        <>
-                          <div className="grid grid-cols-2 gap-3 items-center">
-                            <Label className="text-xs font-medium text-gray-600">Dirty Price</Label>
-                            <Input
-                              value={calculationResult.dirtyPrice.toFixed(6)}
-                              className="h-8 bg-white border-gray-200 font-bold text-green-600"
-                              readOnly
-                            />
-                          </div>
-                          <div className="grid grid-cols-2 gap-3 items-center">
-                            <Label className="text-xs font-medium text-gray-600">Clean Price</Label>
-                            <Input
-                              value={calculationResult.cleanPrice.toFixed(6)}
-                              className="h-8 bg-white border-gray-200 font-bold text-amber-600"
-                              readOnly
-                            />
-                          </div>
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-neutral-600">Bond Selection</Label>
+                <Select
+                  value={state.selectedBond}
+                  onValueChange={(value) => setState(prev => ({ ...prev, selectedBond: value }))}
+                >
+                  <SelectTrigger className="h-10 bg-white border-neutral-200 text-black focus:ring-black">
+                    <SelectValue placeholder="Select Bond" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-neutral-200">
+                    {getBondsList().map((bond) => (
+                      <SelectItem key={bond.Id} value={bond.Id.toString()} className="text-black focus:bg-neutral-100">
+                        {bond.BondIssueNo}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <Separator />
+            {/* Bond Information Display */}
+            {selectedBondData && (
+              <div className="bg-neutral-50 rounded-xl border border-neutral-200 p-4 space-y-3">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-semibold text-neutral-500">
+                    {state.marketType === 'secondary' ? 'Duration-to-Maturity (Yrs)' : 'Average Life (Yrs)'}
+                  </span>
+                  <span className="font-bold text-black">
+                    {state.marketType === 'secondary' 
+                      ? parseFloat((selectedBondData as SecondaryMarketBond).DtmYrs).toFixed(4)
+                      : parseFloat((selectedBondData as PrimaryMarketBond).DtmOrWal).toFixed(4)
+                    }
+                  </span>
+                </div>
 
-            {/* Bond Calc Section */}
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Bond Calculation</Label>
-              
-              <div className="space-y-1">
-                <Label className="text-xs font-medium text-gray-600">Type of Calculation</Label>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-semibold text-neutral-500">Spot Rate</span>
+                  <span className="font-bold text-black">
+                    {state.marketType === 'secondary'
+                      ? formatPercentage(parseFloat((selectedBondData as SecondaryMarketBond).SpotYield) * 100)
+                      : (selectedBondData as PrimaryMarketBond).SpotRate
+                    }
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-semibold text-neutral-500">Indicative Range (Bid-Offer)</span>
+                  <span className="font-bold text-black">{calculationResult?.indicativeRange || "-"}</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <Separator className="bg-neutral-100" />
+
+          {/* Bond Calc Section */}
+          <div className="space-y-4">
+            <Label className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Parameters</Label>
+            
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-neutral-600">Type of Calculation</Label>
                 <Select
                   value={state.calculationType}
                   onValueChange={(value: 'yield' | 'price') =>
                     setState(prev => ({ ...prev, calculationType: value }))
                   }
                 >
-                  <SelectTrigger className="h-9 border-2 border-green-200 hover:border-green-300 focus:border-green-400 bg-green-50">
+                  <SelectTrigger className="h-10 bg-white border-neutral-200 text-black focus:ring-black">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-neutral-200">
                     <SelectItem value="yield">Bond Yield Calc</SelectItem>
                     <SelectItem value="price">Bond Price Calc</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 items-center">
-                <Label className="text-xs font-medium text-gray-600">Settlement Date</Label>
-                <Input
-                  type="date"
-                  value={state.settlementDate}
-                  onChange={(e) => setState(prev => ({ ...prev, settlementDate: e.target.value }))}
-                  className="h-8 border-2 border-orange-200 hover:border-orange-300 focus:border-orange-400 bg-orange-50 font-semibold"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 items-center">
-                <Label className="text-xs font-medium text-gray-600">
-                  {state.calculationType === 'yield' ? 'Dirty Price' : 'Yield YTM (%)'}
-                </Label>
-                <Input
-                  value={state.calculationType === 'yield' ? state.dirtyPrice : state.yieldTM}
-                  onChange={(e) => {
-                    if (state.calculationType === 'yield') {
-                      setState(prev => ({ ...prev, dirtyPrice: e.target.value }));
-                    } else {
-                      setState(prev => ({ ...prev, yieldTM: e.target.value }));
-                    }
-                  }}
-                  className="h-8 border-2 border-yellow-200 hover:border-yellow-300 focus:border-yellow-400 bg-yellow-50 font-semibold"
-                  placeholder={state.calculationType === 'yield' ? 'Enter dirty price' : 'Enter yield %'}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 items-center">
-                <Label className="text-xs font-medium text-gray-600">Coupon (%)</Label>
-                <Input
-                  value={state.coupon}
-                  onChange={(e) => setState(prev => ({ ...prev, coupon: e.target.value }))}
-                  className="h-8 border-2 border-yellow-200 hover:border-yellow-300 focus:border-yellow-400 bg-yellow-50 font-semibold"
-                  placeholder="Coupon rate"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 items-center">
-                <Label className="text-xs font-medium text-gray-600">Face Value (KES)</Label>
-                <Input
-                  value={state.faceValue}
-                  onChange={(e) => setState(prev => ({ ...prev, faceValue: e.target.value }))}
-                  className="h-8 border-2 border-yellow-200 hover:border-yellow-300 focus:border-yellow-400 bg-yellow-50 font-semibold"
-                  placeholder="Enter face value"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 items-center">
-                <Label className="text-xs font-medium text-gray-600">ISIN No (optional)</Label>
-                <Input
-                  value={state.isinNo}
-                  onChange={(e) => setState(prev => ({ ...prev, isinNo: e.target.value }))}
-                  className="h-8 border-2 border-yellow-200 hover:border-yellow-300 focus:border-yellow-400 bg-yellow-50 font-semibold"
-                  placeholder="Enter ISIN number"
-                />
-              </div>
-            </div>
-
-            {/* Bond Details Display */}
-            {selectedBondData && calculationResult && (
-              <div className="space-y-3">
-                <Separator />
-                <Label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Bond Details</Label>
-                <div className="bg-blue-50 rounded-lg p-4">
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
-                    <div className="font-medium text-gray-600">Day-Count Convention</div>
-                    <div className="font-semibold text-gray-800">
-                      {state.marketType === 'secondary' 
-                        // ? (selectedBondData as SecondaryMarketBond).Basis || details.DailyBasis
-                        ?  details.DailyBasis
-                        : (selectedBondData as PrimaryMarketBond).DayCount
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-neutral-600">Settlement Date</Label>
+                  <Input
+                    type="date"
+                    value={state.settlementDate}
+                    onChange={(e) => setState(prev => ({ ...prev, settlementDate: e.target.value }))}
+                    className="h-10 border-neutral-200 bg-white text-black font-bold focus:ring-black"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-neutral-600">
+                    {state.calculationType === 'yield' ? 'Dirty Price' : 'Yield YTM (%)'}
+                  </Label>
+                  <Input
+                    value={state.calculationType === 'yield' ? state.dirtyPrice : state.yieldTM}
+                    onChange={(e) => {
+                      if (state.calculationType === 'yield') {
+                        setState(prev => ({ ...prev, dirtyPrice: e.target.value }));
+                      } else {
+                        setState(prev => ({ ...prev, yieldTM: e.target.value }));
                       }
-                    </div>
-                    <div className="font-medium text-gray-600">Issue Date</div>
-                    <div className="font-semibold text-gray-800">{format(new Date(selectedBondData.IssueDate), "dd-MMM-yyyy")}</div>
-                    <div className="font-medium text-gray-600">Maturity Date</div>
-                    <div className="font-semibold text-gray-800">{format(new Date(selectedBondData.MaturityDate), "dd-MMM-yyyy")}</div>
-                    
-                    {/* Primary Market specific fields */}
-                    {state.marketType === 'primary' && (
-                      <>
-                        {(selectedBondData as PrimaryMarketBond).FirstCallDate && (
-                          <>
-                            <div className="font-medium text-gray-600">1st Redemption Date</div>
-                            <div className="font-semibold text-gray-800">{format(new Date((selectedBondData as PrimaryMarketBond).FirstCallDate!), "dd-MMM-yyyy")}</div>
-                          </>
-                        )}
-                        {(selectedBondData as PrimaryMarketBond).SecondCallDate && (
-                          <>
-                            <div className="font-medium text-gray-600">2nd Redemption Date</div>
-                            <div className="font-semibold text-gray-800">{format(new Date((selectedBondData as PrimaryMarketBond).SecondCallDate!), "dd-MMM-yyyy")}</div>
-                          </>
-                        )}
-                        {(selectedBondData as PrimaryMarketBond).ParCall1Percent && (
-                          <>
-                            <div className="font-medium text-gray-600">1st Redemption %</div>
-                            <div className="font-semibold text-gray-800">{(selectedBondData as PrimaryMarketBond).ParCall1Percent}</div>
-                          </>
-                        )}
-                        {(selectedBondData as PrimaryMarketBond).ParCall2Percent && (
-                          <>
-                            <div className="font-medium text-gray-600">2nd Redemption %</div>
-                            <div className="font-semibold text-gray-800">{(selectedBondData as PrimaryMarketBond).ParCall2Percent}</div>
-                          </>
-                        )}
-                      </>
-                    )}
-                    
-                    <div className="font-medium text-gray-600">Previous Coupon</div>
-                    <div className="font-semibold text-gray-800">{calculationResult.previousCoupon ? format(calculationResult.previousCoupon, "dd-MMM-yyyy") : "-"}</div>
-                    <div className="font-medium text-gray-600">Next Coupon Date</div>
-                    <div className="font-semibold text-gray-800">{calculationResult.nextCouponDate ? format(calculationResult.nextCouponDate, "dd-MMM-yyyy") : "-"}</div>
-                    <div className="font-medium text-gray-600">Next Coupon Days</div>
-                    <div className="font-semibold text-gray-800">{calculationResult.nextCouponDays}</div>
-                    <div className="font-medium text-gray-600">Coupon Period</div>
-                    <div className="font-semibold text-gray-800">
-                      {(() => {
-                        const dayCountConvention = state.marketType === 'secondary' 
-                          ? details.DailyBasis
-                          : (selectedBondData as PrimaryMarketBond).DayCount;
-                        
-                        // Excel formula: =IF(C18=360,180,C29-C28)
-                        if (dayCountConvention === 360) {
-                          return 180;
-                        } else if (calculationResult.previousCoupon && calculationResult.nextCouponDate) {
-                          // Calculate difference between Next Coupon Date and Previous Coupon Date
-                          return daysBetween(calculationResult.previousCoupon, calculationResult.nextCouponDate);
-                        } else {
-                          // Fallback to default logic if dates are not available
-                          return dayCountConvention === 364 ? 182 : dayCountConvention / 2;
-                        }
-                      })()}
-                    </div>
-                    <div className="font-medium text-gray-600">Coupons Due</div>
-                    <div className="font-semibold text-gray-800">{calculationResult.couponsDue}</div>
-                    {/* <div className="font-medium text-gray-600">Coupons Paid</div>
-                    <div className="font-semibold text-gray-800">{calculationResult.couponsPaid}</div> */}
-                    <div className="font-medium text-gray-600">Clean Price</div>
-                    <div className="font-bold text-amber-600">{calculationResult.cleanPrice.toFixed(4)}</div>
-                    {/* <div className="font-medium text-gray-600">Accrued Interest</div>
-                    <div className="font-semibold text-gray-800">{calculationResult.accruedInterest.toFixed(4)}</div> */}
-                    {state.calculationType === 'price' && (
-                      <>
-                        <div className="font-medium text-gray-600">Calculated Dirty Price</div>
-                        <div className="font-bold text-green-600">{calculationResult.dirtyPrice.toFixed(6)}</div>
-                      </>
-                    )}
-                    {state.calculationType === 'yield' && (
-                      <>
-                        <div className="font-medium text-gray-600">Dirty Price</div>
-                        <div className="font-bold text-green-600">{parseFloat(state.dirtyPrice).toFixed(4)}</div>
-                      </>
-                    )}
-                  </div>
+                    }}
+                    className="h-10 border-neutral-200 bg-white text-black font-bold focus:ring-black"
+                    placeholder={state.calculationType === 'yield' ? 'Price' : 'Yield'}
+                  />
                 </div>
               </div>
-            )}
 
-            <Separator />
-
-            {/* Bond Quotation & Financial Summary Accordion */}
-            {selectedBondData && calculationResult && (
-              <Accordion type="single" collapsible className="space-y-0">
-                <AccordionItem value="quotation-financial" className="border-none">
-                  <AccordionTrigger className="hover:no-underline">
-                    <Label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Bond Quotation & Financial Summary</Label>
-                  </AccordionTrigger>
-                  <AccordionContent className="space-y-6 pt-3">
-                    {/* Bond Quotation Section */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Bond Quotation</Label>
-                      <div className="bg-green-50 rounded-lg p-4">
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
-                          <div className="font-medium text-gray-600">Bond Issue No</div>
-                          <div className="font-semibold text-gray-800">{selectedBondData.BondIssueNo}</div>
-                          <div className="font-medium text-gray-600">ISIN No (optional)</div>
-                          <div className="font-semibold text-gray-800">{state.isinNo || "-"}</div>
-                          <div className="font-medium text-gray-600">Bond Tenor (Yrs)</div>
-                          <div className="font-semibold text-gray-800">{calculationResult.bondTenor.toFixed(4)}</div>
-                          <div className="font-medium text-gray-600">Term-to-Maturity (Yrs)</div>
-                          <div className="font-semibold text-gray-800">{calculationResult.termToMaturity.toFixed(4)}</div>
-                          <div className="font-medium text-gray-600">Issue Date</div>
-                          <div className="font-semibold text-gray-800">{format(new Date(selectedBondData.IssueDate), "dd-MMM-yyyy")}</div>
-                          <div className="font-medium text-gray-600">Maturity Date</div>
-                          <div className="font-semibold text-gray-800">{format(new Date(selectedBondData.MaturityDate), "dd-MMM-yyyy")}</div>
-                          <div className="font-medium text-gray-600">Settlement Date</div>
-                          <div className="font-semibold text-gray-800">{format(new Date(state.settlementDate), "dd-MMM-yyyy")}</div>
-                          <div className="font-medium text-gray-600">Last Coupon Date</div>
-                          <div className="font-semibold text-gray-800">{calculationResult.previousCoupon ? format(calculationResult.previousCoupon, "dd-MMM-yyyy") : "-"}</div>
-                          <div className="font-medium text-gray-600">Next Coupon Date</div>
-                          <div className="font-semibold text-gray-800">{calculationResult.nextCouponDate ? format(calculationResult.nextCouponDate, "dd-MMM-yyyy") : "-"}</div>
-                          <div className="font-medium text-gray-600">Coupon (KES)</div>
-                          <div className="font-semibold text-gray-800">{parseFloat(state.coupon).toFixed(4)}</div>
-                          <div className="font-medium text-gray-600">Coupons Paid</div>
-                          <div className="font-semibold text-gray-800">{calculationResult.couponsPaid}</div>
-                          <div className="font-medium text-gray-600">Coupons Due</div>
-                          <div className="font-semibold text-gray-800">{calculationResult.couponsDue}</div>
-                          <div className="font-medium text-gray-600">YTM (%)</div>
-                          <div className="font-bold text-blue-600">
-                            {state.calculationType === 'yield' 
-                              ? 'Calculated from price' 
-                              : parseFloat(state.yieldTM).toFixed(4) + '%'
-                            }
-                          </div>
-                          <div className="font-medium text-gray-600">Price per 100</div>
-                          <div className="font-bold text-green-600">{calculationResult.dirtyPrice.toFixed(4)}</div>
-                          <div className="font-medium text-gray-600">Accrued Interest</div>
-                          <div className="font-semibold text-gray-800">{calculationResult.accruedInterest.toFixed(4)}</div>
-                          <div className="font-medium text-gray-600">Clean Price</div>
-                          <div className="font-semibold text-gray-800">{calculationResult.cleanPrice.toFixed(4)}</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Financial Summary Section */}
-                    {parseFloat(state.faceValue) > 0 && (
-                      <div className="space-y-3">
-                        <Label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Financial Summary</Label>
-                        <div className="bg-purple-50 rounded-lg p-4">
-                          <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-xs">
-                            <div className="font-medium text-gray-600">Face Value (KES)</div>
-                            <div>
-                              <Input
-                                value={state.faceValue}
-                                onChange={(e) => setState(prev => ({ ...prev, faceValue: e.target.value }))}
-                                className="h-7 border-2 border-yellow-200 hover:border-yellow-300 focus:border-yellow-400 bg-yellow-50 text-xs font-semibold"
-                                placeholder="0"
-                              />
-                            </div>
-                            <div className="font-medium text-gray-600">Consideration</div>
-                            <div className="font-bold text-blue-600 text-sm">{formatCurrency(calculationResult.consideration)}</div>
-                            <div className="font-medium text-gray-600">Commission (NSE)</div>
-                            <div className="font-semibold text-gray-800">{formatCurrency(calculationResult.commissionNSE)}</div>
-                            <div className="font-medium text-gray-600">Other levies (CMA)</div>
-                            <div className="font-semibold text-gray-800">{formatCurrency(calculationResult.otherLevies)}</div>
-                            <div className="font-medium text-gray-600">Withholding Tax</div>
-                            <div className={calculationResult.withholdingTax > 0 ? "font-semibold text-red-600" : "font-semibold text-gray-800"}>{formatCurrency(calculationResult.withholdingTax)}</div>
-                            <div className="font-medium text-gray-700 border-t pt-2">Total Payable</div>
-                            <div className="font-bold text-green-600 text-sm border-t pt-2">{formatCurrency(calculationResult.totalPayable)}</div>
-                            <div className="font-medium text-gray-600">Total Receivable</div>
-                            <div className="font-bold text-blue-600 text-sm">{formatCurrency(calculationResult.totalReceivable)}</div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            )}
-
-            {/* Calculation Status */}
-            {isCalculating && (
-              <div className="flex items-center justify-center py-6">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-3 text-sm font-medium text-gray-600">Calculating...</span>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-neutral-600">Coupon (%)</Label>
+                  <Input
+                    value={state.coupon}
+                    onChange={(e) => setState(prev => ({ ...prev, coupon: e.target.value }))}
+                    className="h-10 border-neutral-200 bg-white text-black font-bold focus:ring-black"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-neutral-600">Face Value (KES)</Label>
+                  <Input
+                    value={state.faceValue}
+                    onChange={(e) => setState(prev => ({ ...prev, faceValue: e.target.value }))}
+                    className="h-10 border-neutral-200 bg-white text-black font-bold focus:ring-black"
+                  />
+                </div>
               </div>
-            )}
-          </div>
-
-          {/* Manual Calculate Button */}
-          <div className="mt-8 sticky bottom-0 bg-background pt-4 border-t border-gray-200">
-            <div className="grid grid-cols-2 gap-3">
-              <Button 
-                variant="outline"
-                onClick={() => {
-                  setCalculationResult(null);
-                  setState(prev => ({ 
-                    ...prev, 
-                    dirtyPrice: '101.0766',
-                    yieldTM: '15.6914',
-                    faceValue: '',
-                    isinNo: ''
-                  }));
-                }}
-                disabled={isCalculating}
-                className="h-10 border-2 border-gray-300 hover:border-gray-400 font-medium"
-              >
-                Reset
-              </Button>
-              <Button 
-                onClick={handleCalculate}
-                disabled={isCalculating || !selectedBondData}
-                className="h-10 bg-blue-600 hover:bg-blue-700 font-medium shadow-md"
-              >
-                {isCalculating ? 'Calculating...' : 'Recalculate'}
-              </Button>
             </div>
           </div>
-        </SheetContent>
-      </Sheet>
-    </ScrollArea>
+
+          {/* Bond Details Display */}
+          {selectedBondData && calculationResult && (
+            <div className="space-y-4">
+              <Separator className="bg-neutral-100" />
+              <Label className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Results Overview</Label>
+              <div className="bg-neutral-50 rounded-xl border border-neutral-200 p-4 space-y-2.5">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-semibold text-neutral-500">Maturity Date</span>
+                  <span className="font-bold text-black">{format(new Date(selectedBondData.MaturityDate), "dd-MMM-yyyy")}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-semibold text-neutral-500">Next Coupon Date</span>
+                  <span className="font-bold text-black">{calculationResult.nextCouponDate ? format(calculationResult.nextCouponDate, "dd-MMM-yyyy") : "-"}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-semibold text-neutral-500">Clean Price</span>
+                  <span className="font-bold text-black">{calculationResult.cleanPrice.toFixed(4)}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs border-t border-neutral-200 pt-2 mt-2">
+                  <span className="font-bold text-neutral-600">Result Price</span>
+                  <span className="font-bold text-black text-sm">{calculationResult.dirtyPrice.toFixed(6)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Financial Summary */}
+          {selectedBondData && calculationResult && parseFloat(state.faceValue) > 0 && (
+            <Accordion type="single" collapsible className="space-y-0">
+              <AccordionItem value="quotation-financial" className="border-none">
+                <AccordionTrigger className="hover:no-underline px-0">
+                  <Label className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Full Financial Disclosure</Label>
+                </AccordionTrigger>
+                <AccordionContent className="pt-2">
+                  <div className="bg-white border border-neutral-200 rounded-xl p-4 shadow-sm space-y-3">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-semibold text-neutral-500">Consideration</span>
+                      <span className="font-bold text-black">{formatCurrency(calculationResult.consideration)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-semibold text-neutral-500">Commission (NSE)</span>
+                      <span className="font-bold text-black">{formatCurrency(calculationResult.commissionNSE)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-semibold text-neutral-500">Other Levies (CMA)</span>
+                      <span className="font-bold text-black">{formatCurrency(calculationResult.otherLevies)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs border-t border-neutral-100 pt-3 mt-3">
+                      <span className="font-bold text-black text-sm">Total Payable</span>
+                      <span className="font-bold text-black text-sm">{formatCurrency(calculationResult.totalPayable)}</span>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          )}
+
+          {isCalculating && (
+            <div className="flex items-center justify-center py-6">
+              <Loader2 className="animate-spin h-8 w-8 text-black opacity-20" />
+              <span className="ml-3 text-sm font-bold text-neutral-500">Recalculating...</span>
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="mt-auto sticky bottom-0 bg-white pt-6 pb-2 border-t border-neutral-100 grid grid-cols-2 gap-4">
+          <Button 
+            variant="outline"
+            onClick={() => {
+              setCalculationResult(null);
+              setState(prev => ({ 
+                ...prev, 
+                dirtyPrice: '101.0766',
+                yieldTM: '15.6914',
+                faceValue: '',
+                isinNo: ''
+              }));
+            }}
+            className="h-12 border-neutral-200 text-black bg-white hover:bg-neutral-50 font-bold"
+          >
+            Reset
+          </Button>
+          <Button 
+            onClick={handleCalculate}
+            disabled={isCalculating || !selectedBondData}
+            className="h-12 bg-black text-white hover:bg-neutral-800 font-bold border-none"
+          >
+            Recalculate
+          </Button>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }

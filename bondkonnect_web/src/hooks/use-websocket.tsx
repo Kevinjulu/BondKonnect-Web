@@ -30,7 +30,13 @@ export const useWebSocket = ({
 
     try {
       console.log(`Initializing WebSocket for user ${userId}`);
-      await webSocketService.initialize(userId, authCookie);
+      const echoInstance = await webSocketService.initialize(userId, authCookie);
+      
+      if (!echoInstance) {
+        console.warn('WebSocket initialization skipped (check configuration).');
+        return;
+      }
+
       isConnectedRef.current = true;
 
       // Listen for notifications if callback provided

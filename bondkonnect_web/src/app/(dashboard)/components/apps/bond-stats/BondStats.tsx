@@ -1,8 +1,7 @@
 'use client'
 import React, { useState, useMemo, useEffect } from 'react'
-// import * as React from 'react'
 import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable,} from '@tanstack/react-table'
-import { ChevronDown, SlidersHorizontal } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal, ArrowUpDown, Search, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger,} from '@/components/ui/dropdown-menu'
@@ -11,8 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card"
 import { ScrollArea,ScrollBar } from "@/components/ui/scroll-area"
 import { getStatsTable } from '@/lib/actions/api.actions'
-import { Icons } from '@/components/icons'
-import PageContainer from '../../container/PageContainer'
+import { Badge } from '@/components/ui/badge'
 
 interface BondData {
   Otr: string | null;
@@ -44,7 +42,6 @@ interface BondData {
   MdRank: string | null;
   ErRank: string | null;
   Basis: string | null;
-  // IndicativeBidAsk: string | null;
 }
 
 declare module '@tanstack/react-table' {
@@ -58,7 +55,7 @@ const columns: ColumnDef<BondData>[] = [
   {
     accessorKey: 'rowNumber',
     header: '#',
-    cell: ({ row }) => <div className="text-right font-medium text-slate-600">{row.index + 1}</div>,
+    cell: ({ row }) => <div className="text-right font-medium text-neutral-500">{row.index + 1}</div>,
     enableSorting: false,
     enableHiding: false,
     size: 60,
@@ -66,63 +63,63 @@ const columns: ColumnDef<BondData>[] = [
   {
     accessorKey: 'BondIssueNo',
     header: 'Bond Issue',
-    cell: ({ row }) => <div className="font-semibold text-slate-900">{row.getValue('BondIssueNo')}</div>,
+    cell: ({ row }) => <div className="font-semibold text-black">{row.getValue('BondIssueNo')}</div>,
     size: 120,
   },
   // Bond Valuation Metrics columns
   {
     accessorKey: 'QuotedYield',
     header: 'Quoted Yield',
-    cell: ({ row }) => <div className="text-center font-mono text-sm">{row.getValue('QuotedYield')}</div>,
+    cell: ({ row }) => <div className="text-center font-mono text-sm text-black">{row.getValue('QuotedYield')}</div>,
     sortingFn: 'alphanumeric',
     meta: { group: 'Bond Valuation Metrics' },
   },
   {
     accessorKey: 'IssueDate',
     header: 'Issue Date',
-    cell: ({ row }) => <div className="text-center text-sm text-slate-600">{row.getValue('IssueDate')}</div>,
+    cell: ({ row }) => <div className="text-center text-sm text-neutral-500">{row.getValue('IssueDate')}</div>,
     sortingFn: 'datetime',
     meta: { group: 'Bond Valuation Metrics' },
   },
   {
     accessorKey: 'MaturityDate',
     header: 'Maturity Date',
-    cell: ({ row }) => <div className="text-center text-sm text-slate-600">{row.getValue('MaturityDate')}</div>,
+    cell: ({ row }) => <div className="text-center text-sm text-neutral-500">{row.getValue('MaturityDate')}</div>,
     sortingFn: 'datetime',
     meta: { group: 'Bond Valuation Metrics' },
   },
   {
     accessorKey: 'Coupon',
     header: 'Coupon',
-    cell: ({ row }) => <div className="text-center font-mono text-sm">{row.getValue('Coupon')}%</div>,
+    cell: ({ row }) => <div className="text-center font-mono text-sm text-black">{row.getValue('Coupon')}%</div>,
     sortingFn: 'basic',
     meta: { group: 'Bond Valuation Metrics' },
   },
   {
     accessorKey: 'NextCpnDays',
     header: 'Next Coupon (days)',
-    cell: ({ row }) => <div className="text-center font-mono text-sm">{row.getValue('NextCpnDays')}</div>,
+    cell: ({ row }) => <div className="text-center font-mono text-sm text-neutral-600">{row.getValue('NextCpnDays')}</div>,
     sortingFn: 'basic',
     meta: { group: 'Bond Valuation Metrics' },
   },
   {
     accessorKey: 'DtmYrs',
     header: 'DTM (Yrs)',
-    cell: ({ row }) => <div className="text-center font-mono text-sm">{row.getValue('DtmYrs')}</div>,
+    cell: ({ row }) => <div className="text-center font-mono text-sm text-neutral-600">{row.getValue('DtmYrs')}</div>,
     sortingFn: 'basic',
     meta: { group: 'Bond Valuation Metrics' },
   },
   {
     accessorKey: 'DirtyPrice',
     header: 'Dirty Price',
-    cell: ({ row }) => <div className="text-center font-mono text-sm font-semibold text-green-700">{row.getValue('DirtyPrice')}</div>,
+    cell: ({ row }) => <div className="text-center font-mono text-sm font-bold text-black">{row.getValue('DirtyPrice')}</div>,
     sortingFn: 'basic',
     meta: { group: 'Bond Valuation Metrics' },
   },
   {
     accessorKey: 'SpotYield',
     header: 'Yield',
-    cell: ({ row }) => <div className="text-center font-mono text-sm">{row.getValue('SpotYield')}%</div>,
+    cell: ({ row }) => <div className="text-center font-mono text-sm text-black">{row.getValue('SpotYield')}%</div>,
     sortingFn: 'alphanumeric',
     meta: { group: 'Bond Valuation Metrics' },
   },
@@ -130,56 +127,56 @@ const columns: ColumnDef<BondData>[] = [
   {
     accessorKey: 'Duration',
     header: 'Duration',
-    cell: ({ row }) => <div className="text-center font-mono text-sm">{row.getValue('Duration')}</div>,
+    cell: ({ row }) => <div className="text-center font-mono text-sm text-neutral-600">{row.getValue('Duration')}</div>,
     sortingFn: 'basic',
     meta: { group: 'Risk Budgeting Indicators' },
   },
   {
     accessorKey: 'MDuration',
     header: 'M-Duration',
-    cell: ({ row }) => <div className="text-center font-mono text-sm">{row.getValue('MDuration')}</div>,
+    cell: ({ row }) => <div className="text-center font-mono text-sm text-neutral-600">{row.getValue('MDuration')}</div>,
     sortingFn: 'basic',
     meta: { group: 'Risk Budgeting Indicators' },
   },
   {
     accessorKey: 'Convexity',
     header: 'Convexity',
-    cell: ({ row }) => <div className="text-center font-mono text-sm">{row.getValue('Convexity')}</div>,
+    cell: ({ row }) => <div className="text-center font-mono text-sm text-neutral-600">{row.getValue('Convexity')}</div>,
     sortingFn: 'basic',
     meta: { group: 'Risk Budgeting Indicators' },
   },
   {
     accessorKey: 'Dv01',
     header: 'DV01',
-    cell: ({ row }) => <div className="text-center font-mono text-sm">{row.getValue('Dv01')}</div>,
+    cell: ({ row }) => <div className="text-center font-mono text-sm text-neutral-600">{row.getValue('Dv01')}</div>,
     sortingFn: 'basic',
     meta: { group: 'Risk Budgeting Indicators' },
   },
   {
     accessorKey: 'ExpectedShortfall',
-    header: 'Expected Shortfall',
-    cell: ({ row }) => <div className="text-center font-mono text-sm text-red-600">{row.getValue('ExpectedShortfall')}</div>,
+    header: 'Exp. Shortfall',
+    cell: ({ row }) => <div className="text-center font-mono text-sm text-neutral-600">{row.getValue('ExpectedShortfall')}</div>,
     sortingFn: 'basic',
     meta: { group: 'Risk Budgeting Indicators' },
   },
   {
     accessorKey: 'ExpectedReturn',
-    header: 'Expected Return',
-    cell: ({ row }) => <div className="text-center font-mono text-sm text-green-600">{row.getValue('ExpectedReturn')}%</div>,
+    header: 'Exp. Return',
+    cell: ({ row }) => <div className="text-center font-mono text-sm font-medium text-black">{row.getValue('ExpectedReturn')}%</div>,
     sortingFn: 'basic',
     meta: { group: 'Risk Budgeting Indicators' },
   },
   {
     accessorKey: 'Last91Days',
     header: 'Last 91 Days',
-    cell: ({ row }) => <div className="text-center font-mono text-sm">{row.getValue('Last91Days')}</div>,
+    cell: ({ row }) => <div className="text-center font-mono text-sm text-neutral-500">{row.getValue('Last91Days')}</div>,
     sortingFn: 'basic',
     meta: { group: 'Risk Budgeting Indicators' },
   },
   {
     accessorKey: 'Last364Days',
     header: 'Last 364 Days',
-    cell: ({ row }) => <div className="text-center font-mono text-sm">{row.getValue('Last364Days')}</div>,
+    cell: ({ row }) => <div className="text-center font-mono text-sm text-neutral-500">{row.getValue('Last364Days')}</div>,
     sortingFn: 'basic',
     meta: { group: 'Risk Budgeting Indicators' },
   },
@@ -294,28 +291,28 @@ export function BondStats() {
 
   const LoadingSpinner = () => {
     return (
-      <div className="flex flex-col items-center justify-center h-32 space-y-2">
-        <Icons.spinner className="h-8 w-8 animate-spin text-blue-600" />
-        <p className="text-sm text-slate-500">Loading bond data...</p>
+      <div className="flex flex-col items-center justify-center h-60 space-y-4">
+        <Loader2 className="h-10 w-10 animate-spin text-black opacity-20" />
+        <p className="text-sm font-medium text-neutral-500">Synchronizing bond data...</p>
       </div>
     );
   }
 
   return (
     <div className="w-full space-y-6">
-      <Card className="w-full shadow-lg border-0 bg-gradient-to-br from-white to-slate-50">
-        <CardHeader className="pb-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
+      <Card className="w-full shadow-sm border border-neutral-200 bg-white">
+        <CardHeader className="pb-4 border-b border-neutral-100 bg-neutral-50 rounded-t-lg">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <CardTitle className="text-2xl font-bold">Bond Statistics</CardTitle>
-              <CardDescription className="text-blue-100 mt-1">
+              <CardTitle className="text-2xl font-bold text-black">Bond Statistics</CardTitle>
+              <CardDescription className="text-neutral-500 mt-1">
                 Comprehensive bond valuation metrics and risk indicators
               </CardDescription>
             </div>
             <div className="flex items-center gap-3">
-              <div className="text-right">
-                <p className="text-sm text-blue-100">Total Bonds</p>
-                <p className="text-lg font-bold">{data.length}</p>
+              <div className="text-right bg-white px-4 py-2 rounded-lg border border-neutral-200">
+                <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Total Bonds</p>
+                <p className="text-xl font-bold text-black leading-none mt-1">{data.length}</p>
               </div>
             </div>
           </div>
@@ -324,28 +321,28 @@ export function BondStats() {
         <CardContent className="p-6">
           {/* Search and Filter Controls */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-            <div className="relative flex-1 max-w-md">
+            <div className="relative flex-1 max-w-md w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
               <Input
                 placeholder="Search bonds, yields, prices..."
                 value={globalFilter}
                 onChange={(e) => setGlobalFilter(e.target.value)}
-                className="pl-10 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                className="pl-10 bg-white border-neutral-200 text-black focus:ring-black focus:border-black"
               />
-              <Icons.spinner className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
             </div>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="border-slate-300 hover:bg-slate-50">
+                <Button variant="outline" className="bg-black text-white hover:bg-neutral-800 border-black">
                   <SlidersHorizontal className="mr-2 h-4 w-4" />
                   Customize View ({Object.values(columnVisibility).filter(Boolean).length + Object.keys(columnVisibility).filter(key => columnVisibility[key] === undefined).length})
-                  <ChevronDown className="ml-2 h-4 w-4" />
+                  <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[280px] max-h-[400px] overflow-y-auto">
+              <DropdownMenuContent align="end" className="w-[280px] max-h-[400px] overflow-y-auto bg-white border border-neutral-200 text-black">
                 {Object.entries(columnGroups).map(([groupName, groupColumns]) => (
                   <div key={groupName} className="p-2">
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 px-2">
+                    <div className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2 px-2">
                       {groupName}
                     </div>
                     {groupColumns.map((column) => {
@@ -356,7 +353,7 @@ export function BondStats() {
                       return (
                         <DropdownMenuCheckboxItem
                           key={columnKey}
-                          className="capitalize pl-4 text-sm"
+                          className="capitalize pl-4 text-sm focus:bg-neutral-100 focus:text-black"
                           checked={tableColumn.getIsVisible()}
                           onCheckedChange={(checked) => tableColumn.toggleVisibility(checked)}
                         >
@@ -371,16 +368,16 @@ export function BondStats() {
           </div>
 
           {/* Table Container */}
-          <div className="border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm">
+          <div className="border border-neutral-200 rounded-xl overflow-hidden bg-white shadow-sm">
             <ScrollArea className="w-full">
-              <div className="min-w-[1200px]"> {/* Minimum width for horizontal scroll */}
+              <div className="min-w-[1200px]">
                 {loading ? (
                   <LoadingSpinner />
                 ) : (
                   <Table>
                     <TableHeader>
                       {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id} className="bg-slate-50 border-b border-slate-200 hover:bg-slate-50">
+                        <TableRow key={headerGroup.id} className="bg-neutral-50 border-b border-neutral-200 hover:bg-neutral-50">
                           {headerGroup.headers.map((header) => {
                             const column = header.column
                             const canSort = column.getCanSort()
@@ -388,24 +385,19 @@ export function BondStats() {
                             return (
                               <TableHead 
                                 key={header.id} 
-                                className="h-12 px-4 text-left align-middle font-semibold text-slate-700 border-r border-slate-200 last:border-r-0"
+                                className="h-12 px-4 text-left align-middle font-semibold text-neutral-600 border-r border-neutral-100 last:border-r-0"
                                 style={{ width: header.getSize() }}
                               >
                                 {header.isPlaceholder ? null : (
                                   <div
-                                    className={`flex items-center space-x-2 ${canSort ? 'cursor-pointer select-none hover:text-slate-900' : ''}`}
+                                    className={`flex items-center space-x-2 ${canSort ? 'cursor-pointer select-none hover:text-black transition-colors' : ''}`}
                                     onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                                   >
-                                    <span className="text-xs uppercase tracking-wide">
+                                    <span className="text-xs font-bold uppercase tracking-wider">
                                       {flexRender(header.column.columnDef.header, header.getContext())}
                                     </span>
                                     {canSort && (
-                                      <span className="text-slate-400">
-                                        {{
-                                          asc: '↑',
-                                          desc: '↓',
-                                        }[header.column.getIsSorted() as string] ?? '↕'}
-                                      </span>
+                                      <ArrowUpDown className="h-3 w-3 text-neutral-400" />
                                     )}
                                   </div>
                                 )}
@@ -420,13 +412,13 @@ export function BondStats() {
                         table.getRowModel().rows.map((row, index) => (
                           <TableRow 
                             key={row.id} 
-                            className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-slate-25'}`}
+                            className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors bg-white"
                             data-state={row.getIsSelected() && "selected"}
                           >
                             {row.getVisibleCells().map((cell) => (
                               <TableCell 
                                 key={cell.id} 
-                                className="px-4 py-3 text-sm border-r border-slate-100 last:border-r-0"
+                                className="px-4 py-3 text-sm border-r border-neutral-50 last:border-r-0 text-black"
                               >
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                               </TableCell>
@@ -435,13 +427,13 @@ export function BondStats() {
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={columns.length} className="h-32 text-center">
-                            <div className="flex flex-col items-center justify-center space-y-3 text-slate-500">
-                              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
-                                <Icons.spinner className="w-6 h-6" />
+                          <TableCell colSpan={columns.length} className="h-60 text-center">
+                            <div className="flex flex-col items-center justify-center space-y-3 text-neutral-400">
+                              <div className="w-16 h-16 bg-neutral-50 rounded-full flex items-center justify-center mb-2">
+                                <Search className="w-6 h-6 opacity-20 text-black" />
                               </div>
                               <div>
-                                <p className="text-lg font-medium">No bond data found</p>
+                                <p className="text-lg font-bold text-black">No bond data found</p>
                                 <p className="text-sm">Try adjusting your search or filters</p>
                               </div>
                             </div>
@@ -452,20 +444,21 @@ export function BondStats() {
                   </Table>
                 )}
               </div>
-              <ScrollBar orientation="horizontal" />
+              <ScrollBar orientation="horizontal" className="bg-neutral-100" />
             </ScrollArea>
           </div>
         </CardContent>
 
-        <CardFooter className="bg-slate-50 border-t border-slate-200 px-6 py-4">
+        <CardFooter className="bg-white border-t border-neutral-200 px-6 py-4">
           <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4">
-            <div className="flex items-center space-x-2 text-sm text-slate-600">
-              <span>
-                Showing {table.getFilteredRowModel().rows.length} of {data.length} bonds
+            <div className="flex items-center space-x-2 text-sm text-neutral-500">
+              <span className="font-medium text-black">
+                {table.getFilteredRowModel().rows.length}
               </span>
+              <span>records found</span>
               <span>•</span>
               <span>
-                Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                Page <span className="font-medium text-black">{table.getState().pagination.pageIndex + 1}</span> of <span className="font-medium text-black">{table.getPageCount()}</span>
               </span>
             </div>
             
@@ -475,7 +468,7 @@ export function BondStats() {
                 size="sm"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="border-slate-300 hover:bg-slate-100"
+                className="bg-black text-white hover:bg-neutral-800 border-none"
               >
                 Previous
               </Button>
@@ -484,7 +477,7 @@ export function BondStats() {
                 size="sm"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="border-slate-300 hover:bg-slate-100"
+                className="bg-black text-white hover:bg-neutral-800 border-none"
               >
                 Next
               </Button>

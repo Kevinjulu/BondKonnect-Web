@@ -52,60 +52,9 @@ const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) =
     };
   
     const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
-      setLoading(true);
       e.preventDefault();
-  
-      const email = emailRef.current?.value || "";
-      const password = passwordRef.current?.value || "";
-  
-      // Validate email and password
-      if (!emailRegex.test(email)) {
-        setSnackbarMessage("Invalid Email Format");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-        setLoading(false);
-        return;
-      }
-  
-      if (!password) {
-        setSnackbarMessage("Password is Required!");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-        setLoading(false);
-        return;
-      }
-  
-      try {
-        const queryParams = new URLSearchParams({
-          email: email,
-          password: password,
-        }).toString();
-  
-        const result = await login(queryParams);
-        console.log("Login Result:", result);
-        if (result && result.success) {
-          setSnackbarMessage(result.message || "Login Successful, OTP sent.");
-          setSnackbarSeverity("success");
-          setSnackbarOpen(true);
-  
-          // Redirect to the dashboard or another page
-          router.push(`/auth/otp?email=${encodeURIComponent(email)}`);
-         // setLoad(true);
-        } else {
-          setSnackbarMessage(
-            result?.message || "An error occurred during login. Please try again."
-          );
-          setSnackbarSeverity("error");
-          setSnackbarOpen(true);
-        }
-      } catch (error) {
-        console.error("Login Error:", error);
-        setSnackbarMessage("An error occurred during login. Please try again.");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-      } finally {
-        setLoading(false);
-      }
+      // BYPASS LOGIN
+      router.push('/');
     };
 
     // if (load) {

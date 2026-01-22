@@ -104,12 +104,10 @@ export function Messages({ userDetails }: { userDetails: any }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Button variant="ghost" className="relative h-10 w-10 rounded-none hover:bg-white/10 text-white transition-colors">
           <TbMessage className="h-5 w-5" />
           {getUnreadCount() > 0 && (
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-xs text-white flex items-center justify-center">
-              {getUnreadCount()}
-            </span>
+            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 border border-black shadow-sm"></span>
           )}
         </Button>
       </DropdownMenuTrigger>

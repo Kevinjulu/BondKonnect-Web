@@ -73,6 +73,13 @@ class WebSocketService {
       websocketBaseUrl = process.env.NEXT_PUBLIC_BK_DEV_WEBSOCKET_API_URL || "";
     }
 
+    // Check for valid Pusher key
+    const pusherKey = process.env.NEXT_PUBLIC_PUSHER_APP_KEY;
+    if (!pusherKey || pusherKey === 'your_pusher_app_key_here') {
+      console.warn('WebSocket initialization skipped: Missing or invalid NEXT_PUBLIC_PUSHER_APP_KEY.');
+      return null;
+    }
+
     console.log('Initializing WebSocket connection...', {
       userId,
       pusherKey: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,

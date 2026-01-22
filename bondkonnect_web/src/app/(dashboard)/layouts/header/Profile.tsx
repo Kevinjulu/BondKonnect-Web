@@ -116,10 +116,12 @@ import { useRouter } from "next/navigation";
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src="/avatars/01.png" alt="@shadcn" />
-              <AvatarFallback>  <User2/></AvatarFallback>
+          <Button variant="ghost" className="relative h-10 w-10 rounded-none hover:bg-white/10 transition-colors">
+            <Avatar className="h-8 w-8 rounded-none border border-white/20">
+              <AvatarImage src="/avatars/01.png" alt="@shadcn" className="rounded-none" />
+              <AvatarFallback className="bg-white/10 text-white rounded-none">
+                <User2 className="h-4 w-4" />
+              </AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>

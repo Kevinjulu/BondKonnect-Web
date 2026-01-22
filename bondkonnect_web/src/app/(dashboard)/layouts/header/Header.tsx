@@ -21,19 +21,22 @@ export default function Header({ userDetails }: HeaderProps) {
   }
   
   return (
-    <header className="sticky top-0 z-10 bg-background">
-      <div className="w-full flex h-14 items-center px-4 border-b justify-between">
+    <header className="sticky top-0 z-10 bg-black text-white border-b border-white/10 shadow-lg">
+      <div className="w-full flex h-16 items-center px-6 justify-between">
         {/* Left side */}
-        <div className="">
-          <SidebarTrigger />
+        <div className="flex items-center gap-4">
+          <SidebarTrigger className="text-white hover:bg-white/10 rounded-none transition-colors" />
+          <div className="h-6 w-px bg-white/20 hidden md:block mx-2"></div>
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hidden lg:block">Market Terminal v1.0</span>
         </div>
 
         {/* Right side */}
-        <div className="flex items-center gap-4">
-          <Search  userDetails={userDetails}/>
-          <ModeToggle/>
-          <Messages  userDetails={userDetails}/>
-          <Notifications  userDetails={userDetails}/>
+        <div className="flex items-center gap-2 lg:gap-4">
+          <Search userDetails={userDetails}/>
+          <div className="h-6 w-px bg-white/20 mx-1 lg:mx-2"></div>
+          <ModeToggle />
+          <Messages userDetails={userDetails}/>
+          <Notifications userDetails={userDetails}/>
           <Profile userDetails={userDetails}/>
         </div>
       </div>
