@@ -1,58 +1,40 @@
 // import { Calendar, Home, Inbox, Search, Settings,ChevronDown,ChevronUp,User2, } from "lucide-react"
 // import { Sidebar,SidebarHeader,SidebarFooter, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem,} from "@/components/ui/sidebar"
-import { SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,} from "@/components/ui/sidebar"
-// import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
-// import Logo from "../../shared/logo/Logo";
-// import { FaAudible } from "react-icons/fa";
-// import { TbSquareLetterB } from "react-icons/tb";
+import { SidebarHeader, SidebarMenu, SidebarMenuItem } from "@/components/ui/sidebar"
 import Image from "next/image";
-
-// interface UserData {
-//   [key: string]: unknown;
-// }
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export function Header({ userDetails }: { userDetails: UserData }) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Avoid hydration mismatch by waiting for mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const logoSrc = mounted && resolvedTheme === "light" 
+    ? "/images/logos/logo-c.png" 
+    : "/images/logos/logo.png";
   
   return (
    
-  <SidebarHeader>
+  <SidebarHeader className="p-0 bg-transparent">
     <SidebarMenu>
       <SidebarMenuItem>
-          <SidebarMenuButton>
-            {/* <TbSquareLetterB className="" /> */}
-              {/* BondKonnect */}
-           
-              <Image
-                src="/images/logos/logo.png"
-                alt="BondKonnect Logo"
-                className="h-6"
-                width={120}
-                height={24}
-              />
-
-              {/* <ChevronDown className="ml-auto" /> */}
-            </SidebarMenuButton>
-        {/* <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton>
-            <TbSquareLetterB className="" />
-              BondKonnect
-              <ChevronDown className="ml-auto" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
-            <DropdownMenuItem>
-              <span>Acme Inc</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <span>Acme Corp.</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu> */}
+          <div className="flex items-center justify-start py-6 px-6">
+            <Image
+              src={logoSrc}
+              alt="BondKonnect Logo"
+              className="h-16 w-auto object-contain transition-all duration-500 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:mx-auto"
+              width={200}
+              height={64}
+              priority
+            />
+          </div>
       </SidebarMenuItem>
     </SidebarMenu>
   </SidebarHeader>
-
-
   )
 }

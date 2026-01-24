@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -19,540 +19,373 @@ import {
   Cell,
   LineChart,
   Line,
+  AreaChart,
+  Area
 } from "recharts"
-import { Download, Calendar, ArrowUpRight, TrendingUp, Users, ShoppingCart, CreditCard, Activity } from "lucide-react"
+import { 
+  Download, 
+  Calendar, 
+  ArrowUpRight, 
+  TrendingUp, 
+  TrendingDown,
+  Activity, 
+  PieChart as PieChartIcon, 
+  BarChart3, 
+  Briefcase,
+  Search,
+  Filter,
+  ArrowDownRight,
+  Info,
+  Terminal,
+  ChevronRight,
+  Shield,
+  AlertCircle
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+
+function ShieldCheckIcon(props: any) {
+  return <Shield {...props} />
+}
 
 export function AnalysisComponent() {
-  const [dateRange, setDateRange] = useState("Dec 10, 2022 - July 18, 2023")
+  const [activeTab, setActiveRange] = useState("6M")
 
-  // Sample data for charts
-  const performanceData = [
-    { state: "WA", value: 85 },
-    { state: "OR", value: 65 },
-    { state: "CA", value: 90 },
-    { state: "NV", value: 50 },
-    { state: "AZ", value: 40 },
-    { state: "MT", value: 60 },
-    { state: "ID", value: 55 },
-    { state: "WY", value: 95 },
-    { state: "CO", value: 75 },
-    { state: "NM", value: 45 },
-    { state: "TX", value: 70 },
-    { state: "OK", value: 65 },
-    { state: "KS", value: 60 },
-    { state: "NE", value: 55 },
-    { state: "SD", value: 50 },
-    { state: "ND", value: 45 },
-    { state: "MN", value: 70 },
-    { state: "IA", value: 65 },
-    { state: "MO", value: 60 },
-    { state: "AR", value: 55 },
-    { state: "LA", value: 50 },
-    { state: "MS", value: 45 },
-    { state: "AL", value: 70 },
-    { state: "GA", value: 85 },
-    { state: "FL", value: 60 },
-    { state: "SC", value: 55 },
-    { state: "NC", value: 50 },
-    { state: "TN", value: 45 },
-    { state: "KY", value: 70 },
-    { state: "VA", value: 65 },
-    { state: "WV", value: 60 },
-    { state: "MD", value: 55 },
-    { state: "DE", value: 50 },
-    { state: "NJ", value: 45 },
-    { state: "PA", value: 70 },
-    { state: "NY", value: 65 },
-    { state: "CT", value: 60 },
-    { state: "RI", value: 55 },
-    { state: "MA", value: 50 },
-    { state: "NH", value: 45 },
-    { state: "VT", value: 70 },
-    { state: "ME", value: 65 },
+  // Bond-specific analytics data
+  const yieldTrendData = [
+    { month: "Aug", treasury: 12.5, corporate: 14.2, infrastructure: 13.8 },
+    { month: "Sep", treasury: 13.2, corporate: 14.8, infrastructure: 14.1 },
+    { month: "Oct", treasury: 14.1, corporate: 15.5, infrastructure: 14.9 },
+    { month: "Nov", treasury: 13.8, corporate: 15.2, infrastructure: 14.5 },
+    { month: "Dec", treasury: 14.5, corporate: 16.1, infrastructure: 15.2 },
+    { month: "Jan", treasury: 15.2, corporate: 16.8, infrastructure: 15.8 },
   ]
 
-  const budgetData = [
-    { name: "Fuel consumption", value: 30, color: "#3b82f6", amount: "$30L" },
-    { name: "Maintenance cost", value: 40, color: "#ef4444", amount: "$64K" },
-    { name: "Other cost", value: 30, color: "#f97316", amount: "$114K" },
+  const allocationData = [
+    { name: "Treasury Bonds", value: 65, color: "#000000" },
+    { name: "Infrastructure", value: 20, color: "#404040" },
+    { name: "Corporate Bonds", value: 10, color: "#737373" },
+    { name: "T-Bills", value: 5, color: "#a3a3a3" },
   ]
 
-  const kpiData = [
-    { id: 1, metric: "Fuel consumption", value: "30L", performance: "8%", cost: "$456k", traveled: "77KM" },
-    { id: 2, metric: "Vehicle utilization", value: "50L", performance: "28%", cost: "$456k", traveled: "77KM" },
-    { id: 3, metric: "Driver performance", value: "30L", performance: "3%", cost: "$456k", traveled: "77KM" },
-    { id: 4, metric: "Maintenance efficiency", value: "30L", performance: "7%", cost: "$456k", traveled: "77KM" },
+  const riskMetrics = [
+    { id: 1, metric: "Portfolio Duration", current: "6.42 Yrs", target: "6.50 Yrs", status: "Optimal", impact: "Low" },
+    { id: 2, metric: "Convexity", current: "48.12", target: "45.00", status: "Elevated", impact: "Medium" },
+    { id: 3, metric: "VaR (95%)", current: "KES 4.2M", target: "KES 5.0M", status: "Safe", impact: "Low" },
+    { id: 4, metric: "Weighted Avg. YTM", current: "14.85%", target: "14.50%", status: "High", impact: "Positive" },
   ]
 
-  const monthlyData = [
-    { name: "Jan", sales: 4000, revenue: 2400, profit: 1800 },
-    { name: "Feb", sales: 3000, revenue: 1398, profit: 1000 },
-    { name: "Mar", sales: 2000, revenue: 9800, profit: 1500 },
-    { name: "Apr", sales: 2780, revenue: 3908, profit: 2000 },
-    { name: "May", sales: 1890, revenue: 4800, profit: 1200 },
-    { name: "Jun", sales: 2390, revenue: 3800, profit: 1700 },
-    { name: "Jul", sales: 3490, revenue: 4300, profit: 2100 },
+  const tradeVolumeData = [
+    { day: "Mon", buys: 420, sells: 380 },
+    { day: "Tue", buys: 550, sells: 410 },
+    { day: "Wed", buys: 390, sells: 490 },
+    { day: "Thu", buys: 610, sells: 320 },
+    { day: "Fri", buys: 480, sells: 550 },
   ]
-
-  const salesData = [
-    { name: "Product A", value: 400 },
-    { name: "Product B", value: 300 },
-    { name: "Product C", value: 300 },
-    { name: "Product D", value: 200 },
-  ]
-
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"]
 
   return (
-    <div className="container mx-auto py-10 px-4">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Report and analytics</h1>
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" className="flex items-center">
-            <Calendar className="h-4 w-4 mr-2" />
-            {dateRange}
-          </Button>
-          <Button variant="outline">
-            <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
-          </Button>
-          <Button variant="outline">
-            <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
-          </Button>
-        </div>
+    <div className="space-y-10">
+      {/* High-Level KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <MetricCard 
+          label="Portfolio Yield" 
+          value="14.85%" 
+          trend="up" 
+          change="+42bps" 
+          icon={TrendingUp}
+          description="vs. Benchmark OBI"
+        />
+        <MetricCard 
+          label="Active Exposure" 
+          value="KES 450M" 
+          trend="up" 
+          change="+12.5%" 
+          icon={Briefcase}
+          description="Total Held-for-Sale"
+        />
+        <MetricCard 
+          label="Market Volume" 
+          value="KES 2.8B" 
+          trend="down" 
+          change="-8.4%" 
+          icon={Activity}
+          description="Last 24h NSE Volume"
+        />
+        <MetricCard 
+          label="Risk Buffer" 
+          value="Optimal" 
+          icon={ShieldCheckIcon}
+          description="Duration matched"
+          status="success"
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center">
-              <h3 className="text-sm text-muted-foreground mb-1">Daily target</h3>
-              <div className="relative w-24 h-24 mb-2">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold">450</span>
-                </div>
-                <svg className="w-full h-full" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" strokeWidth="10" />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="none"
-                    stroke="#10b981"
-                    strokeWidth="10"
-                    strokeDasharray="283"
-                    strokeDashoffset="70"
-                    transform="rotate(-90 50 50)"
-                  />
-                </svg>
-              </div>
-              <p className="text-sm text-muted-foreground">Target: 500</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        {/* Main Yield Trend Analysis */}
+        <Card className="lg:col-span-2 border-neutral-100 shadow-sm rounded-[32px] overflow-hidden bg-white">
+          <CardHeader className="p-8 border-b border-neutral-50 flex flex-row items-center justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-2xl font-black text-black tracking-tight">Yield Multi-Curve Analysis</CardTitle>
+              <CardDescription className="text-neutral-500 font-medium">Comparative historical trends for different bond categories.</CardDescription>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center">
-              <h3 className="text-sm text-muted-foreground mb-1">Weekly target</h3>
-              <div className="relative w-24 h-24 mb-2">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold">2708</span>
-                </div>
-                <svg className="w-full h-full" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" strokeWidth="10" />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="none"
-                    stroke="#3b82f6"
-                    strokeWidth="10"
-                    strokeDasharray="283"
-                    strokeDashoffset="113"
-                    transform="rotate(-90 50 50)"
-                  />
-                </svg>
-              </div>
-              <p className="text-sm text-muted-foreground">Target: 3500</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center">
-              <h3 className="text-sm text-muted-foreground mb-1">Monthly target</h3>
-              <div className="relative w-24 h-24 mb-2">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold">40k</span>
-                </div>
-                <svg className="w-full h-full" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" strokeWidth="10" />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="none"
-                    stroke="#f59e0b"
-                    strokeWidth="10"
-                    strokeDasharray="283"
-                    strokeDashoffset="141"
-                    transform="rotate(-90 50 50)"
-                  />
-                </svg>
-              </div>
-              <p className="text-sm text-muted-foreground">Target: 50k</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center">
-              <h3 className="text-sm text-muted-foreground mb-1">Yearly target</h3>
-              <div className="relative w-24 h-24 mb-2">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold">10m</span>
-                </div>
-                <svg className="w-full h-full" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" strokeWidth="10" />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="none"
-                    stroke="#ec4899"
-                    strokeWidth="10"
-                    strokeDasharray="283"
-                    strokeDashoffset="198"
-                    transform="rotate(-90 50 50)"
-                  />
-                </svg>
-              </div>
-              <p className="text-sm text-muted-foreground">Target: 500k</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-1">
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center">
-              <h3 className="text-sm text-muted-foreground mb-1">Total Revenue</h3>
-              <div className="text-3xl font-bold mb-2">$450K</div>
-              <div className="flex items-center text-green-500">
-                <ArrowUpRight className="h-4 w-4 mr-1" />
-                <span className="text-sm">+12.5%</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>Driver performance</CardTitle>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm" className="h-8">
-                  Monthly
-                </Button>
-                <Button size="sm" className="h-8">
-                  Yearly
-                </Button>
-              </div>
+            <div className="flex bg-neutral-100 p-1 rounded-xl">
+              {["1M", "3M", "6M", "1Y"].map((range) => (
+                <button
+                  key={range}
+                  onClick={() => setActiveRange(range)}
+                  className={cn(
+                    "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all",
+                    activeTab === range ? "bg-black text-white shadow-lg" : "text-neutral-400 hover:text-black"
+                  )}
+                >
+                  {range}
+                </button>
+              ))}
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="h-[350px] w-full">
+          <CardContent className="p-8">
+            <div className="h-[400px] w-full pt-4">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={monthlyData}
-                  margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="sales" stroke="#8884d8" activeDot={{ r: 8 }} />
-                  <Line type="monotone" dataKey="revenue" stroke="#82ca9d" />
-                  <Line type="monotone" dataKey="profit" stroke="#ffc658" />
-                </LineChart>
+                <AreaChart data={yieldTrendData}>
+                  <defs>
+                    <linearGradient id="colorTreasury" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#000000" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#000000" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#a3a3a3', fontSize: 12, fontWeight: 700}} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#a3a3a3', fontSize: 12, fontWeight: 700}} dx={-10} />
+                  <Tooltip 
+                    contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
+                  />
+                  <Area type="monotone" dataKey="treasury" name="Treasury Curve" stroke="#000000" strokeWidth={3} fillOpacity={1} fill="url(#colorTreasury)" />
+                  <Area type="monotone" dataKey="corporate" name="Corporate Spread" stroke="#737373" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
-            <div className="flex justify-center mt-4 space-x-4">
-              <div className="flex items-center">
-                <div className="w-3 h-3 rounded-full bg-blue-600 mr-2"></div>
-                <span className="text-sm">High priority</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-                <span className="text-sm">Medium priority</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 rounded-full bg-gray-400 mr-2"></div>
-                <span className="text-sm">Low priority</span>
-              </div>
+            <div className="flex justify-center mt-8 gap-8">
+              <LegendItem label="Treasury" color="bg-black" />
+              <LegendItem label="Corporate" color="bg-neutral-400" dashed />
+              <LegendItem label="Infrastructure" color="bg-neutral-200" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>Budget Analytics</CardTitle>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm" className="h-8">
-                  Monthly
-                </Button>
-                <Button size="sm" className="h-8">
-                  Yearly
-                </Button>
+        {/* Asset Allocation */}
+        <Card className="border-neutral-100 shadow-sm rounded-[32px] overflow-hidden bg-white">
+          <CardHeader className="p-8 border-b border-neutral-50">
+            <CardTitle className="text-2xl font-black text-black tracking-tight">Portfolio Mix</CardTitle>
+            <CardDescription className="text-neutral-500 font-medium">Diversification across bond instruments.</CardDescription>
+          </CardHeader>
+          <CardContent className="p-8 space-y-10">
+            <div className="h-[280px] w-full relative">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={allocationData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {allocationData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-4xl font-black text-black tracking-tighter">100%</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Allocated</span>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-center h-[350px]">
-              <div className="w-64 h-64 relative">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={budgetData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {budgetData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex items-center justify-center flex-col">
-                  <div className="text-2xl font-bold">$450K</div>
-                  <div className="text-sm text-muted-foreground">Total Budget</div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                {budgetData.map((item, index) => (
-                  <div key={index} className="flex items-center">
-                    <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: item.color }}></div>
-                    <div className="flex-1">
-                      <div className="text-sm">{item.name}</div>
-                      <div className="text-xs text-muted-foreground">{item.amount}</div>
-                    </div>
+            
+            <div className="space-y-4 pt-4">
+              {allocationData.map((item, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-neutral-50 hover:bg-neutral-100 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={cn("h-3 w-3 rounded-full", i === 0 ? "bg-black" : i === 1 ? "bg-neutral-600" : "bg-neutral-300")} />
+                    <span className="text-xs font-bold text-black uppercase tracking-tight">{item.name}</span>
                   </div>
-                ))}
-              </div>
+                  <span className="text-sm font-black text-black">{item.value}%</span>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>KPI details</CardTitle>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground">Dec 10, 2022 - July 18, 2023</span>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4" />
-                Download
-              </Button>
+      {/* Risk Metrics Table */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between border-b border-neutral-100 pb-6">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-neutral-100 rounded-2xl text-black">
+              <ShieldCheckIcon className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-black tracking-tight">Risk Budgeting Indicators</h3>
+              <p className="text-sm text-neutral-500 font-medium">Critical portfolio management and sensitivity metrics.</p>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" className="rounded-xl border-neutral-200 bg-white font-bold h-12 px-6">
+              <Filter className="h-4 w-4 mr-2" /> Parameters
+            </Button>
+            <Button className="bg-black text-white hover:bg-neutral-800 font-black uppercase tracking-widest text-[10px] h-12 px-8 rounded-xl shadow-lg transition-all active:scale-95">
+              <Download className="h-4 w-4 mr-2" /> Export Audit
+            </Button>
+          </div>
+        </div>
+
+        <Card className="border-neutral-100 shadow-sm rounded-[32px] overflow-hidden bg-white">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">#</TableHead>
-                <TableHead>Fuel consumption</TableHead>
-                <TableHead>Vehicle utilization</TableHead>
-                <TableHead>Driver performance</TableHead>
-                <TableHead>Maintenance cost</TableHead>
-                <TableHead>Total Traveled</TableHead>
+              <TableRow className="bg-neutral-50 hover:bg-neutral-50 border-neutral-200">
+                <TableHead className="font-bold text-black h-16 px-8 uppercase text-[10px] tracking-widest">Metric Description</TableHead>
+                <TableHead className="font-bold text-black h-16 uppercase text-[10px] tracking-widest text-center">Current State</TableHead>
+                <TableHead className="font-bold text-black h-16 uppercase text-[10px] tracking-widest text-center">Target Range</TableHead>
+                <TableHead className="font-bold text-black h-16 uppercase text-[10px] tracking-widest text-center">Protocol Status</TableHead>
+                <TableHead className="font-bold text-black h-16 uppercase text-[10px] tracking-widest text-right px-8">System Impact</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {kpiData.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.id}</TableCell>
-                  <TableCell>{row.value}</TableCell>
-                  <TableCell>{row.value}</TableCell>
-                  <TableCell>{row.performance}</TableCell>
-                  <TableCell>{row.cost}</TableCell>
-                  <TableCell>{row.traveled}</TableCell>
+              {riskMetrics.map((row) => (
+                <TableRow key={row.id} className="hover:bg-neutral-50 border-neutral-100 transition-colors">
+                  <TableCell className="py-6 px-8">
+                    <div className="flex items-center gap-4">
+                      <div className="p-2.5 bg-neutral-100 text-black rounded-xl">
+                        <BarChart3 className="h-4 w-4" />
+                      </div>
+                      <span className="font-black text-black text-sm uppercase tracking-tight">{row.metric}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center font-black text-black text-lg tracking-tighter">{row.current}</TableCell>
+                  <TableCell className="text-center font-bold text-neutral-400 text-sm">{row.target}</TableCell>
+                  <TableCell className="text-center">
+                    <Badge className={cn(
+                      "px-3 py-1 rounded-lg font-black uppercase text-[9px] border-none shadow-sm",
+                      row.status === "Optimal" || row.status === "Safe" ? "bg-black text-white" : "bg-neutral-100 text-neutral-500"
+                    )}>
+                      {row.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right px-8">
+                    <span className={cn(
+                      "text-xs font-black uppercase tracking-widest",
+                      row.impact === "Low" ? "text-neutral-300" : "text-black"
+                    )}>{row.impact}</span>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-blue-100 p-3 rounded-full">
-                <TrendingUp className="h-6 w-6 text-blue-600" />
-              </div>
-              <Badge className="bg-green-100 text-green-800 hover:bg-green-200">+18.2%</Badge>
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-sm text-muted-foreground">Total Sales</h3>
-              <div className="text-2xl font-bold">$45,231.89</div>
-              <p className="text-xs text-muted-foreground">+20.1% from last month</p>
-            </div>
-          </CardContent>
         </Card>
+      </section>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-purple-100 p-3 rounded-full">
-                <Users className="h-6 w-6 text-purple-600" />
-              </div>
-              <Badge className="bg-green-100 text-green-800 hover:bg-green-200">+5.2%</Badge>
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-sm text-muted-foreground">New Customers</h3>
-              <div className="text-2xl font-bold">+2,420</div>
-              <p className="text-xs text-muted-foreground">+12.5% from last month</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-green-100 p-3 rounded-full">
-                <ShoppingCart className="h-6 w-6 text-green-600" />
-              </div>
-              <Badge className="bg-red-100 text-red-800 hover:bg-red-200">-3.1%</Badge>
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-sm text-muted-foreground">Active Orders</h3>
-              <div className="text-2xl font-bold">+12,234</div>
-              <p className="text-xs text-muted-foreground">-3.1% from last month</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-yellow-100 p-3 rounded-full">
-                <Activity className="h-6 w-6 text-yellow-600" />
-              </div>
-              <Badge className="bg-green-100 text-green-800 hover:bg-green-200">+12.2%</Badge>
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-sm text-muted-foreground">Conversion Rate</h3>
-              <div className="text-2xl font-bold">24.5%</div>
-              <p className="text-xs text-muted-foreground">+12.2% from last month</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Sales by Product</CardTitle>
+      {/* Trade Frequency Distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 pb-20">
+        <Card className="border-neutral-100 shadow-sm rounded-[32px] overflow-hidden bg-white">
+          <CardHeader className="p-8 border-b border-neutral-50">
+            <CardTitle className="text-xl font-black text-black tracking-tight">Market Liquid Flow</CardTitle>
+            <CardDescription className="text-neutral-500 font-medium pt-1">Institutional buy vs sell transmission frequency.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
+          <CardContent className="p-8 pt-10">
+            <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={salesData}
-                  margin={{
-                    top: 20,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#8884d8">
-                    {salesData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Bar>
+                <BarChart data={tradeVolumeData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#a3a3a3', fontSize: 12, fontWeight: 700}} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#a3a3a3', fontSize: 12, fontWeight: 700}} />
+                  <Tooltip cursor={{fill: '#f5f5f5'}} contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                  <Bar dataKey="buys" name="Buy Transmissions" fill="#000000" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="sells" name="Sell Transmissions" fill="#a3a3a3" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Transactions</CardTitle>
+        <Card className="border-neutral-100 shadow-sm rounded-[32px] overflow-hidden bg-white">
+          <CardHeader className="p-8 border-b border-neutral-50">
+            <CardTitle className="text-xl font-black text-black tracking-tight">Recent Analytics Audit</CardTitle>
+            <CardDescription className="text-neutral-500 font-medium pt-1">Live tracking of system-wide yield adjustments.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center">
-                    <div
-                      className={`h-10 w-10 rounded-full flex items-center justify-center mr-4 ${
-                        i % 3 === 0
-                          ? "bg-blue-100 text-blue-600"
-                          : i % 3 === 1
-                            ? "bg-green-100 text-green-600"
-                            : "bg-purple-100 text-purple-600"
-                      }`}
-                    >
-                      <CreditCard className="h-5 w-5" />
+          <CardContent className="p-0">
+            <div className="space-y-0">
+              {[
+                { title: "FXD1/2024/05 Yield Adjust", time: "2 mins ago", delta: "+12bps", trend: "up" },
+                { title: "Portfolio Duration Rebalance", time: "15 mins ago", delta: "-0.05", trend: "down" },
+                { title: "Market Index Synchronization", time: "1 hour ago", delta: "Live", trend: "safe" },
+                { title: "Institutional Exposure Pulse", time: "3 hours ago", delta: "Verified", trend: "safe" },
+              ].map((audit, i) => (
+                <div key={i} className="flex items-center justify-between p-6 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 transition-all group">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 bg-neutral-100 text-black rounded-xl group-hover:bg-black group-hover:text-white transition-all">
+                      <Terminal className="h-4 w-4" />
                     </div>
                     <div>
-                      <div className="font-medium">
-                        Payment from{" "}
-                        {["John Doe", "Jane Smith", "Robert Johnson", "Emily Davis", "Michael Brown"][i - 1]}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {["Apr 24, 2023", "Apr 23, 2023", "Apr 22, 2023", "Apr 21, 2023", "Apr 20, 2023"][i - 1]} at{" "}
-                        {["2:30 PM", "1:45 PM", "3:15 PM", "11:30 AM", "10:00 AM"][i - 1]}
-                      </div>
+                      <p className="font-black text-black text-sm uppercase tracking-tight">{audit.title}</p>
+                      <p className="text-[10px] text-neutral-400 font-bold uppercase">{audit.time}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-medium">${(Math.random() * 1000).toFixed(2)}</div>
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Completed</Badge>
+                  <div className={cn(
+                    "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest",
+                    audit.trend === "up" ? "bg-red-50 text-red-600" : audit.trend === "down" ? "bg-green-50 text-green-600" : "bg-neutral-100 text-neutral-500"
+                  )}>
+                    {audit.delta}
                   </div>
                 </div>
               ))}
             </div>
+            <div className="p-6 bg-neutral-50/50 flex justify-center">
+              <Button variant="ghost" className="text-[10px] font-black uppercase tracking-widest text-neutral-400 hover:text-black">
+                View Analytical Log <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
+    </div>
+  )
+}
+
+function MetricCard({ label, value, icon: Icon, trend, change, description, status }: any) {
+  return (
+    <Card className="border-neutral-100 bg-white rounded-[32px] p-8 space-y-4 shadow-sm transition-all hover:border-black hover:shadow-xl group">
+      <div className="flex items-center justify-between">
+        <div className="p-3 bg-neutral-100 text-black rounded-2xl group-hover:bg-black group-hover:text-white transition-all duration-500">
+          <Icon className="h-6 w-6" />
+        </div>
+        {trend && (
+          <div className={cn(
+            "flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
+            trend === 'up' ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
+          )}>
+            {trend === 'up' ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+            {change}
+          </div>
+        )}
+        {status === 'success' && (
+          <Badge className="bg-black text-white border-none px-3 py-1 rounded-lg font-black uppercase text-[9px] tracking-widest shadow-sm">Verified</Badge>
+        )}
+      </div>
+      <div className="space-y-1">
+        <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">{label}</p>
+        <p className="text-3xl font-black text-black tracking-tighter leading-none">{value}</p>
+      </div>
+      <p className="text-[10px] text-neutral-400 font-bold italic pt-1">{description}</p>
+    </Card>
+  )
+}
+
+function LegendItem({ label, color, dashed }: any) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className={cn("h-3 w-8 rounded-full", color, dashed && "opacity-50 border-2 border-dashed border-neutral-400 bg-transparent")} />
+      <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500">{label}</span>
     </div>
   )
 }

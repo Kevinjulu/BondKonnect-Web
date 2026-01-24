@@ -292,20 +292,26 @@ export function Items({ userDetails }: { userDetails: UserData }) {
   }, []);
 
   return (
-    <SidebarContent>
+    <SidebarContent className="animate-in fade-in duration-700">
       {groupedItems.map((group: any, groupIndex: any) => (
-            <SidebarGroup key={`group-${groupIndex}`}>
+            <SidebarGroup key={`group-${groupIndex}`} className="animate-in slide-in-from-left-4 duration-500" style={{ animationDelay: `${groupIndex * 100}ms` }}>
               {group.label && (
-                <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+                <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mt-4 mb-2">
+                  {group.label}
+                </SidebarGroupLabel>
               )}
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {group.items.map((item: any) => (
-                    <SidebarMenuItem key={item.id}>
-                      <SidebarMenuButton asChild>
-                        <a href={item.href}>
-                          {item.icon && <item.icon />}
-                          <span>{item.title}</span>
+                  {group.items.map((item: any, itemIndex: any) => (
+                    <SidebarMenuItem key={item.id} className="transition-transform active:scale-95">
+                      <SidebarMenuButton 
+                        asChild 
+                        tooltip={item.title}
+                        className="rounded-xl h-11 hover:bg-neutral-50 hover:text-black transition-all duration-300"
+                      >
+                        <a href={item.href} className="flex items-center gap-3">
+                          {item.icon && <item.icon className="h-5 w-5 shrink-0" />}
+                          <span className="font-bold tracking-tight">{item.title}</span>
                         </a>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

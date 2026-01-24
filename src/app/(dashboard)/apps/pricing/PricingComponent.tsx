@@ -8,15 +8,17 @@ interface PricingPageProps {
 
 export default function PricingComponent({ user }: PricingPageProps) {
   return (
-    <PageContainer title="Pricing & Subscriptions" description="Choose the best plan for your bond trading needs">
-      <div className="space-y-8 p-8 max-w-[1400px] mx-auto">
-        <div className="flex flex-col gap-2 border-b border-black pb-8">
-          <h1 className="text-4xl font-bold tracking-tighter text-black uppercase italic">Subscription Models</h1>
-          <p className="text-sm text-gray-500 font-medium uppercase tracking-widest">Premium access to the Kenyan Fixed Income Market.</p>
+    <PageContainer title="Terminal Access | BondKonnect" description="Choose the best plan for your bond trading and analytics needs.">
+      <div className="min-h-screen bg-white text-black p-0 m-0 animate-in fade-in duration-500">
+        <div className="p-6 md:p-10 max-w-[1400px] mx-auto space-y-10">
+          <div className="flex flex-col gap-2 border-b border-neutral-100 pb-10">
+            <h1 className="text-4xl font-extrabold tracking-tight text-black">Workstation Access</h1>
+            <p className="text-lg text-neutral-500 font-medium">Unlock advanced bond analytics, real-time data, and institutional trading tools.</p>
+          </div>
+          
+          <SubscriptionsListing userDetails={user} />
         </div>
-        
-        <SubscriptionsListing userDetails={user} />
-      </div>      
+      </div>
     </PageContainer>
   );
 }

@@ -1,24 +1,16 @@
 "use client";
-import { useState } from "react";
-import Image from "next/image";
+
 import PageContainer from "../../components/container/PageContainer";
+import { HelpComponent } from "../../components/apps/help/HelpComponent";
 
-export default function InvoicesPage({ userDetails }: { userDetails: UserData }) {
+export default function HelpPage({ userDetails }: { userDetails: UserData }) {
   return (
-
-    <PageContainer title="Help Page" description="this is Help page">
-        <div className=" space-y-4 p-8 pt-6">
-          <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">FAQ</h2>
-            <div className="flex items-center space-x-2">
-
-           
-
-            </div>
-          </div>
-          {/* <BondStats/> */}
-        </div>      
-
+    <PageContainer title="Help Center | BondKonnect" description="Get assistance and learn how to use the BondKonnect platform.">
+      <div className="min-h-screen bg-white text-black p-0 m-0 animate-in fade-in duration-500">
+        <div className="p-6 md:p-10">
+          <HelpComponent />
+        </div>
+      </div>
     </PageContainer>
   );
 }
