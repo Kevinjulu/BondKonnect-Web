@@ -43,7 +43,7 @@ export default function RootLayout({
         <Provider store={store}>
           <Providers>
             <NextTopLoader
-              color="#2563eb"
+              color="#000000"
               showSpinner={false}
               height={3}
               shadow={false}

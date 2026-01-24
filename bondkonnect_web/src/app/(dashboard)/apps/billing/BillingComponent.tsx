@@ -1,11 +1,12 @@
 "use client"
 
+import * as React from "react"
 import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"   
+import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import {
@@ -15,12 +16,18 @@ import {
   FileText,
   Download,
   Eye,
-  Edit,
   Trash,
   CheckCircle2,
   AlertCircle,
   Phone,
   Plus,
+  ArrowUpRight,
+  ShieldCheck,
+  Activity,
+  Wallet,
+  Building2,
+  ChevronRight,
+  X
 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -33,64 +40,21 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 
-export function BillingComponent({ userDetails }: { userDetails: UserData }) {
+export function BillingComponent({ userDetails }: { userDetails: any }) {
   const [activeTab, setActiveTab] = useState("all")
   const [isAddCardOpen, setIsAddCardOpen] = useState(false)
   const [isAddMobileOpen, setIsAddMobileOpen] = useState(false)
   const [isAddPaymentMethodOpen, setIsAddPaymentMethodOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
 
   const invoices = [
-    {
-      id: "#007",
-      month: "August 2023",
-      admin: { name: "Latifulrajar", email: "latifulrajar83@gmail.com", avatar: "L" },
-      date: "August 28, 2023",
-      amount: "USD $10.00",
-      users: 10,
-      status: "Paid",
-      paymentMethod: "mpesa",
-    },
-    {
-      id: "#006",
-      month: "August 2023",
-      admin: { name: "Sherina", email: "sherinapetualan@gmail.com", avatar: "S" },
-      date: "August 28, 2023",
-      amount: "USD $10.00",
-      users: 10,
-      status: "Paid",
-      paymentMethod: "mpesa",
-    },
-    {
-      id: "#005",
-      month: "August 2023",
-      admin: { name: "Ujang", email: "ujangsunda@gmail.com", avatar: "U" },
-      date: "August 28, 2023",
-      amount: "USD $10.00",
-      users: 10,
-      status: "Paid",
-      paymentMethod: "mpesa",
-    },
-    {
-      id: "#004",
-      month: "July 2023",
-      admin: { name: "Asep", email: "asep@gmail.com", avatar: "A" },
-      date: "July 28, 2023",
-      amount: "USD $10.00",
-      users: 10,
-      status: "Paid",
-      paymentMethod: "card",
-    },
-    {
-      id: "#003",
-      month: "July 2023",
-      admin: { name: "Budi", email: "budi@gmail.com", avatar: "B" },
-      date: "July 28, 2023",
-      amount: "USD $10.00",
-      users: 10,
-      status: "Paid",
-      paymentMethod: "card",
-    },
+    { id: "#007", month: "Aug 2023", admin: { name: "Latifulrajar", email: "lat@gmail.com", avatar: "L" }, date: "Aug 28, 2023", amount: "KES 1,300", users: 10, status: "Paid", paymentMethod: "mpesa" },
+    { id: "#006", month: "Aug 2023", admin: { name: "Sherina", email: "she@gmail.com", avatar: "S" }, date: "Aug 28, 2023", amount: "KES 1,300", users: 10, status: "Paid", paymentMethod: "mpesa" },
+    { id: "#005", month: "Aug 2023", admin: { name: "Ujang", email: "uja@gmail.com", avatar: "U" }, date: "Aug 28, 2023", amount: "KES 1,300", users: 10, status: "Paid", paymentMethod: "mpesa" },
+    { id: "#004", month: "Jul 2023", admin: { name: "Asep", email: "ase@gmail.com", avatar: "A" }, date: "Jul 28, 2023", amount: "KES 1,300", users: 10, status: "Paid", paymentMethod: "card" },
+    { id: "#003", month: "Jul 2023", admin: { name: "Budi", email: "bud@gmail.com", avatar: "B" }, date: "Jul 28, 2023", amount: "KES 1,300", users: 10, status: "Paid", paymentMethod: "card" },
   ]
 
   const filteredInvoices = invoices.filter((invoice) => {
@@ -101,654 +65,426 @@ export function BillingComponent({ userDetails }: { userDetails: UserData }) {
   })
 
   return (
-    <div className="container mx-auto py-10 px-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card>
-          <CardContent className="p-6">
-            <h2 className="text-sm text-muted-foreground mb-1">Taxjar Plan</h2>
-            <h3 className="text-xl font-bold mb-1">Professional</h3>
-
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div>
-                <h4 className="text-sm text-muted-foreground">Monthly Limit</h4>
-                <p className="font-medium">25,000 Orders</p>
+    <div className="space-y-12 pb-20 text-black">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <Card className="border-neutral-100 shadow-sm rounded-[32px] overflow-hidden bg-white group hover:border-black transition-all">
+          <CardHeader className="p-8 border-b border-neutral-50 flex flex-row items-center justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-sm font-black uppercase tracking-widest text-neutral-400">Current Plan</CardTitle>
+              <h3 className="text-3xl font-black text-black tracking-tighter">Institutional Terminal</h3>
+            </div>
+            <div className="p-4 bg-neutral-100 text-black rounded-2xl group-hover:bg-black group-hover:text-white transition-colors">
+              <ShieldCheck className="h-8 w-8" />
+            </div>
+          </CardHeader>
+          <CardContent className="p-8 space-y-8">
+            <div className="grid grid-cols-3 gap-6">
+              <div className="space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Usage Limit</p>
+                <p className="text-xl font-black text-black tracking-tight uppercase leading-none">25k Trades</p>
               </div>
-              <div>
-                <h4 className="text-sm text-muted-foreground">Cost</h4>
-                <p className="font-medium">$ 12,099/Year</p>
+              <div className="space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Annual Cost</p>
+                <p className="text-xl font-black text-black tracking-tight uppercase leading-none">KES 150k</p>
               </div>
-              <div>
-                <h4 className="text-sm text-muted-foreground">Renew Date</h4>
-                <p className="font-medium">31 December 2023</p>
+              <div className="space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Renewal</p>
+                <p className="text-xl font-black text-black tracking-tight uppercase leading-none">31 Dec 2026</p>
               </div>
             </div>
-
-            <div className="border rounded-lg p-4 mb-4">
-              <h4 className="text-sm font-medium mb-1">Plan Usage</h4>
-              <p className="text-xs text-muted-foreground mb-4">Usage resets on August 29, 2023</p>
-
-              <h5 className="text-sm font-medium mb-2">Orders</h5>
-              <div className="mb-2">
-                <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-teal-500 rounded-full" style={{ width: "75%" }}></div>
+            <div className="p-6 bg-neutral-50 rounded-2xl space-y-4 border border-neutral-100">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-black">Terminal Usage</h4>
+                  <p className="text-[10px] text-neutral-400 font-bold italic">Resets in 12 days</p>
                 </div>
+                <span className="text-lg font-black text-black tracking-tighter">75%</span>
               </div>
-
-              <div className="flex justify-between">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-teal-500 mr-2"></div>
-                  <span className="font-medium">18,305</span>
-                  <span className="text-xs text-muted-foreground ml-1">Sales order</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-teal-300 mr-2"></div>
-                  <span className="font-medium">9,305</span>
-                  <span className="text-xs text-muted-foreground ml-1">Sales order</span>
-                </div>
+              <div className="h-3 w-full bg-neutral-200 rounded-full overflow-hidden">
+                <div className="h-full bg-black rounded-full shadow-lg" style={{ width: "75%" }}></div>
+              </div>
+              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                <span className="text-neutral-400">18,305 Used</span>
+                <span className="text-black">25,000 Total</span>
               </div>
             </div>
-
-            <Button variant="outline" className="w-full">
-              Changes Plan
+            <Button variant="outline" className="w-full h-14 rounded-2xl border-neutral-200 bg-white text-black font-black uppercase tracking-widest text-xs hover:bg-black hover:text-white transition-all shadow-sm">
+              Modify Subscription <ArrowUpRight className="ml-2 h-4 w-4" />
             </Button>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <h2 className="text-sm text-muted-foreground mb-1">Autofile Plan</h2>
-            <h3 className="text-xl font-bold mb-1">Pay-As-You-Go</h3>
-
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <h4 className="text-sm text-muted-foreground">Active Enrollments</h4>
-                <p className="font-medium">12 States</p>
+        <Card className="border-neutral-100 shadow-sm rounded-[32px] overflow-hidden bg-white group hover:border-black transition-all">
+          <CardHeader className="p-8 border-b border-neutral-50 flex flex-row items-center justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-sm font-black uppercase tracking-widest text-neutral-400">Auxiliary Service</CardTitle>
+              <h3 className="text-3xl font-black text-black tracking-tighter">Market Data Feed</h3>
+            </div>
+            <div className="p-4 bg-neutral-100 text-black rounded-2xl group-hover:bg-black group-hover:text-white transition-colors">
+              <Activity className="h-8 w-8" />
+            </div>
+          </CardHeader>
+          <CardContent className="p-8 space-y-8">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Active Nodes</p>
+                <p className="text-xl font-black text-black tracking-tight uppercase leading-none">12 Stations</p>
               </div>
-              <div>
-                <h4 className="text-sm text-muted-foreground">Cost</h4>
-                <p className="font-medium">25 per filing</p>
+              <div className="space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Feed Rate</p>
+                <p className="text-xl font-black text-black tracking-tight uppercase leading-none">KES 25 / req</p>
               </div>
             </div>
-
-            <div className="mb-4">
-              <h4 className="text-sm font-medium mb-2">
-                Save up to X% on each AutoFile by purchasing a Prepaid Filling Bundle
-              </h4>
-              <p className="text-xs text-muted-foreground mb-4">
-                Select a bundle option to save on your AutoFile filings.
-              </p>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                <Button variant="outline" className="flex-1">
-                  25 Filling
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  50 Filling
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  100 Filling
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  Unlimited
-                </Button>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 text-neutral-400" />
+                <p className="text-xs font-bold text-neutral-500 leading-relaxed uppercase">
+                  Save up to 30% by purchasing institutional data bundles.
+                </p>
               </div>
-
-              <div className="flex items-center text-xs text-muted-foreground">
-                <AlertCircle className="h-4 w-4 mr-2 text-blue-500" />
-                <p>Purchase a bundle to save on your AutoFile filings. Bundles never expire.</p>
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="outline" className="h-14 rounded-xl border-neutral-100 font-bold text-[10px] uppercase tracking-widest bg-white text-black hover:border-black transition-all">50k Requests</Button>
+                <Button variant="outline" className="h-14 rounded-xl border-neutral-100 font-bold text-[10px] uppercase tracking-widest bg-white text-black hover:border-black transition-all">100k Requests</Button>
+                <Button variant="outline" className="h-14 rounded-xl border-neutral-100 font-bold text-[10px] uppercase tracking-widest bg-white text-black hover:border-black transition-all">Unlimited</Button>
+                <Button className="h-14 rounded-xl bg-black text-white font-bold text-[10px] uppercase tracking-widest shadow-lg hover:bg-neutral-800">Purchase Pro</Button>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-6">Billing History</h2>
-
-        <div className="mb-4">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search by name or status etc." className="pl-10" />
+      <div className="space-y-8">
+        <div className="flex items-center justify-between border-b border-neutral-100 pb-6">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-neutral-100 rounded-2xl text-black">
+              <Wallet className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-2xl font-black text-black tracking-tight">Payment Methods</h2>
+              <p className="text-sm text-neutral-500 font-medium">Configure primary and secondary funding nodes.</p>
+            </div>
           </div>
+          <Button 
+            onClick={() => setIsAddPaymentMethodOpen(true)}
+            className="bg-black text-white hover:bg-neutral-800 font-black uppercase tracking-widest text-[10px] px-8 h-12 rounded-2xl shadow-xl active:scale-95 transition-all"
+          >
+            <Plus className="h-4 w-4 mr-2" /> Add Method
+          </Button>
         </div>
 
-        <Tabs defaultValue="all" onValueChange={setActiveTab}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="mpesa">M-Pesa</TabsTrigger>
-            <TabsTrigger value="cards">Cards</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="all" className="mt-0">
-            <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[50px]">
-                      <input 
-                        type="checkbox" 
-                        className="rounded border-gray-300" 
-                        aria-label="Select all invoices"
-                      />
-                    </TableHead>
-                    <TableHead>Invoice</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Billing Admin</TableHead>
-                    <TableHead>Billing Date</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Users</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredInvoices.map((invoice) => (
-                    <TableRow key={invoice.id}>
-                      <TableCell>
-                        <input 
-                          type="checkbox" 
-                          className="rounded border-gray-300" 
-                          aria-label={`Select invoice ${invoice.id}`}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <div className="h-9 w-9 rounded-md border border-gray-200 flex items-center justify-center mr-3">
-                            <FileText className="h-5 w-5 text-red-500" />
-                          </div>
-                          <div>
-                            <div className="font-medium">Invoice {invoice.id}</div>
-                            <div className="text-xs text-muted-foreground">{invoice.month}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Paid
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Avatar className="h-8 w-8 mr-2">
-                            <AvatarFallback>{invoice.admin.avatar}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium">{invoice.admin.name}</div>
-                            <div className="text-xs text-muted-foreground">{invoice.admin.email}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{invoice.date}</TableCell>
-                      <TableCell>{invoice.amount}</TableCell>
-                      <TableCell>{invoice.users} Users</TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Eye className="h-4 w-4 mr-2" />
-                              View
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Download className="h-4 w-4 mr-2" />
-                              Download
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="mpesa" className="mt-0">
-            <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[50px]">
-                      <input 
-                        type="checkbox" 
-                        className="rounded border-gray-300" 
-                        aria-label="Select all invoices"
-                      />
-                    </TableHead>
-                    <TableHead>Invoice</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Billing Admin</TableHead>
-                    <TableHead>Billing Date</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Users</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredInvoices.map((invoice) => (
-                    <TableRow key={invoice.id}>
-                      <TableCell>
-                        <input 
-                          type="checkbox" 
-                          className="rounded border-gray-300" 
-                          aria-label={`Select invoice ${invoice.id}`}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <div className="h-9 w-9 rounded-md border border-gray-200 flex items-center justify-center mr-3">
-                            <FileText className="h-5 w-5 text-red-500" />
-                          </div>
-                          <div>
-                            <div className="font-medium">Invoice {invoice.id}</div>
-                            <div className="text-xs text-muted-foreground">{invoice.month}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Paid
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Avatar className="h-8 w-8 mr-2">
-                            <AvatarFallback>{invoice.admin.avatar}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium">{invoice.admin.name}</div>
-                            <div className="text-xs text-muted-foreground">{invoice.admin.email}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{invoice.date}</TableCell>
-                      <TableCell>{invoice.amount}</TableCell>
-                      <TableCell>{invoice.users} Users</TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Eye className="h-4 w-4 mr-2" />
-                              View
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Download className="h-4 w-4 mr-2" />
-                              Download
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="cards" className="mt-0">
-            <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[50px]">
-                      <input 
-                        type="checkbox" 
-                        className="rounded border-gray-300" 
-                        aria-label="Select all invoices"
-                      />
-                    </TableHead>
-                    <TableHead>Invoice</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Billing Admin</TableHead>
-                    <TableHead>Billing Date</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Users</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredInvoices.map((invoice) => (
-                    <TableRow key={invoice.id}>
-                      <TableCell>
-                        <input 
-                          type="checkbox" 
-                          className="rounded border-gray-300" 
-                          aria-label={`Select invoice ${invoice.id}`}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <div className="h-9 w-9 rounded-md border border-gray-200 flex items-center justify-center mr-3">
-                            <FileText className="h-5 w-5 text-red-500" />
-                          </div>
-                          <div>
-                            <div className="font-medium">Invoice {invoice.id}</div>
-                            <div className="text-xs text-muted-foreground">{invoice.month}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Paid
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Avatar className="h-8 w-8 mr-2">
-                            <AvatarFallback>{invoice.admin.avatar}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium">{invoice.admin.name}</div>
-                            <div className="text-xs text-muted-foreground">{invoice.admin.email}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{invoice.date}</TableCell>
-                      <TableCell>{invoice.amount}</TableCell>
-                      <TableCell>{invoice.users} Users</TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Eye className="h-4 w-4 mr-2" />
-                              View
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Download className="h-4 w-4 mr-2" />
-                              Download
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      <div>
-        <h2 className="text-2xl font-bold mb-6">Payment Methods</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium">Credit Cards</h3>
-                <Button variant="outline" size="sm" onClick={() => setIsAddCardOpen(true)}>
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Add New Card
-                </Button>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Card className="border-neutral-100 bg-white rounded-[32px] p-8 shadow-sm space-y-6">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-neutral-100 text-black rounded-xl">
+                  <CreditCard className="h-5 w-5" />
+                </div>
+                <h3 className="text-lg font-black tracking-tight text-black">Credit & Debit Cards</h3>
               </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-md bg-blue-100 flex items-center justify-center mr-4">
-                      <CreditCard className="h-6 w-6 text-blue-600" />
+              <Button variant="ghost" onClick={() => setIsAddCardOpen(true)} className="h-8 w-8 p-0 rounded-lg hover:bg-neutral-100 text-neutral-400 hover:text-black">
+                <Plus className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="space-y-3">
+              {[
+                { label: "Visa ending in 4242", subLabel: "Expires 12/2026", isDefault: true, color: "bg-black" },
+                { label: "Mastercard ending in 5555", subLabel: "Expires 08/2027", color: "bg-neutral-400" }
+              ].map((method, i) => (
+                <div key={i} className="flex items-center justify-between p-5 border border-neutral-100 rounded-2xl hover:border-black transition-all group">
+                  <div className="flex items-center gap-5">
+                    <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center shadow-lg", method.color)}>
+                      <CreditCard className="h-6 w-6 text-white" />
                     </div>
-                    <div>
-                      <div className="font-medium">Visa ending in 4242</div>
-                      <div className="text-xs text-muted-foreground">Expires 12/2025</div>
+                    <div className="space-y-0.5">
+                      <p className="font-black text-black text-sm">{method.label}</p>
+                      <p className="text-[10px] text-neutral-400 font-bold uppercase">{method.subLabel}</p>
                     </div>
                   </div>
-                  <Badge>Default</Badge>
+                  {method.isDefault ? (
+                    <Badge className="bg-black text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">Primary</Badge>
+                  ) : (
+                    <Button variant="ghost" className="text-[9px] font-black uppercase tracking-widest text-neutral-400 hover:text-black hover:bg-neutral-50 h-8">Set Primary</Button>
+                  )}
                 </div>
-
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-md bg-purple-100 flex items-center justify-center mr-4">
-                      <CreditCard className="h-6 w-6 text-purple-600" />
-                    </div>
-                    <div>
-                      <div className="font-medium">Mastercard ending in 5555</div>
-                      <div className="text-xs text-muted-foreground">Expires 08/2024</div>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    Set as Default
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
+              ))}
+            </div>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium">Mobile Payment</h3>
-                <Button variant="outline" size="sm" onClick={() => setIsAddMobileOpen(true)}>
-                  <Phone className="h-4 w-4 mr-2" />
-                  Add Mobile Payment
-                </Button>
+          <Card className="border-neutral-100 bg-white rounded-[32px] p-8 shadow-sm space-y-6">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-neutral-100 text-black rounded-xl">
+                  <Phone className="h-5 w-5" />
+                </div>
+                <h3 className="text-lg font-black tracking-tight text-black">Mobile Wallets</h3>
               </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center">
-                    <div className="h-10 w-10 rounded-md bg-green-100 flex items-center justify-center mr-4">
-                      <Phone className="h-6 w-6 text-green-600" />
+              <Button variant="ghost" onClick={() => setIsAddMobileOpen(true)} className="h-8 w-8 p-0 rounded-lg hover:bg-neutral-100 text-neutral-400 hover:text-black">
+                <Plus className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="space-y-3">
+              {[
+                { label: "Safaricom M-Pesa", subLabel: "+254 712 345 678", isDefault: true, color: "bg-black" }
+              ].map((method, i) => (
+                <div key={i} className="flex items-center justify-between p-5 border border-neutral-100 rounded-2xl hover:border-black transition-all group">
+                  <div className="flex items-center gap-5">
+                    <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center shadow-lg", method.color)}>
+                      <Phone className="h-6 w-6 text-white" />
                     </div>
-                    <div>
-                      <div className="font-medium">M-Pesa</div>
-                      <div className="text-xs text-muted-foreground">+254 712 345 678</div>
+                    <div className="space-y-0.5">
+                      <p className="font-black text-black text-sm">{method.label}</p>
+                      <p className="text-[10px] text-neutral-400 font-bold uppercase">{method.subLabel}</p>
                     </div>
                   </div>
-                  <Badge>Default</Badge>
+                  {method.isDefault && <Badge className="bg-black text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">Primary</Badge>}
                 </div>
-              </div>
-            </CardContent>
+              ))}
+            </div>
           </Card>
         </div>
       </div>
 
-      <div className="flex justify-center mt-6">
-        <Button onClick={() => setIsAddPaymentMethodOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add New Payment Method
-        </Button>
-      </div>
-
-      {/* Add Credit Card Modal */}
-      <Dialog open={isAddCardOpen} onOpenChange={setIsAddCardOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add New Card</DialogTitle>
-            <DialogDescription>Add a new credit card to your account.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="cardName">Name on Card</Label>
-              <Input id="cardName" placeholder="John Smith" />
+      <section className="space-y-8">
+        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 border-b border-neutral-100 pb-6">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-neutral-100 rounded-2xl text-black">
+              <FileText className="h-6 w-6" />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="cardNumber">Card Number</Label>
-              <Input id="cardNumber" placeholder="4242 4242 4242 4242" />
+            <div className="space-y-1">
+              <h2 className="text-2xl font-black text-black tracking-tight">Billing History</h2>
+              <p className="text-sm text-neutral-500 font-medium">Transaction logs for workstation and data services.</p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="expiryDate">Expiry Date</Label>
-                <Input id="expiryDate" placeholder="MM/YY" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cvv">CVV</Label>
-                <Input id="cvv" placeholder="123" />
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input type="checkbox" id="defaultCard" className="rounded border-gray-300" 
-                aria-label="Set as default payment method"
+          </div>
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full xl:w-auto">
+            <div className="relative w-full sm:w-80 group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400 group-focus-within:text-black transition-colors" />
+              <Input 
+                placeholder="Search history..." 
+                className="pl-12 h-12 border-neutral-200 focus:border-black rounded-2xl font-medium bg-white text-black"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Label htmlFor="defaultCard">Set as default payment method</Label>
             </div>
+            <Tabs defaultValue="all" className="w-full sm:w-auto" onValueChange={setActiveTab}>
+              <TabsList className="bg-neutral-100 p-1 rounded-xl h-12">
+                <TabsTrigger value="all" className="text-xs font-bold px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:text-black">All</TabsTrigger>
+                <TabsTrigger value="mpesa" className="text-xs font-bold px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:text-black">M-Pesa</TabsTrigger>
+                <TabsTrigger value="cards" className="text-xs font-bold px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:text-black">Cards</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddCardOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit">Add Card</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Mobile Payment Modal */}
-      <Dialog open={isAddMobileOpen} onOpenChange={setIsAddMobileOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add Mobile Payment</DialogTitle>
-            <DialogDescription>Add a new mobile payment method to your account.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="paymentType">Payment Type</Label>
-              <Select>
-                <SelectTrigger id="paymentType">
-                  <SelectValue placeholder="Select payment type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mpesa">M-Pesa</SelectItem>
-                  <SelectItem value="airtel">Airtel Money</SelectItem>
-                  <SelectItem value="orange">Orange Money</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+        </div>
+        <Card className="border-neutral-100 shadow-sm rounded-[32px] overflow-hidden bg-white">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-neutral-50 hover:bg-neutral-50 border-neutral-200">
+                    <TableHead className="w-[80px] px-8 text-center"><input type="checkbox" className="h-4 w-4 rounded border-neutral-300 text-black focus:ring-black cursor-pointer" /></TableHead>
+                    <TableHead className="font-bold text-black h-14 uppercase text-[10px] tracking-widest">Invoice</TableHead>
+                    <TableHead className="font-bold text-black h-14 uppercase text-[10px] tracking-widest text-center">Status</TableHead>
+                    <TableHead className="font-bold text-black h-14 uppercase text-[10px] tracking-widest">Billing Node</TableHead>
+                    <TableHead className="font-bold text-black h-14 uppercase text-[10px] tracking-widest">Date</TableHead>
+                    <TableHead className="font-bold text-black h-14 uppercase text-[10px] tracking-widest text-right">Amount</TableHead>
+                    <TableHead className="w-[80px] px-8"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredInvoices.map((invoice) => (
+                    <TableRow key={invoice.id} className="hover:bg-neutral-50 border-neutral-100 transition-colors group">
+                      <TableCell className="px-8 py-6 text-center"><input type="checkbox" className="h-4 w-4 rounded border-neutral-300 text-black focus:ring-black cursor-pointer" /></TableCell>
+                      <TableCell className="py-6">
+                        <div className="flex items-center gap-4">
+                          <div className="p-2.5 bg-neutral-100 text-black rounded-xl group-hover:bg-black group-hover:text-white transition-all">
+                            <FileText className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <p className="font-black text-black text-sm">{invoice.id}</p>
+                            <p className="text-[10px] text-neutral-400 font-bold uppercase">{invoice.month}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-6 text-center">
+                        <Badge className="bg-green-50 text-green-700 border-green-100 font-bold px-3 py-1 rounded-lg">
+                          <CheckCircle2 className="h-3 w-3 mr-1.5" /> Paid
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="py-6">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8 border border-neutral-200">
+                            <AvatarFallback className="bg-neutral-900 text-white font-black text-[10px]">{invoice.admin.avatar}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="text-sm font-bold text-black">{invoice.admin.name}</p>
+                            <p className="text-[10px] text-neutral-400 font-medium">{invoice.admin.email}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-6 text-sm font-bold text-neutral-500 uppercase">{invoice.date}</TableCell>
+                      <TableCell className="py-6 text-right font-black text-black text-base tracking-tighter">{invoice.amount}</TableCell>
+                      <TableCell className="px-8 text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-neutral-100">
+                              <MoreVertical className="h-5 w-5 text-neutral-400" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-2xl border-neutral-200 shadow-xl p-2 min-w-[180px] bg-white text-black">
+                            <DropdownMenuItem className="rounded-xl font-bold py-3 px-4 focus:bg-neutral-50 cursor-pointer"><Eye className="h-4 w-4 mr-3" /> View</DropdownMenuItem>
+                            <DropdownMenuItem className="rounded-xl font-bold py-3 px-4 focus:bg-neutral-50 cursor-pointer"><Download className="h-4 w-4 mr-3" /> Download</DropdownMenuItem>
+                            <DropdownMenuItem className="rounded-xl font-bold py-3 px-4 focus:bg-red-50 text-red-600 cursor-pointer"><Trash className="h-4 w-4 mr-3" /> Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="phoneNumber">Phone Number</Label>
-              <Input id="phoneNumber" placeholder="+254 712 345 678" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="accountName">Account Name</Label>
-              <Input id="accountName" placeholder="John Smith" />
-            </div>
-            <div className="flex items-center space-x-2">
-              <input type="checkbox" id="defaultMobile" className="rounded border-gray-300" 
-                aria-label="Set as default payment method"
-              />
-              <Label htmlFor="defaultMobile">Set as default payment method</Label>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddMobileOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit">Add Mobile Payment</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </CardContent>
+        </Card>
+      </section>
 
-      {/* Add Payment Method Modal */}
-      <Dialog open={isAddPaymentMethodOpen} onOpenChange={setIsAddPaymentMethodOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add Payment Method</DialogTitle>
-            <DialogDescription>Choose a payment method to add to your account.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <Button
-              className="w-full justify-start h-auto p-4"
-              onClick={() => {
-                setIsAddPaymentMethodOpen(false)
-                setIsAddCardOpen(true)
-              }}
-            >
-              <div className="flex items-center">
-                <div className="h-10 w-10 rounded-md bg-blue-100 flex items-center justify-center mr-4">
-                  <CreditCard className="h-6 w-6 text-blue-600" />
-                </div>
-                <div className="text-left">
-                  <div className="font-medium">Credit or Debit Card</div>
-                  <div className="text-xs text-muted-foreground">Add a new card to your account</div>
-                </div>
-              </div>
-            </Button>
-
-            <Button
-              className="w-full justify-start h-auto p-4"
-              onClick={() => {
-                setIsAddPaymentMethodOpen(false)
-                setIsAddMobileOpen(true)
-              }}
-            >
-              <div className="flex items-center">
-                <div className="h-10 w-10 rounded-md bg-green-100 flex items-center justify-center mr-4">
-                  <Phone className="h-6 w-6 text-green-600" />
-                </div>
-                <div className="text-left">
-                  <div className="font-medium">Mobile Payment</div>
-                  <div className="text-xs text-muted-foreground">Add a mobile payment method</div>
-                </div>
-              </div>
-            </Button>
-
-            <Button className="w-full justify-start h-auto p-4" variant="outline">
-              <div className="flex items-center">
-                <div className="h-10 w-10 rounded-md bg-purple-100 flex items-center justify-center mr-4">
-                  <svg className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                    />
-                  </svg>
-                </div>
-                <div className="text-left">
-                  <div className="font-medium">Bank Account</div>
-                  <div className="text-xs text-muted-foreground">Add a bank account for direct transfers</div>
-                </div>
-              </div>
-            </Button>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddPaymentMethodOpen(false)}>
-              Cancel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AddCardDialog open={isAddCardOpen} onOpenChange={setIsAddCardOpen} />
+      <AddMobileDialog open={isAddMobileOpen} onOpenChange={setIsAddMobileOpen} />
+      <PaymentMethodSelector 
+        open={isAddPaymentMethodOpen} 
+        onOpenChange={setIsAddPaymentMethodOpen}
+        onSelectCard={() => { setIsAddCardOpen(true); setIsAddPaymentMethodOpen(false); }}
+        onSelectMobile={() => { setIsAddMobileOpen(true); setIsAddPaymentMethodOpen(false); }}
+      />
     </div>
+  )
+}
+
+function AddCardDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[450px] border-none shadow-2xl p-0 overflow-hidden rounded-[40px] bg-white text-black">
+        <DialogHeader className="p-10 pb-6 bg-white">
+          <DialogTitle className="text-3xl font-black tracking-tighter text-black">Add Terminal Card</DialogTitle>
+          <DialogDescription className="text-neutral-500 font-medium">Link a new credit or debit node to your workstation.</DialogDescription>
+        </DialogHeader>
+        <div className="px-10 pb-10 space-y-6 bg-white">
+          <div className="space-y-2">
+            <Label className="text-xs font-black uppercase tracking-widest text-neutral-400 ml-1">Cardholder Name</Label>
+            <Input placeholder="JOHN SMITH" className="h-14 rounded-2xl border-neutral-200 focus:border-black font-bold text-lg px-6 uppercase text-black" />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-black uppercase tracking-widest text-neutral-400 ml-1">Card Number</Label>
+            <div className="relative">
+              <Input placeholder="**** **** **** ****" className="h-14 rounded-2xl border-neutral-200 focus:border-black font-bold text-lg px-6 pr-14 text-black" />
+              <CreditCard className="absolute right-5 top-1/2 -translate-y-1/2 h-6 w-6 text-neutral-300" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="text-xs font-black uppercase tracking-widest text-neutral-400 ml-1">Expiry</Label>
+              <Input placeholder="MM / YY" className="h-14 rounded-2xl border-neutral-200 focus:border-black font-bold text-lg px-6 text-black" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-black uppercase tracking-widest text-neutral-400 ml-1">CVC</Label>
+              <Input placeholder="***" className="h-14 rounded-2xl border-neutral-200 focus:border-black font-bold text-lg px-6 text-black" />
+            </div>
+          </div>
+        </div>
+        <DialogFooter className="p-10 pt-0 bg-neutral-50 border-t border-neutral-100 flex flex-row gap-4">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="flex-1 h-14 font-black uppercase tracking-widest text-xs rounded-2xl text-neutral-500 hover:text-black hover:bg-neutral-200">Cancel</Button>
+          <Button className="flex-[2] bg-black text-white h-14 font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl hover:bg-neutral-800 border-none">Authorize Card</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function AddMobileDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[450px] border-none shadow-2xl p-0 overflow-hidden rounded-[40px] bg-white text-black">
+        <DialogHeader className="p-10 pb-6 bg-white">
+          <DialogTitle className="text-3xl font-black tracking-tighter text-black">Mobile Node</DialogTitle>
+          <DialogDescription className="text-neutral-500 font-medium">Link your M-Pesa or mobile wallet for STK Push services.</DialogDescription>
+        </DialogHeader>
+        <div className="px-10 pb-10 space-y-6 bg-white">
+          <div className="space-y-2">
+            <Label className="text-xs font-black uppercase tracking-widest text-neutral-400 ml-1">Service Provider</Label>
+            <Select>
+              <SelectTrigger className="h-14 rounded-2xl border-neutral-200 font-bold px-6 text-black bg-white">
+                <SelectValue placeholder="Select Service" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl bg-white border-neutral-200 text-black">
+                <SelectItem value="mpesa">Safaricom M-Pesa</SelectItem>
+                <SelectItem value="airtel">Airtel Money</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-black uppercase tracking-widest text-neutral-400 ml-1">Phone Number</Label>
+            <Input placeholder="+254 7XX XXX XXX" className="h-14 rounded-2xl border-neutral-200 focus:border-black font-bold text-lg px-6 text-black" />
+          </div>
+        </div>
+        <DialogFooter className="p-10 pt-0 bg-neutral-50 border-t border-neutral-100 flex flex-row gap-4">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="flex-1 h-14 font-black uppercase tracking-widest text-xs rounded-2xl text-neutral-500 hover:text-black hover:bg-neutral-200">Cancel</Button>
+          <Button className="flex-[2] bg-black text-white h-14 font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl hover:bg-neutral-800 border-none">Link Wallet</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function PaymentMethodSelector({ open, onOpenChange, onSelectCard, onSelectMobile }: { open: boolean, onOpenChange: (open: boolean) => void, onSelectCard: () => void, onSelectMobile: () => void }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[450px] border-none shadow-2xl p-0 overflow-hidden rounded-[40px] bg-white text-black">
+        <DialogHeader className="p-10 pb-6 bg-white">
+          <DialogTitle className="text-3xl font-black tracking-tighter text-black">Add Method</DialogTitle>
+          <DialogDescription className="text-neutral-500 font-medium text-lg">Select a billing node to link to your account.</DialogDescription>
+        </DialogHeader>
+        <div className="px-10 pb-10 space-y-4 bg-white">
+          <Button
+            className="w-full justify-start h-auto p-6 bg-white border border-neutral-100 hover:border-black transition-all rounded-[24px] group"
+            onClick={() => onSelectCard()}
+          >
+            <div className="flex items-center gap-6">
+              <div className="p-4 bg-neutral-100 text-black rounded-2xl group-hover:bg-black group-hover:text-white transition-colors">
+                <CreditCard className="h-6 w-6" />
+              </div>
+              <div className="text-left space-y-1">
+                <p className="font-black text-black text-lg tracking-tight">Credit or Debit Card</p>
+                <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Visa, Mastercard, Amex</p>
+              </div>
+            </div>
+          </Button>
+          <Button
+            className="w-full justify-start h-auto p-6 bg-white border border-neutral-100 hover:border-black transition-all rounded-[24px] group"
+            onClick={() => onSelectMobile()}
+          >
+            <div className="flex items-center gap-6">
+              <div className="p-4 bg-neutral-100 text-black rounded-2xl group-hover:bg-black group-hover:text-white transition-colors">
+                <Phone className="h-6 w-6" />
+              </div>
+              <div className="text-left space-y-1">
+                <p className="font-black text-black text-lg tracking-tight">Mobile Payment</p>
+                <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">M-Pesa, Airtel Money</p>
+              </div>
+            </div>
+          </Button>
+          <Button className="w-full justify-start h-auto p-6 bg-white border border-neutral-100 hover:border-black transition-all rounded-[24px] group opacity-50 grayscale cursor-not-allowed">
+            <div className="flex items-center gap-6">
+              <div className="p-4 bg-neutral-100 text-black rounded-2xl">
+                <Building2 className="h-6 w-6" />
+              </div>
+              <div className="text-left space-y-1">
+                <p className="font-black text-black text-lg tracking-tight">Direct Bank Transfer</p>
+                <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Institutional RTGS</p>
+              </div>
+            </div>
+          </Button>
+        </div>
+        <div className="px-10 pb-10 bg-white text-black">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="w-full h-12 font-black uppercase tracking-widest text-xs text-neutral-400 hover:text-black">Close</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

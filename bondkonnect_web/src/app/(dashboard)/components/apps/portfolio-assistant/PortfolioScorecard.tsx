@@ -640,9 +640,52 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
     const overallEntry = data.find(entry => entry.bondsHeld === "Overall Portfolio");
     if (overallEntry) {
       const round4 = (val: number) => (isNaN(val) ? "" : Number(val).toFixed(4));
-      return { faceValueBal: round4(overallEntry.faceValueBal), realizedPL: round4(overallEntry.realizedPL), unrealizedPL: round4(overallEntry.unrealizedPL), totalReturn: round4(overallEntry.totalReturn), portfolioValue: round4(overallEntry.portfolioValue), maturityYears: round4(overallEntry.maturityYears), coupon: round4(overallEntry.coupon), duration: round4(overallEntry.duration), mDuration: round4(overallEntry.mDuration), dv01: round4(overallEntry.dv01), expectedShortfall: round4(overallEntry.expectedShortfall), spotYTM: round4(overallEntry.spotYTM), dirtyPrice: round4(overallEntry.dirtyPrice), };
+      return { 
+        faceValueBal: round4(overallEntry.faceValueBal), 
+        realizedPL: round4(overallEntry.realizedPL), 
+        unrealizedPL: round4(overallEntry.unrealizedPL), 
+        totalReturn: round4(overallEntry.totalReturn), 
+        portfolioValue: round4(overallEntry.portfolioValue), 
+        maturityYears: round4(overallEntry.maturityYears), 
+        coupon: round4(overallEntry.coupon), 
+        duration: round4(overallEntry.duration), 
+        mDuration: round4(overallEntry.mDuration), 
+        dv01: round4(overallEntry.dv01), 
+        expectedShortfall: round4(overallEntry.expectedShortfall), 
+        spotYTM: round4(overallEntry.spotYTM), 
+        dirtyPrice: round4(overallEntry.dirtyPrice),
+        buyingPrice: overallEntry.buyingPrice,
+        sellingPrice: overallEntry.sellingPrice,
+        faceValueBuys: overallEntry.faceValueBuys,
+        faceValueSales: overallEntry.faceValueSales,
+      };
     }
-    return data.reduce((acc, row) => { if (row.bondsHeld === "Overall Portfolio") return acc; return { faceValueBal: acc.faceValueBal + row.faceValueBal, realizedPL: acc.realizedPL + row.realizedPL, unrealizedPL: acc.unrealizedPL + row.unrealizedPL, totalReturn: acc.totalReturn + (row.totalReturn || 0), portfolioValue: acc.portfolioValue + row.portfolioValue, maturityYears: acc.maturityYears + (row.maturityYears || 0), coupon: acc.coupon + (row.coupon || 0), duration: acc.duration + (row.duration || 0), mDuration: acc.mDuration + (row.mDuration || 0), dv01: acc.dv01 + (row.dv01 || 0), expectedShortfall: acc.expectedShortfall + (row.expectedShortfall || 0), spotYTM: acc.spotYTM + (row.spotYTM || 0), dirtyPrice: acc.dirtyPrice + (row.dirtyPrice || 0), }; }, { faceValueBal: 0, realizedPL: 0, unrealizedPL: 0, totalReturn: 0, portfolioValue: 0, maturityYears: 0, coupon: 0, duration: 0, mDuration: 0, dv01: 0, expectedShortfall: 0, spotYTM: 0, dirtyPrice: 0 });
+    return data.reduce((acc, row) => { 
+      if (row.bondsHeld === "Overall Portfolio") return acc; 
+      return { 
+        faceValueBal: acc.faceValueBal + row.faceValueBal, 
+        realizedPL: acc.realizedPL + row.realizedPL, 
+        unrealizedPL: acc.unrealizedPL + row.unrealizedPL, 
+        totalReturn: acc.totalReturn + (row.totalReturn || 0), 
+        portfolioValue: acc.portfolioValue + row.portfolioValue, 
+        maturityYears: acc.maturityYears + (row.maturityYears || 0), 
+        coupon: acc.coupon + (row.coupon || 0), 
+        duration: acc.duration + (row.duration || 0), 
+        mDuration: acc.mDuration + (row.mDuration || 0), 
+        dv01: acc.dv01 + (row.dv01 || 0), 
+        expectedShortfall: acc.expectedShortfall + (row.expectedShortfall || 0), 
+        spotYTM: acc.spotYTM + (row.spotYTM || 0), 
+        dirtyPrice: acc.dirtyPrice + (row.dirtyPrice || 0),
+        buyingPrice: acc.buyingPrice + (row.buyingPrice || 0),
+        sellingPrice: acc.sellingPrice + (row.sellingPrice || 0),
+        faceValueBuys: acc.faceValueBuys + (row.faceValueBuys || 0),
+        faceValueSales: acc.faceValueSales + (row.faceValueSales || 0),
+      }; 
+    }, { 
+      faceValueBal: 0, realizedPL: 0, unrealizedPL: 0, totalReturn: 0, portfolioValue: 0, 
+      maturityYears: 0, coupon: 0, duration: 0, mDuration: 0, dv01: 0, expectedShortfall: 0, 
+      spotYTM: 0, dirtyPrice: 0, buyingPrice: 0, sellingPrice: 0, faceValueBuys: 0, faceValueSales: 0 
+    });
   };
 
   const handleCreatePortfolio = async () => {

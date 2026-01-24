@@ -1,26 +1,21 @@
 "use client";
-import { useState } from "react";
-import Image from "next/image";
+
 import PageContainer from "../../components/container/PageContainer";
 import { InvoicesComponent } from "./InvoicesComponent";
-// import { CreateInvoicePage } from "./CreateInvoice";
+
 export default function InvoicesPage({ userDetails }: { userDetails: UserData }) {
   return (
-
-    <PageContainer title="Invoices Page" description="this is Invoices page">
-        <div className=" space-y-4 p-8 pt-6">
-          <div className="flex items-center justify-between space-y-2">
-            {/* <h2 className="text-3xl font-bold tracking-tight">Invoices</h2> */}
-            <div className="flex items-center space-x-2">
-
-           
-
-            </div>
+    <PageContainer title="Billing & Invoices | BondKonnect" description="Manage your trading invoices, payments, and billing history.">
+      <div className="min-h-screen bg-white text-black p-0 m-0 animate-in fade-in duration-500">
+        <div className="p-6 md:p-10 max-w-[1400px] mx-auto space-y-10">
+          <div className="flex flex-col gap-2 border-b border-neutral-100 pb-10">
+            <h1 className="text-4xl font-extrabold tracking-tight text-black">Invoices</h1>
+            <p className="text-lg text-neutral-500 font-medium">Generate, manage, and track your workstation and trade invoices.</p>
           </div>
-          <InvoicesComponent/>
-          {/* <CreateInvoicePage/> */}
-        </div>      
-
+          
+          <InvoicesComponent />
+        </div>
+      </div>
     </PageContainer>
   );
 }

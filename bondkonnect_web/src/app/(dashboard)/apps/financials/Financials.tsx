@@ -1,24 +1,21 @@
 "use client";
-import { useState } from "react";
-import Image from "next/image";
+
 import PageContainer from "../../components/container/PageContainer";
+import { FinancialsComponent } from "../../components/apps/financials/FinancialsComponent";
 
 export default function FinancialsPage({ userDetails }: { userDetails: UserData }) {
   return (
-
-    <PageContainer title="Financials Page" description="this is Financials page">
-        <div className=" space-y-4 p-8 pt-6">
-          <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">Financials</h2>
-            <div className="flex items-center space-x-2">
-
-           
-
-            </div>
+    <PageContainer title="Market Financials | BondKonnect" description="Market intelligence, macroeconomic pulse, and portfolio financial reporting.">
+      <div className="min-h-screen bg-white text-black p-0 m-0 animate-in fade-in duration-500">
+        <div className="p-6 md:p-10 max-w-[1400px] mx-auto space-y-10">
+          <div className="flex flex-col gap-2 border-b border-neutral-100 pb-10">
+            <h1 className="text-4xl font-extrabold tracking-tight text-black">Market Financials</h1>
+            <p className="text-lg text-neutral-500 font-medium">Real-time market intelligence, macro indicators, and fiscal reporting.</p>
           </div>
-          {/* <BondStats/> */}
-        </div>      
-
+          
+          <FinancialsComponent />
+        </div>
+      </div>
     </PageContainer>
   );
 }

@@ -1,15 +1,16 @@
 "use client"
 import * as React from 'react'
-import { Check, FileIcon, Upload, X } from 'lucide-react'
+import { Check, FileIcon, Upload, X, FileText, MousePointer2, CloudUpload, AlertCircle } from 'lucide-react'
 import Papa from 'papaparse'
 import axios from 'axios'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from '@/components/ui/select'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useToast } from "@/hooks/use-toast"
-
+import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 const tableMapping = {
   'Stats Table': 'statstable',
@@ -25,7 +26,7 @@ const headers = {
   'Graph Table': ['Date', 'Year', 'Spot rate', 'Nse rate', 'Upper band', 'Lower band'],
   'OBI Table': ['Date', 'Quoted Yield', 'Spot Yield', 'Dirty Price', 'OBI (K) Index', 'Coupon', 'Duration', 'Expected Return', 'DV01', 'Expected Shortfall', 'OBI TR'],
   'YTM Table': ['Date', 'taylor Rule', 'Ceiling', 'Floor', 'lamda1', 'lamda2', 'Alpha', 'Beta1', 'Beta2', 'Beta3', 'CBR', 'Rate Projection', 'Inflation', 'Level', 'Slope', 'Carvature'],
-  'Primary Market': ['Bond Issues', 'Issue Date', 'Maturity Date','Value Date', '1st Call Date', '2nd Call Date', 'Par Call 1 (%)', 'Par Call 2 (%)', 'Pricing Method', 'DTM / WAL', 'Day-Count', '1st coupon date', '2nd coupon date', 'Spot Rate (%)', 'Par Yield (%)']
+  'Primary Market': ['Bond Issues', 'Issue Date', 'Maturity Date', 'Value Date', '1st Call Date', '2nd Call Date', 'Par Call 1 (%)', 'Par Call 2 (%)', 'Pricing Method', 'DTM / WAL', 'Day-Count', '1st coupon date', '2nd coupon date', 'Spot Rate (%)', 'Par Yield (%)']
 }
 
 // Database column mapping
@@ -133,8 +134,8 @@ export default function UploadCsv() {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const validateHeaders = (fileHeaders: string[], expectedHeaders: string[]) => {
-    return JSON.stringify(fileHeaders.map(h => h.trim().toLowerCase())) === 
-           JSON.stringify(expectedHeaders.map(h => h.trim().toLowerCase()))
+    return JSON.stringify(fileHeaders.map(h => h.trim().toLowerCase())) ===
+      JSON.stringify(expectedHeaders.map(h => h.trim().toLowerCase()))
   }
 
   const processFile = async (file: File): Promise<FileWithPreview> => {
@@ -274,14 +275,12 @@ export default function UploadCsv() {
         table: tableMapping[documentType as keyof typeof tableMapping],
         data: mappedData
       }
-      console.log('Data to upload:', datatoUplaod)
 
       // Send data to API
       const response = await axios.post('http://localhost:8000/api/v1/auth/upload-data', {
         table: tableMapping[documentType as keyof typeof tableMapping],
         data: mappedData
       })
-      console.log('Upload response:', response.data)
 
       toast({
         title: "Success",
@@ -306,132 +305,185 @@ export default function UploadCsv() {
 
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Upload className="h-6 w-6" />
-          CSV File Upload
-        </CardTitle>
+    <Card className="w-full max-w-4xl mx-auto shadow-sm border-neutral-200 bg-white">
+      <CardHeader className="pb-4 border-b border-neutral-100">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-xl font-bold text-black flex items-center gap-2">
+              <Upload className="h-5 w-5" />
+              System Data Upload
+            </CardTitle>
+            <CardDescription className="text-neutral-500 mt-1 max-w-2xl">
+              Update the core market data for BondKonnect, including Bond Statistics (Secondary Market), Primary Market issues, Yield Curves, and OBI Indices.
+            </CardDescription>
+          </div>
+          {files.length > 0 && (
+             <Button onClick={handleUploadData} className="bg-black text-white hover:bg-neutral-800 transition-colors">
+             Upload {files.length} File{files.length !== 1 ? 's' : ''}
+           </Button>
+          )}
+        </div>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <Select value={documentType} onValueChange={(value) => setDocumentType(value as keyof typeof headers)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Document Type" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.keys(headers).map((type) => (
-              <SelectItem key={type} value={type}>{type}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <div
-          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors
-            ${isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'}`}
-          onDragEnter={(e) => { e.preventDefault(); setIsDragging(true) }}
-          onDragLeave={(e) => { e.preventDefault(); setIsDragging(false) }}
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
-          onDrop={handleDrop}
-        >
-          <label htmlFor="file-upload" className="hidden">Upload CSV File</label>
-          <input
-            id="file-upload"
-            ref={fileInputRef}
-            type="file"
-            accept=".csv"
-            className="hidden"
-            onChange={handleFileSelect}
-            multiple
-          />
-          <FileIcon className="w-10 h-10 mx-auto mb-4 text-muted-foreground" />
-          <div className="text-lg font-medium">
-            Drop your CSV files here
+      <CardContent className="space-y-8 p-6">
+        
+        {/* Selection Area */}
+        <div className="grid md:grid-cols-4 gap-6 items-end">
+          <div className="md:col-span-4 space-y-2">
+            <label className="text-sm font-semibold leading-none text-black">
+              1. Document Type
+            </label>
+            <Select value={documentType} onValueChange={(value) => setDocumentType(value as keyof typeof headers)}>
+              <SelectTrigger className="w-full h-11 bg-neutral-50 border-neutral-200 focus:ring-black focus:border-black text-black text-sm">
+                <SelectValue placeholder="Select the type of data you are uploading..." />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-neutral-200 shadow-md">
+                {Object.keys(headers).map((type) => (
+                  <SelectItem key={type} value={type} className="text-black hover:bg-neutral-50 focus:bg-neutral-50 focus:text-black py-3">
+                    {type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div className="text-sm text-muted-foreground mt-1">
-            or{' '}
-            <Button
-              variant="link"
-              className="px-1"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              Browse
-            </Button>
-          </div>
-          {uploading && <div className="mt-4 text-primary">Uploading...</div>}
         </div>
 
-        {files.length > 0 && (
-          <Button onClick={handleUploadData} className="mt-4">
-            Upload Data
-          </Button>
-        )}
-
-        {files.map((file, index) => (
-          <div key={index} className="space-y-4">
-            <div className="flex items-center gap-4">
-              <FileIcon className="h-8 w-8 text-primary" />
-              <div className="flex-1 space-y-1">
-                <div className="flex items-center justify-between">
-                  <p className="font-medium">{file.name}</p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeFile(file)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 flex-1 rounded-full bg-muted">
-                    <div
-                      className="h-full bg-primary transition-all duration-500 rounded-full"
-                      style={{ width: `${file.progress}%` }}
-                    />
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {file.status === 'complete' ? (
-                      <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                      `${file.progress}%`
-                    )}
-                  </span>
-                </div>
+        {/* Drop Zone */}
+        <div className="space-y-2">
+           <label className="text-sm font-semibold leading-none text-black">
+              2. Upload File
+            </label>
+          <div
+            className={`group relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ease-in-out cursor-pointer
+              ${isDragging
+                ? 'border-black bg-neutral-100 scale-[1.005]'
+                : 'border-neutral-200 bg-neutral-50/50 hover:border-black/30 hover:bg-neutral-100/50'
+              }`}
+            onDragEnter={(e) => { e.preventDefault(); setIsDragging(true) }}
+            onDragLeave={(e) => { e.preventDefault(); setIsDragging(false) }}
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <input
+              id="file-upload"
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={handleFileSelect}
+              multiple
+            />
+            <div className="pointer-events-none flex flex-col items-center justify-center gap-4 transition-transform group-hover:-translate-y-1">
+              <div className="rounded-full bg-white p-4 shadow-sm border border-neutral-100 group-hover:border-neutral-200 transition-colors">
+                <CloudUpload className="h-8 w-8 text-black" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-lg font-bold text-black">
+                  Click or drag file to this area to upload
+                </p>
+                <p className="text-sm text-neutral-500">
+                  Support for a single or bulk upload. Strictly .csv files.
+                </p>
               </div>
             </div>
-
-            {file.preview && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm font-medium">Preview of {file.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        {file.preview[0].map((header, i) => (
-                          <TableHead key={i}>{header}</TableHead>
-                        ))}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {file.preview.slice(1, 4).map((row, i) => (
-                        <TableRow key={i}>
-                          {row.map((cell, j) => (
-                            <TableCell key={j}>{cell}</TableCell>
-                          ))}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            )}
           </div>
-        ))}
+        </div>
+
+        {/* Attached Files List */}
+        {files.length > 0 && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <h3 className="text-sm font-semibold text-black border-b border-neutral-100 pb-2">Ready for Upload</h3>
+            <div className="grid gap-3">
+              {files.map((file, index) => (
+                <div key={index} className="group relative overflow-hidden border border-neutral-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+                  <div className="p-4 flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-lg bg-neutral-50 border border-neutral-200 flex items-center justify-center shrink-0">
+                      <FileIcon className="h-5 w-5 text-black" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-medium truncate text-sm text-black">{file.name}</p>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); removeFile(file); }}
+                          className="text-neutral-400 hover:text-red-600 transition-colors p-1"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                         <div className="h-1.5 flex-1 rounded-full bg-neutral-100 overflow-hidden">
+                          <div className="h-full bg-black rounded-full" style={{ width: '100%' }} />
+                        </div>
+                        <Badge variant="secondary" className="bg-black text-white hover:bg-black/90 text-[10px] h-5 px-2">
+                           Ready
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Preview Section */}
+                  {file.preview && (
+                    <div className="border-t border-neutral-100 bg-neutral-50/30">
+                       <div className="px-4 py-2">
+                        <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Preview</p>
+                       </div>
+                       <div className="overflow-x-auto pb-2 px-4">
+                         <Table>
+                           <TableHeader>
+                             <TableRow className="hover:bg-transparent border-none">
+                               {file.preview[0].map((header, i) => (
+                                 <TableHead key={i} className="h-8 text-[10px] font-bold text-black uppercase whitespace-nowrap px-2">{header}</TableHead>
+                               ))}
+                             </TableRow>
+                           </TableHeader>
+                           <TableBody>
+                             {file.preview.slice(1, 3).map((row, i) => (
+                               <TableRow key={i} className="hover:bg-transparent border-neutral-100">
+                                 {row.map((cell, j) => (
+                                   <TableCell key={j} className="py-1 text-[11px] text-neutral-600 whitespace-nowrap px-2">{cell}</TableCell>
+                                 ))}
+                               </TableRow>
+                             ))}
+                           </TableBody>
+                         </Table>
+                       </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* User Directive Cards */}
+        <div className="pt-6 border-t border-neutral-100">
+           <h4 className="text-sm font-bold text-black mb-4">Upload Instructions</h4>
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-100 hover:border-neutral-200 transition-colors">
+                  <div className="h-8 w-8 rounded-full bg-white border border-neutral-200 flex items-center justify-center mb-3">
+                     <MousePointer2 className="h-4 w-4 text-black" />
+                  </div>
+                  <h5 className="font-semibold text-black text-sm mb-1">1. Select Type</h5>
+                  <p className="text-xs text-neutral-500 leading-relaxed">Choose the target data table from the dropdown menu.</p>
+              </div>
+              <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-100 hover:border-neutral-200 transition-colors">
+                  <div className="h-8 w-8 rounded-full bg-white border border-neutral-200 flex items-center justify-center mb-3">
+                     <FileText className="h-4 w-4 text-black" />
+                  </div>
+                  <h5 className="font-semibold text-black text-sm mb-1">2. Prepare CSV</h5>
+                  <p className="text-xs text-neutral-500 leading-relaxed">Ensure your file is a valid .csv with matching headers.</p>
+              </div>
+              <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-100 hover:border-neutral-200 transition-colors">
+                  <div className="h-8 w-8 rounded-full bg-white border border-neutral-200 flex items-center justify-center mb-3">
+                     <CloudUpload className="h-4 w-4 text-black" />
+                  </div>
+                  <h5 className="font-semibold text-black text-sm mb-1">3. Upload</h5>
+                  <p className="text-xs text-neutral-500 leading-relaxed">Drag your file above and click Upload to sync.</p>
+              </div>
+           </div>
+        </div>
+
       </CardContent>
     </Card>
   )
 }
-
-
-

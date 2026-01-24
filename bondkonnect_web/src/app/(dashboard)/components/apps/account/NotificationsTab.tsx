@@ -4,10 +4,10 @@ import { Bell, Mail, MessageSquare, Monitor } from "lucide-react"
 
 export function NotificationsTab() {
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col gap-1 mb-2">
-        <h2 className="text-xl font-semibold text-black">Notification Preferences</h2>
-        <p className="text-sm text-gray-500">Decide how you want to be notified about important events.</p>
+    <div className="space-y-12">
+      <div className="flex flex-col gap-1 mb-4">
+        <h2 className="text-2xl font-bold text-black tracking-tight">Notifications</h2>
+        <p className="text-neutral-500 font-medium">Choose how and when you want to stay updated.</p>
       </div>
 
       <div className="space-y-4">
@@ -36,19 +36,19 @@ export function NotificationsTab() {
 
 function NotificationItem({ id, title, description, icon: Icon }: { id: string, title: string, description: string, icon: any }) {
   return (
-    <div className="flex items-center justify-between p-6 border border-gray-100 bg-white group hover:border-black transition-colors">
-      <div className="flex gap-4">
-        <div className="mt-1">
-          <Icon className="h-5 w-5 text-gray-400 group-hover:text-black transition-colors" />
+    <div className="flex items-center justify-between p-8 border border-neutral-100 bg-white rounded-3xl group hover:border-black transition-all hover:shadow-lg hover:shadow-neutral-100">
+      <div className="flex gap-6">
+        <div className="p-3 bg-neutral-100 rounded-2xl group-hover:bg-black group-hover:text-white transition-colors">
+          <Icon className="h-6 w-6" />
         </div>
         <div className="flex flex-col gap-1">
-          <Label htmlFor={id} className="text-sm font-bold uppercase tracking-tight text-black cursor-pointer">
+          <Label htmlFor={id} className="text-lg font-bold tracking-tight text-black cursor-pointer">
             {title}
           </Label>
-          <span className="text-xs text-gray-500 max-w-sm">{description}</span>
+          <span className="text-sm text-neutral-500 font-medium max-w-sm leading-relaxed">{description}</span>
         </div>
       </div>
-      <Switch id={id} className="data-[state=checked]:bg-black" />
+      <Switch id={id} className="data-[state=checked]:bg-black h-7 w-12" />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-// import { Helmet } from 'react-helmet';
+"use client";
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 
 

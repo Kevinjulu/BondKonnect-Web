@@ -1,24 +1,16 @@
 "use client";
-import { useState } from "react";
-import Image from "next/image";
+
 import PageContainer from "../../components/container/PageContainer";
 import { FAQComponent } from "../../components/apps/faq/FAQComponent";
+
 export default function FAQPage({ userDetails }: { userDetails: UserData }) {
   return (
-
-    <PageContainer title="FAQ Page" description="this is FAQ page">
-        <div className=" space-y-4 p-8 pt-6">
-          <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">FAQ</h2>
-            <div className="flex items-center space-x-2">
-
-           
-
-            </div>
-          </div>
-          <FAQComponent/>
-        </div>      
-
+    <PageContainer title="Frequently Asked Questions | BondKonnect" description="Answers to common questions about the BondKonnect platform.">
+      <div className="min-h-screen bg-white text-black p-0 m-0 animate-in fade-in duration-500">
+        <div className="p-6 md:p-10">
+          <FAQComponent />
+        </div>
+      </div>
     </PageContainer>
   );
 }

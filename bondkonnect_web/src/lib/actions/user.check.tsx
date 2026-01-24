@@ -11,12 +11,14 @@ export async function getCurrentUserDetails() {
       return {
         id: 999,
         first_name: "Developer",
+        firstName: "Developer",
         full_name: "Developer User",
         email: "dev@bondkonnect.com",
         phone_number: "0000000000",
         company_name: "Dev Corp",
         account_id: "DEV001",
         other_names: "Mode",
+        lastName: "Mode",
         cookie: "mock_cookie=true",
         roles: [
             {
@@ -38,13 +40,14 @@ export async function getCurrentUserDetails() {
   // --- END MOCK ---
 
   const cookieStore = await cookies();
-  const cookie = cookieStore.get("k-o-t");
+  const rawCookie = cookieStore.get("k-o-t");
   
-  // if (!cookie) {
-  //   return null;
-  // }
+  let full_name = "mock=true";
+  if (rawCookie) {
+    const c = rawCookie as { name: string; value: string };
+    full_name = `${c.name}=${c.value}`;
+  }
   
-  const full_name = cookie ? (cookie.name + "=" + cookie.value) : "mock=true";
   console.log("Cookie: ", full_name);
 
   // Get the current user
@@ -55,6 +58,7 @@ export async function getCurrentUserDetails() {
   const resultData = {
     id: currentUser.data.Id,
     first_name: currentUser.data.FirstName || "",
+    firstName: currentUser.data.FirstName || "", // Alias for compatibility
     full_name: currentUser.data.UserName || "",
     email: currentUser.data.Email || "",
     phone_number: currentUser.data.PhoneNumber || null,
@@ -62,6 +66,7 @@ export async function getCurrentUserDetails() {
     company_name: currentUser.data.CompanyName || "",
     account_id: currentUser.data.AccountId || "",
     other_names: currentUser.data.OtherNames || "",
+    lastName: currentUser.data.OtherNames || "", // Alias for compatibility
     cookie: full_name,
     roles: currentUser.data.Roles.map(
       (role: {

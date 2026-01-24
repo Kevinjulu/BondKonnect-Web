@@ -6,8 +6,9 @@ import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface Message {
   Id: number;
@@ -103,55 +104,76 @@ export default function ConversationList({ userDetails, selectedChat, onSelectCh
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full p-4">
-        <MessageSquare className="h-6 w-6 animate-pulse" />
+      <div className="flex flex-col items-center justify-center h-full p-8 text-neutral-400">
+        <MessageSquare className="h-8 w-8 animate-pulse mb-3" />
+        <p className="text-sm">Loading conversations...</p>
       </div>
     );
   }
 
   return (
-    <ScrollArea className="flex-1">
-      <div className="space-y-2 p-4">
+    <ScrollArea className="flex-1 bg-white">
+      <div className="p-2 space-y-1">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center text-sm text-gray-500">
-            <MessageSquare className="h-8 w-8 mb-2" />
-            <p>No messages yet</p>
+          <div className="flex flex-col items-center justify-center py-12 text-center text-neutral-400">
+            <div className="h-12 w-12 rounded-full bg-neutral-50 flex items-center justify-center mb-3">
+               <MessageSquare className="h-6 w-6 text-neutral-300" />
+            </div>
+            <p className="text-sm font-medium text-black">No messages yet</p>
+            <p className="text-xs max-w-[180px] mt-1">Start a new conversation to see it here.</p>
           </div>
         ) : (
-          messages.map((message) => (
-            <div
-              key={message.Id}
-              onClick={() => handleSelectChat(message)}
-              className={cn(
-                "flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors",
-                selectedChat === message.Id ? "bg-primary/10" : "hover:bg-gray-50",
-                !message.IsRead && message.assigned_to?.Email === userDetails.email && "bg-blue-50"
-              )}
-            >
-              <Avatar className="h-10 w-10 flex-shrink-0">
-                <AvatarFallback>
-                  {message.created_by.FirstName}
-                  {message.created_by.OtherNames}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-900">
-                    {message.created_by.FirstName} {message.created_by.OtherNames}
-                  </p>
-                  <span className="text-xs text-gray-500">
-                    {formatDistanceToNow(new Date(message.created_on), { addSuffix: true })}
-                  </span>
+          messages.map((message) => {
+             const isSelected = selectedChat === message.Id;
+             const isUnread = !message.IsRead && message.assigned_to?.Email === userDetails.email;
+             
+             return (
+              <div
+                key={message.Id}
+                onClick={() => handleSelectChat(message)}
+                className={cn(
+                  "group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 border border-transparent",
+                  isSelected ? "bg-neutral-100 border-neutral-200 shadow-sm" : "hover:bg-neutral-50 hover:border-neutral-100",
+                  isUnread && "bg-neutral-50"
+                )}
+              >
+                <div className="relative">
+                  <Avatar className={cn("h-10 w-10 border border-neutral-200", isSelected && "border-black")}>
+                    <AvatarFallback className={cn("text-xs font-semibold", isSelected ? "bg-black text-white" : "bg-white text-black")}>
+                      {message.created_by.FirstName.substring(0, 1)}
+                      {message.created_by.OtherNames.substring(0, 1)}
+                    </AvatarFallback>
+                  </Avatar>
+                  {isUnread && (
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-black border-2 border-white"></span>
+                    </span>
+                  )}
                 </div>
-                <p className="text-sm text-gray-600 line-clamp-2 mt-1">
-                  {message.Description}
-                </p>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <p className={cn("text-sm font-semibold truncate", isSelected ? "text-black" : "text-neutral-900")}>
+                      {message.created_by.FirstName} {message.created_by.OtherNames}
+                    </p>
+                    <span className="text-[10px] text-neutral-400 flex items-center gap-1">
+                      {formatDistanceToNow(new Date(message.created_on), { addSuffix: false })}
+                    </span>
+                  </div>
+                  <p className={cn(
+                      "text-xs line-clamp-1", 
+                      isSelected ? "text-neutral-600 font-medium" : "text-neutral-500",
+                      isUnread && "text-black font-semibold"
+                    )}>
+                    {message.Description}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </ScrollArea>
   );
 }
-

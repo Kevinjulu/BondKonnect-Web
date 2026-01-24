@@ -1,15 +1,22 @@
 import React from "react";
-import  DMSPage  from "./DMS";
+import PageContainer from "../../components/container/PageContainer";
+import { DMSComponent } from "./DMSComponent";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { redirect } from "next/navigation";
 
-const DMS = async () => {
+const DMSPage = async () => {
   const user = await getCurrentUserDetails();
   if (!user) {
     redirect("/auth/login");
   }
 
-  return <DMSPage userDetails={user} />;
+  return (
+    <PageContainer title="DMS | BondKonnect" description="Document Management System for BondKonnect">
+      <div className="flex-1 p-8 pt-6">
+        <DMSComponent userDetails={user}/>
+      </div>      
+    </PageContainer>
+  );
 };
 
-export default DMS;
+export default DMSPage;

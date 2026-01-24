@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Trash2, MoreVertical, Paperclip, UserCircle2, Archive } from "lucide-react";
+import { Send, Trash2, MoreVertical, Paperclip, UserCircle2, Archive, CheckCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -133,17 +133,9 @@ export default function ChatWindow({ userDetails, chatId }: ChatWindowProps) {
     setIsSending(true);
     try {
       const formData = new FormData();
-      console.log('Selected files:', selectedFiles);
       selectedFiles.forEach((file) => {
-        console.log('Appending file:', file.name);
         formData.append('message_attachments[]', file);
       });
-
-      // Log FormData contents
-      console.log('FormData entries:');
-      for (const pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
 
       if (messages.length === 0) {
         // This is the first message in a new chat
@@ -151,9 +143,7 @@ export default function ChatWindow({ userDetails, chatId }: ChatWindowProps) {
         formData.append('message_assigned_to', chatId.toString());
         formData.append('message_created_by', userDetails.email);
 
-        console.log('Sending new message with attachments');
         const response = await submitMessage(formData);
-        console.log('Submit message response:', response);
         if (response?.success) {
           setNewMessage("");
           setSelectedFiles([]);
@@ -209,22 +199,26 @@ export default function ChatWindow({ userDetails, chatId }: ChatWindowProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <Send className="h-8 w-8 animate-pulse text-gray-400" />
+        <div className="flex flex-col items-center gap-2">
+           <div className="h-2 w-2 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+           <div className="h-2 w-2 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+           <div className="h-2 w-2 bg-black rounded-full animate-bounce"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-white">
       {/* Chat Header */}
-      <div className="px-6 py-4 border-b flex items-center justify-between bg-white">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-primary/10 text-primary">
+      <div className="px-6 py-3 border-b border-neutral-100 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10">
+        <div className="flex items-center gap-4">
+          <Avatar className="h-10 w-10 border border-neutral-200">
+            <AvatarFallback className="bg-black text-white font-semibold">
               {chatPartner && isUserObject(chatPartner) ? (
                 <>
-                  {chatPartner.FirstName}
-                  {chatPartner.OtherNames}
+                  {chatPartner.FirstName.charAt(0)}
+                  {chatPartner.OtherNames.charAt(0)}
                 </>
               ) : (
                 <UserCircle2 className="h-6 w-6" />
@@ -232,20 +226,21 @@ export default function ChatWindow({ userDetails, chatId }: ChatWindowProps) {
             </AvatarFallback>
           </Avatar>
           <div>
-            <h2 className="font-semibold">
+            <h2 className="font-bold text-black text-sm">
               {chatPartner && isUserObject(chatPartner) 
                 ? `${chatPartner.FirstName} ${chatPartner.OtherNames}` 
                 : 'Unknown User'}
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-xs text-neutral-500 flex items-center gap-1.5">
+               <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
               {chatPartner && isUserObject(chatPartner) ? chatPartner.Email : ''}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={handleDeleteChat}>
+              <Button variant="ghost" size="icon" onClick={handleDeleteChat} className="text-neutral-400 hover:text-red-600 hover:bg-red-50">
                 <Trash2 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -253,21 +248,21 @@ export default function ChatWindow({ userDetails, chatId }: ChatWindowProps) {
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-black">
                 <Archive className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Archive Chat</TooltipContent>
           </Tooltip>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-black">
             <MoreVertical className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
       {/* Messages Area */}
-      <ScrollArea className="flex-1 p-6">
-        <div className="space-y-4">
+      <ScrollArea className="flex-1 p-6 bg-white">
+        <div className="space-y-6">
           {messages.map((message, index) => {
             const isUserMessage = message.created_by.Email === userDetails.email;
 
@@ -275,40 +270,46 @@ export default function ChatWindow({ userDetails, chatId }: ChatWindowProps) {
               <div
                 key={`${message.Id}-${index}`}
                 className={cn(
-                  "flex gap-3",
+                  "flex gap-3 group animate-in fade-in slide-in-from-bottom-2 duration-300",
                   isUserMessage ? "flex-row-reverse" : "flex-row"
                 )}
               >
-                <Avatar className="h-8 w-8 flex-shrink-0">
-                  <AvatarFallback>
-                    {message.created_by.FirstName}
-                    {message.created_by.OtherNames}
-                  </AvatarFallback>
-                </Avatar>
+                {!isUserMessage && (
+                   <Avatar className="h-8 w-8 flex-shrink-0 border border-neutral-200 mt-1">
+                    <AvatarFallback className="bg-white text-black text-xs font-semibold">
+                      {message.created_by.FirstName.charAt(0)}
+                      {message.created_by.OtherNames.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                
                 <div
                   className={cn(
                     "flex flex-col gap-1 max-w-[70%]",
                     isUserMessage ? "items-end" : "items-start"
                   )}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">
-                      {message.created_by.FirstName} {message.created_by.OtherNames}
-                    </span>
-                    <span className="text-xs text-gray-500">
+                  <div className="flex items-center gap-2 px-1">
+                    <span className="text-[10px] text-neutral-400 font-medium">
+                       {!isUserMessage && `${message.created_by.FirstName} • `}
                       {formatDistanceToNow(new Date(message.created_on), { addSuffix: true })}
                     </span>
                   </div>
                   <div
                     className={cn(
-                      "rounded-lg px-4 py-2 text-sm",
+                      "rounded-2xl px-5 py-3 text-sm leading-relaxed shadow-sm",
                       isUserMessage
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
+                        ? "bg-black text-white rounded-tr-sm"
+                        : "bg-neutral-100 text-neutral-800 rounded-tl-sm border border-neutral-200"
                     )}
                   >
                     {message.Description}
                   </div>
+                  {isUserMessage && (
+                      <div className="px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <CheckCheck className="h-3 w-3 text-neutral-300" />
+                      </div>
+                  )}
                 </div>
               </div>
             );
@@ -318,21 +319,32 @@ export default function ChatWindow({ userDetails, chatId }: ChatWindowProps) {
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="p-4 border-t bg-white">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSendMessage();
-          }}
-          className="flex gap-2"
-        >
-          <div className="flex-1 flex gap-2">
+      <div className="p-4 bg-white border-t border-neutral-100">
+        <div className="flex flex-col gap-3 max-w-4xl mx-auto">
+          {selectedFiles.length > 0 && (
+            <div className="flex flex-wrap gap-2 px-1">
+              {selectedFiles.map((file, index) => (
+                <div key={index} className="text-xs font-medium text-black bg-neutral-100 border border-neutral-200 px-3 py-1.5 rounded-full flex items-center gap-2">
+                  <Paperclip className="h-3 w-3" />
+                  {file.name}
+                </div>
+              ))}
+            </div>
+          )}
+          
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSendMessage();
+            }}
+            className="flex items-end gap-2 bg-neutral-50 p-2 rounded-2xl border border-neutral-200 focus-within:ring-1 focus-within:ring-black focus-within:border-black transition-all shadow-sm"
+          >
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={handleFileSelect}
-              className="flex-shrink-0"
+              className="flex-shrink-0 text-neutral-400 hover:text-black hover:bg-white rounded-xl h-10 w-10"
             >
               <Paperclip className="h-5 w-5" />
             </Button>
@@ -340,37 +352,37 @@ export default function ChatWindow({ userDetails, chatId }: ChatWindowProps) {
               placeholder="Type your message..."
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              className="min-h-[80px]"
+              className="min-h-[44px] max-h-[120px] bg-transparent border-none focus-visible:ring-0 resize-none py-3 text-sm placeholder:text-neutral-400 text-black"
+              rows={1}
             />
-          </div>
-          <Button
-            type="submit"
-            disabled={isSending || !newMessage.trim()}
-            className="flex-shrink-0"
-          >
-            <Send className="h-4 w-4" />
-            <span className="sr-only">Send message</span>
-          </Button>
-        </form>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          multiple
-          className="hidden"
-          aria-label="File attachment"
-        />
-        {selectedFiles.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-2">
-            {selectedFiles.map((file, index) => (
-              <div key={index} className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                {file.name}
-              </div>
-            ))}
-          </div>
-        )}
+            <Button
+              type="submit"
+              disabled={isSending || !newMessage.trim()}
+              className="flex-shrink-0 h-10 w-10 rounded-xl bg-black text-white hover:bg-neutral-800 shadow-sm"
+              size="icon"
+            >
+              {isSending ? (
+                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                 <Send className="h-4 w-4 ml-0.5" />
+              )}
+              <span className="sr-only">Send message</span>
+            </Button>
+          </form>
+          
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            multiple
+            className="hidden"
+            aria-label="File attachment"
+          />
+        </div>
+        <div className="text-center mt-2">
+            <p className="text-[10px] text-neutral-400">Press Enter to send, Shift + Enter for new line</p>
+        </div>
       </div>
     </div>
   );
 }
-
