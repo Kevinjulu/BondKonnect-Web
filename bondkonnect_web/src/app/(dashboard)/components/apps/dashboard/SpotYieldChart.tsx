@@ -1,332 +1,189 @@
 "use client";
-  import * as React from 'react'
-  import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card"
-  import { Checkbox } from '@/components/ui/checkbox'
-  import { Label } from "@/components/ui/label"
-  import { CartesianGrid, Line, LineChart, XAxis,ResponsiveContainer, Tooltip,YAxis, Legend } from "recharts"
-  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { getHistoricalBonds, getProjectionBands, getSpotYieldCurve, getTableParams } from '@/lib/actions/api.actions';
-  
+import * as React from 'react'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card"
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from "@/components/ui/label"
+import { CartesianGrid, Line, LineChart, XAxis,ResponsiveContainer, Tooltip,YAxis, Legend } from "recharts"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useYieldCurve, useProjectionBands, useHistoricalBonds, useTableParams } from '@/hooks/use-market-data';
+import { Loader2 } from 'lucide-react';
+import { Skeleton } from "@/components/ui/skeleton";
 
-  // Add this interface before the SpotYieldChart component
-  interface DataPoint {
-    maturity: number;
-    spotYield: number;
-    upperBand?: number;
-    lowerBand?: number;
-    oneWeekAgo?: number;
-    oneMonthAgo?: number;
-    oneYearAgo?: number;
-  }
-  
-  const chartConfig = {
-    spotYield: {
-      label: 'Yield Curve',
-      color: 'hsl(var(--chart-1))',
-    },
-    upperBand: {
-      label: 'Upper Band',
-      color: 'hsl(var(--chart-2))',
-    },
-    lowerBand: {
-      label: 'Lower Band',
-      color: 'hsl(var(--chart-3))',
-    },
-    oneWeekAgo: {
-      label: '1 week ago',
-      color: 'hsl(var(--chart-4))',
-    },
-    oneMonthAgo: {
-      label: '1 month ago',
-      color: 'hsl(var(--chart-5))',
-    },
-    oneYearAgo: {
-      label: '1 year ago',
-      color: 'hsl(var(--chart-6))',
-    },
-  }
+interface DataPoint {
+  maturity: number;
+  spotYield: number;
+  upperBand?: number;
+  lowerBand?: number;
+  oneWeekAgo?: number;
+  oneMonthAgo?: number;
+  oneYearAgo?: number;
+}
 
-  export function SpotYieldChart() {
-    const [showProjections, setShowProjections] = React.useState(true);
-    const [showHistorical, setShowHistorical] = React.useState(true);
-    interface SpotYieldPoint {
-      x: number;
-      y: number;
-    }
-  
-    interface HistoricalData {
-      oneWeekAgo: SpotYieldPoint[];
-      oneMonthAgo: SpotYieldPoint[];
-      oneYearAgo: SpotYieldPoint[];
-    }
-  
-    interface ProjectionBands {
-      upperBand: { x: number; y: number }[];
-      lowerBand: { x: number; y: number }[];
-    }
+const chartConfig = {
+  spotYield: { label: 'Yield Curve', color: 'hsl(var(--chart-1))' },
+  upperBand: { label: 'Upper Band', color: 'hsl(var(--chart-2))' },
+  lowerBand: { label: 'Lower Band', color: 'hsl(var(--chart-3))' },
+  oneWeekAgo: { label: '1 week ago', color: 'hsl(var(--chart-4))' },
+  oneMonthAgo: { label: '1 month ago', color: 'hsl(var(--chart-5))' },
+  oneYearAgo: { label: '1 year ago', color: 'hsl(var(--chart-6))' },
+}
 
-    interface TableParams {
-      CbrRate: number;
-      Inflation: number;
-      Level: number;
-      Slope: number;
-      Curvature: number;
-    }
-  
-    const [spotYieldData, setSpotYieldData] = React.useState<SpotYieldPoint[]>([]);
-    const [projectionBands, setProjectionBands] = React.useState<ProjectionBands>({ upperBand: [], lowerBand: [] });
-    const [historicalData, setHistoricalData] = React.useState<HistoricalData>({ oneWeekAgo: [], oneMonthAgo: [], oneYearAgo: [] });
-    const [tableParams, setTableParams] = React.useState<TableParams | null>(null);
-  
-    React.useEffect(() => {
-      const fetchSpotYieldCurve = async () => {
-        const response = await getSpotYieldCurve();
-        const { data } = response;
-        setSpotYieldData(data);
-      };
-      fetchSpotYieldCurve();
-    }, []);
+export function SpotYieldChart() {
+  const [showProjections, setShowProjections] = React.useState(true);
+  const [showHistorical, setShowHistorical] = React.useState(true);
 
-    React.useEffect(() => {
-      const fetchTableParams = async () => {
-        try {
-          const response = await getTableParams();
-          if (response) {
-            setTableParams({
-              CbrRate: response.CbrRate,
-              Inflation: response.Inflation,
-              Level: response.Level,
-              Slope: response.Slope,
-              Curvature: response.Curvature,
-            });
-          }
-        } catch (error) {
-          console.error('Error fetching table params:', error);
-        }
-      };
-      fetchTableParams();
-    }, []);
-  
-    React.useEffect(() => {
-      const fetchProjectionBands = async () => {
-        if (showProjections) {
-          const response = await getProjectionBands();
-          const { data } = response;
-          setProjectionBands({
-            upperBand: data.upperBand,
-            lowerBand: data.lowerBand,
-          });
-        } else {
-          setProjectionBands({ upperBand: [], lowerBand: [] });
-        }
-      };
-      
-      fetchProjectionBands();
-    }, [showProjections]);
-  
-    React.useEffect(() => {
-      const fetchHistoricalBonds = async () => {
-        if (showHistorical) {
-          const response = await getHistoricalBonds();
-          const { data } = response;
-          setHistoricalData({
-            oneWeekAgo: data.oneWeekAgo,//set to 4 decimals
-            oneMonthAgo: data.oneMonthAgo,
-            oneYearAgo: data.oneYearAgo,
-          });
-        } else {
-          setHistoricalData({ oneWeekAgo: [], oneMonthAgo: [], oneYearAgo: [] });
-        }
-      };
-      
-      fetchHistoricalBonds();
-    }, [showHistorical]);
-  
-    const transformedData = spotYieldData.map((point) => {
+  // Use the new hooks
+  const { data: spotYieldData = [], isLoading: isSpotLoading } = useYieldCurve();
+  const { data: tableParams, isLoading: isParamsLoading } = useTableParams();
+  const { data: projectionBands, isLoading: isProjectionsLoading } = useProjectionBands(showProjections);
+  const { data: historicalData, isLoading: isHistoricalLoading } = useHistoricalBonds(showHistorical);
+
+  const transformedData = React.useMemo(() => {
+    if (!spotYieldData.length) return [];
+
+    return spotYieldData.map((point: any) => {
       const dataPoint: DataPoint = {
         maturity: point.x,
-        spotYield: parseFloat(point.y.toFixed(4)), // Format to 4 decimal places
+        spotYield: parseFloat(point.y.toFixed(4)),
       };
-    
-      // Helper function to find matching point with tolerance
-      const findMatchingPoint = (arr: {x: number, y: number}[], targetX: number) => {
+
+      const findMatchingPoint = (arr: any[], targetX: number) => {
+        if (!arr) return null;
         return arr.find((p) => Math.abs(p.x - targetX) < 0.01);
       };
-    
-      if (showProjections && projectionBands.upperBand && projectionBands.lowerBand) {
-        const upperBandPoint = findMatchingPoint(projectionBands.upperBand, point.x);
-        const lowerBandPoint = findMatchingPoint(projectionBands.lowerBand, point.x);
-        if (upperBandPoint) dataPoint.upperBand = parseFloat(upperBandPoint.y.toFixed(4));
-        if (lowerBandPoint) dataPoint.lowerBand = parseFloat(lowerBandPoint.y.toFixed(4));
+
+      if (showProjections && projectionBands) {
+        const upper = findMatchingPoint(projectionBands.upperBand, point.x);
+        const lower = findMatchingPoint(projectionBands.lowerBand, point.x);
+        if (upper) dataPoint.upperBand = parseFloat(upper.y.toFixed(4));
+        if (lower) dataPoint.lowerBand = parseFloat(lower.y.toFixed(4));
       }
-    
-      if (showHistorical && historicalData.oneWeekAgo && historicalData.oneMonthAgo && historicalData.oneYearAgo) {
-        const oneWeekAgoPoint = findMatchingPoint(historicalData.oneWeekAgo, point.x);
-        const oneMonthAgoPoint = findMatchingPoint(historicalData.oneMonthAgo, point.x);
-        const oneYearAgoPoint = findMatchingPoint(historicalData.oneYearAgo, point.x);
-        if (oneWeekAgoPoint) dataPoint.oneWeekAgo = parseFloat(oneWeekAgoPoint.y.toFixed(4));
-        if (oneMonthAgoPoint) dataPoint.oneMonthAgo = parseFloat(oneMonthAgoPoint.y.toFixed(4));
-        if (oneYearAgoPoint) dataPoint.oneYearAgo = parseFloat(oneYearAgoPoint.y.toFixed(4));
+
+      if (showHistorical && historicalData) {
+        const w = findMatchingPoint(historicalData.oneWeekAgo, point.x);
+        const m = findMatchingPoint(historicalData.oneMonthAgo, point.x);
+        const y = findMatchingPoint(historicalData.oneYearAgo, point.x);
+        if (w) dataPoint.oneWeekAgo = parseFloat(w.y.toFixed(4));
+        if (m) dataPoint.oneMonthAgo = parseFloat(m.y.toFixed(4));
+        if (y) dataPoint.oneYearAgo = parseFloat(y.y.toFixed(4));
       }
-    
+
       return dataPoint;
     });
-    console.log("transformedData", transformedData);
-  
-    // Custom tooltip formatter to show 4 decimal places
-    const CustomTooltip = ({ active, payload, label }: any) => {
-      if (active && payload && payload.length) {
-        return (
-          <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
-            <p className="font-semibold">{`${label}`}</p>
-            {payload.map((entry: any, index: number) => (
-              <p key={index} style={{ color: entry.color }}>
-                {`${entry.name}: ${typeof entry.value === 'number' ? entry.value.toFixed(4) : entry.value}`}
-              </p>
-            ))}
+  }, [spotYieldData, projectionBands, historicalData, showProjections, showHistorical]);
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
+          <p className="font-semibold">{`${label} Yrs`}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} style={{ color: entry.color }} className="text-xs">
+              {`${entry.name}: ${typeof entry.value === 'number' ? entry.value.toFixed(4) : entry.value}%`}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const isLoading = isSpotLoading || isParamsLoading;
+
+  return (
+    <Card className="col-span-12">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Yield Curve</CardTitle>
+            <CardDescription className="text-primary">Kenya Market</CardDescription>
           </div>
-        );
-      }
-      return null;
-    };
-  
-    return (
-      <Card className="col-span-12">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Yield Curve</CardTitle>
-              <CardDescription className="text-primary">Kenya</CardDescription>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox id="projections" checked={showProjections} onCheckedChange={() => setShowProjections(!showProjections)} />
+              <Label htmlFor="projections" className="text-xs">Projections</Label>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="projections"
-                  checked={showProjections}
-                  onCheckedChange={() => setShowProjections(!showProjections)}
-                />
-                <Label htmlFor="projections">Show Projections</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="historical"
-                  checked={showHistorical}
-                  onCheckedChange={() =>{ setShowHistorical(!showHistorical)}}
-                />
-                <Label htmlFor="historical">Show Historical Data</Label>
-              </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox id="historical" checked={showHistorical} onCheckedChange={() => setShowHistorical(!showHistorical)} />
+              <Label htmlFor="historical" className="text-xs">Historical</Label>
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="pt-6"> {/* Add padding top */}
-          <div className="h-[350px] w-full"> {/* Reduced height to 350px */}
+        </div>
+      </CardHeader>
+      <CardContent className="pt-6">
+        <div className="h-[350px] w-full">
+          {isLoading ? (
+            <div className="space-y-4 w-full h-full">
+              <div className="flex items-end space-x-2 h-[280px]">
+                {[...Array(12)].map((_, i) => (
+                  <Skeleton key={i} className="flex-1" style={{ height: `${Math.random() * 60 + 20}%` }} />
+                ))}
+              </div>
+              <div className="flex justify-between">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+            </div>
+          ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart 
-                data={transformedData}
-                margin={{ top: 20, right: 10, bottom: 20, left: 20 }}
-              >
-                <XAxis
-                  dataKey="maturity"
-                  label={{ value: 'Maturity (years)', position: 'bottom', offset: -10 }}
-                />
-                <YAxis
-                  domain={[5, 15]}
-                  ticks={[5, 7, 9, 11, 13, 15]} // Adjusted ticks with a difference of 2
-                  label={{ value: 'Yield (%)', angle: -90, position: 'left', offset: 0 }}
-                />
+              <LineChart data={transformedData} margin={{ top: 20, right: 10, bottom: 20, left: 20 }}>
+                <XAxis dataKey="maturity" />
+                <YAxis domain={[5, 15]} ticks={[5, 7, 9, 11, 13, 15]} />
                 <Tooltip content={<CustomTooltip />} />
-                <Legend verticalAlign="top" align="right" /> {/* Add legend */}
-                <CartesianGrid strokeDasharray="3 3" />
-                <Line
-                  type="monotone"
-                  dataKey="spotYield"
-                  stroke={chartConfig.spotYield.color}
-                  name={chartConfig.spotYield.label}
-                  dot
-                  strokeWidth={2}
-                />
-                <Line
-                      type="monotone"
-                      dataKey="upperBand"
-                      stroke={chartConfig.upperBand.color}
-                      name={chartConfig.upperBand.label}
-                      strokeDasharray="5 5"
-                      dot={false}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="lowerBand"
-                      stroke={chartConfig.lowerBand.color}
-                      name={chartConfig.lowerBand.label}
-                      strokeDasharray="5 5"
-                      dot={false}
-                    />
-
-<Line
-                      type="monotone"
-                      dataKey="oneWeekAgo"
-                      stroke={chartConfig.oneWeekAgo.color}
-                      name={chartConfig.oneWeekAgo.label}
-                      dot
-                      strokeWidth={1}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="oneMonthAgo"
-                      stroke={chartConfig.oneMonthAgo.color}
-                      name={chartConfig.oneMonthAgo.label}
-                      dot
-                      strokeWidth={1}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="oneYearAgo"
-                      stroke={chartConfig.oneYearAgo.color}
-                      name={chartConfig.oneYearAgo.label}
-                      dot
-                      strokeWidth={1}
-                    />
-                
-
-               
-                
+                <Legend verticalAlign="top" align="right" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                <Line type="monotone" dataKey="spotYield" stroke={chartConfig.spotYield.color} name={chartConfig.spotYield.label} dot strokeWidth={2} />
+                {showProjections && (
+                  <>
+                    <Line type="monotone" dataKey="upperBand" stroke={chartConfig.upperBand.color} name={chartConfig.upperBand.label} strokeDasharray="5 5" dot={false} />
+                    <Line type="monotone" dataKey="lowerBand" stroke={chartConfig.lowerBand.color} name={chartConfig.lowerBand.label} strokeDasharray="5 5" dot={false} />
+                  </>
+                )}
+                {showHistorical && (
+                  <>
+                    <Line type="monotone" dataKey="oneWeekAgo" stroke={chartConfig.oneWeekAgo.color} name={chartConfig.oneWeekAgo.label} dot={false} strokeWidth={1} />
+                    <Line type="monotone" dataKey="oneMonthAgo" stroke={chartConfig.oneMonthAgo.color} name={chartConfig.oneMonthAgo.label} dot={false} strokeWidth={1} />
+                    <Line type="monotone" dataKey="oneYearAgo" stroke={chartConfig.oneYearAgo.color} name={chartConfig.oneYearAgo.label} dot={false} strokeWidth={1} />
+                  </>
+                )}
               </LineChart>
             </ResponsiveContainer>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <div className="w-full space-y-2">
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <TableCell>Inflation Rate:</TableCell>
-                  <TableCell>{tableParams ? `${(tableParams.Inflation * 100).toFixed(1)}%` : '5.9%'}</TableCell>
-                  <TableCell>CBR Rate:</TableCell>
-                  <TableCell>{tableParams ? `${(tableParams.CbrRate * 100).toFixed(1)}%` : '7.0%'}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Spot Curve Stats</TableHead>
-                  <TableHead>Level</TableHead>
-                  <TableHead>Slope</TableHead>
-                  <TableHead>Curvature</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell />
-                  <TableCell>{tableParams ? `${(tableParams.Level * 100).toFixed(4)}%` : '11.8458%'}</TableCell>
-                  <TableCell>{tableParams ? `${(tableParams.Slope * 100).toFixed(2)}%` : '2.52%'}</TableCell>
-                  <TableCell>{tableParams ? `${(tableParams.Curvature * 100).toFixed(2)}%` : '-0.11%'}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-        </CardFooter>
-      </Card>
-   
-    )
-  }
+          )}
+        </div>
+      </CardContent>
+      <CardFooter>
+        <div className="w-full space-y-2">
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell className="py-2 text-xs font-bold">Inflation Rate:</TableCell>
+                <TableCell className="py-2 text-xs">{tableParams ? `${(tableParams.Inflation * 100).toFixed(1)}%` : '...'}</TableCell>
+                <TableCell className="py-2 text-xs font-bold">CBR Rate:</TableCell>
+                <TableCell className="py-2 text-xs">{tableParams ? `${(tableParams.CbrRate * 100).toFixed(1)}%` : '...'}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-neutral-50">
+                <TableHead className="h-8 text-[10px] uppercase font-bold">Spot Curve Stats</TableHead>
+                <TableHead className="h-8 text-[10px] uppercase font-bold">Level</TableHead>
+                <TableHead className="h-8 text-[10px] uppercase font-bold">Slope</TableHead>
+                <TableHead className="h-8 text-[10px] uppercase font-bold">Curvature</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell className="py-2" />
+                <TableCell className="py-2 text-xs font-medium">{tableParams ? `${(tableParams.Level * 100).toFixed(4)}%` : '...'}</TableCell>
+                <TableCell className="py-2 text-xs font-medium">{tableParams ? `${(tableParams.Slope * 100).toFixed(2)}%` : '...'}</TableCell>
+                <TableCell className="py-2 text-xs font-medium">{tableParams ? `${(tableParams.Curvature * 100).toFixed(2)}%` : '...'}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </CardFooter>
+    </Card>
+  )
+}

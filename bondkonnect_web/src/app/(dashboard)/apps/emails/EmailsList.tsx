@@ -57,55 +57,41 @@ interface ApiEmailData {
   }>;
 }
 
+import { useEmails } from "@/hooks/use-email-data"
+
 export default function EmailList({ userDetails }: { userDetails: UserData }) {
-  const [emails, setEmails] = useState<Email[]>([])
-  const [loading, setLoading] = useState(true)
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
 
-  const fetchEmails = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/emails?user=${userDetails.email}`)
-      const data = await response.json()
+  // Use the new hook
+  const { data: rawEmails = [], isLoading: loading, refetch: fetchEmails } = useEmails(userDetails?.email);
 
-      if (data.success) {
-        const transformedEmails = data.data.map((email: ApiEmailData) => ({
-          id: email.Id.toString(),
-          subject: email.Subject,
-          sender: {
-            name: email.SenderName || "Unknown",
-            email: email.SenderEmail,
-          },
-          recipients: JSON.parse(email.AllRecipientsEmails || "[]"),
-          cc: JSON.parse(email.CC || "[]"),
-          bcc: JSON.parse(email.BCC || "[]"),
-          created_by: email.created_by,
-          date: email.created_on,
-          content: email.Body,
-          is_sent: email.IsSent === 1,
-          is_draft: email.IsDraft === 1,
-          is_bulk_email: email.IsBulkEmail === 1,
-          role_group_sending_to: email.RoleGroupSendingTo,
-          attachments: email.attachments?.map((att) => ({
-            name: att.DocumentName,
-            size: "Unknown",
-            type: att.Extension,
-          })),
-        }))
-        setEmails(transformedEmails)
-      }
-    } catch (error) {
-      console.error("Error fetching emails:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchEmails()
-  }, [userDetails.email])
+  const emails = React.useMemo(() => {
+    return rawEmails.map((email: ApiEmailData) => ({
+      id: email.Id.toString(),
+      subject: email.Subject,
+      sender: {
+        name: email.SenderName || "Unknown",
+        email: email.SenderEmail,
+      },
+      recipients: typeof email.AllRecipientsEmails === 'string' ? JSON.parse(email.AllRecipientsEmails || "[]") : [],
+      cc: typeof email.CC === 'string' ? JSON.parse(email.CC || "[]") : [],
+      bcc: typeof email.BCC === 'string' ? JSON.parse(email.BCC || "[]") : [],
+      created_by: email.created_by,
+      date: email.created_on,
+      content: email.Body,
+      is_sent: email.IsSent === 1,
+      is_draft: email.IsDraft === 1,
+      is_bulk_email: email.IsBulkEmail === 1,
+      role_group_sending_to: email.RoleGroupSendingTo,
+      attachments: email.attachments?.map((att) => ({
+        name: att.DocumentName,
+        size: "Unknown",
+        type: att.Extension,
+      })),
+    }));
+  }, [rawEmails]);
 
   const filteredEmails = emails.filter((email) => {
     if (

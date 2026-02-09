@@ -7,28 +7,15 @@ import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/componen
 // import { Label } from '@/components/ui/label';
 import PageContainer from '../../(dashboard)/components/container/PageContainer';
 import AuthLogin from '../authForms/AuthLogin';
-// import Logo from '../../(dashboard)/layouts/shared/logo/Logo';
-// next import
-import Image from "next/image";
+import { AuthLogo } from '@/components/AuthLogo';
+
 const Login = () => {
   return (
   <PageContainer title="Login Page" description="this is Login page">
     <section className=" py-6">
       <div className="container">
         <div className="flex flex-col gap-4">
-
-          
-         <Box display="flex" justifyContent="center" width="100%">
-
-          <Image
-            src="/images/logos/logo-c.svg"
-            alt="logo"
-            className="h-9"
-            width={400}
-            height={100}
-          />
-
-          </Box>
+          <AuthLogo className="mb-4" />
           <AuthLogin
           
             icon={

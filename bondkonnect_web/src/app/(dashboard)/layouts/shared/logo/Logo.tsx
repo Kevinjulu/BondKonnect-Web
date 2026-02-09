@@ -24,16 +24,16 @@ const Logo = () => {
             src="/images/logos/logo-dark.svg"
             alt="logo"
             height={customizer.TopbarHeight}
-            width={400}
+            width={180}
             priority
              className="" 
           />
         ) : (
           <Image
-            src={"/images/logos/logo-c.svg"}
+            src={"/images/logos/logo-c.png"}
             alt="logo"
             height={customizer.TopbarHeight}
-            width={400}
+            width={180}
             priority
           />
         )}
@@ -48,15 +48,15 @@ const Logo = () => {
           src="/images/logos/logo-dark.svg"
           alt="logo"
           height={customizer.TopbarHeight}
-          width={100}
+          width={180}
           priority
         />
       ) : (
         <Image
-          src="/images/logos/logo-c.svg"
+          src="/images/logos/logo-c.png"
           alt="logo"
           height={customizer.TopbarHeight}
-          width={100}
+          width={180}
           priority
         />
       )}

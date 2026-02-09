@@ -22,6 +22,7 @@ import { BsBuildings } from "react-icons/bs";
 import { IoPersonOutline } from "react-icons/io5";
 // import { BsJournalBookmark } from "react-icons/bs";
 import { SiBookstack } from "react-icons/si";
+import { ShieldCheck } from "lucide-react";
 // import { RiStockLine } from "react-icons/ri";
 import { setActiveRole } from "@/lib/actions/api.actions";
 // import { getCurrentUserDetails } from "@/lib/actions/user.check";
@@ -193,6 +194,11 @@ const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, m
           (role: UserRole) => role.role_name
         );
         setUserRoles(roles);
+        
+        // Set initial selected role if available
+        if (roles && roles.length > 0) {
+          setSelectedRole(roles[0] as Role);
+        }
 
         //If user has exactly one role, treat it as their role
         if (roles.length === 1) {
@@ -226,7 +232,7 @@ const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, m
     };
 
     fetchUserRoles();
-  }, [mode, user_details, selectedRole, userRoles, isLoading,handleClick]);
+  }, [mode, user_details, handleClick]);
 
   
  
@@ -277,41 +283,34 @@ const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, m
               </div>
             ) : null}
         
-            <RadioGroup defaultValue="individual" className="grid grid-cols-3 gap-4 py-4" onValueChange={(value) => setSelectedRole(value as Role)}>
-              <div>
-              <RadioGroupItem value="individual" id="individual" className="peer sr-only" />
-              <Label
-                htmlFor="individual"
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                <IoPersonOutline className="mb-3 h-6 w-6" />
-                Individual
-              </Label>
-              </div>
-              <div>
-              <RadioGroupItem
-                value="agent"
-                id="agent"
-                className="peer sr-only"
-              />
-              <Label
-                htmlFor="agent"
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                <BsBuildings className="mb-3 h-6 w-6" />
-                Agent
-              </Label>
-              </div>
-              <div>
-              <RadioGroupItem value="corporate" id="corporate" className="peer sr-only" />
-              <Label
-                htmlFor="corporate"
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                <SiBookstack className="mb-3 h-6 w-6" />
-                Corporate
-              </Label>
-              </div>
+            <RadioGroup 
+              defaultValue={userRoles[0]} 
+              className="grid grid-cols-3 gap-4 py-4" 
+              onValueChange={(value) => setSelectedRole(value as Role)}
+            >
+              {user_details.roles.map((roleObj) => {
+                const role = roleObj.role_name;
+                const Icon = role === 'individual' ? IoPersonOutline : 
+                             role === 'agent' ? BsBuildings : 
+                             role === 'corporate' ? SiBookstack : 
+                             role === 'broker' ? BsBuildings : // Using same for now
+                             role === 'authorizeddealer' ? SiBookstack : // Using same for now
+                             role === 'admin' ? ShieldCheck : 
+                             IoPersonOutline;
+                
+                return (
+                  <div key={role}>
+                    <RadioGroupItem value={role} id={role} className="peer sr-only" />
+                    <Label
+                      htmlFor={role}
+                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                    >
+                      <Icon className="mb-3 h-6 w-6" />
+                      <span className="capitalize">{role}</span>
+                    </Label>
+                  </div>
+                );
+              })}
             </RadioGroup>
             {loading ? (
               <Button type="submit" className="w-full" color="primary" disabled>

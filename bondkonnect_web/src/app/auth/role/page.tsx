@@ -15,8 +15,7 @@ import { useSearchParams } from "next/navigation";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
 // import Logo from '../../(dashboard)/layouts/shared/logo/Logo';
 import { Icons } from "@/components/icons"
-// next import
-import Image from "next/image";
+import { AuthLogo } from '@/components/AuthLogo';
 
 // Types
 type Mode = "signin" | "signup";
@@ -75,17 +74,7 @@ const Role = () => {
     <section className=" py-6">
       <div className="container">
         <div className="flex flex-col gap-4">
-         <Box display="flex" justifyContent="center" width="100%">
-
-            <Image
-              src="/images/logos/logo-c.svg"
-              alt="logo"
-              className="h-9"
-              width={400}
-              height={100}
-            />
-
-          </Box>
+          <AuthLogo className="mb-4" />
           <AuthRole
             mode={mode}
             user_details={user_details}

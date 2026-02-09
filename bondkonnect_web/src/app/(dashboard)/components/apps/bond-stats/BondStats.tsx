@@ -182,6 +182,8 @@ const columns: ColumnDef<BondData>[] = [
   },
 ];
 
+import { useStatsTable } from '@/hooks/use-portfolio-data'
+
 export function BondStats() {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -194,54 +196,43 @@ export function BondStats() {
   })
   const [globalFilter, setGlobalFilter] = React.useState('')
   const [pageSize, setPageSize] = useState(10)
-  const [data, setData] = useState<BondData[]>([])
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true)
-      try {
-        const result = await getStatsTable()
-        const formattedData = (result ?? []).map((bond: any) => ({
-          Otr: bond.Otr,
-          Filter1: bond.Filter1,
-          Filter2: bond.Filter2,
-          Id_: bond.Id_,
-          BondIssueNo: bond.BondIssueNo,
-          IssueDate: bond.IssueDate ? new Date(bond.IssueDate).toLocaleDateString() : null,
-          MaturityDate: bond.MaturityDate ? new Date(bond.MaturityDate).toLocaleDateString() : null,
-          ValueDate: bond.ValueDate ? new Date(bond.ValueDate).toLocaleDateString() : null,
-          QuotedYield: bond.QuotedYield,
-          SpotYield: bond.SpotYield,
-          DirtyPrice: bond.DirtyPrice?.toFixed(2),
-          Coupon: bond.Coupon?.toFixed(4), 
-          NextCpnDays: bond.NextCpnDays,
-          DtmYrs: bond.DtmYrs?.toFixed(4),
-          Dtc: bond.Dtc?.toFixed(4),
-          Duration: bond.Duration?.toFixed(4),
-          MDuration: bond.MDuration?.toFixed(4),
-          Convexity: bond.Convexity?.toFixed(4),
-          ExpectedReturn: bond.ExpectedReturn?.toFixed(4),
-          ExpectedShortfall: bond.ExpectedShortfall?.toFixed(4),
-          Dv01: bond.Dv01?.toFixed(4),
-          Last91Days: bond.Last91Days,
-          Last364Days: bond.Last364Days,
-          LqdRank: bond.LqdRank,
-          Spread: bond.Spread,
-          CreditRiskPremium: bond.CreditRiskPremium,
-          MdRank: bond.MdRank,
-          ErRank: bond.ErRank,
-          Basis: bond.Basis,
-        }));
-        setData(formattedData)
-        setLoading(false)
-      } catch (error) {
-        console.error('Error fetching stats table data:', error)
-        setLoading(false)
-      }
-    }
-    fetchData()
-  }, [])
+  // Use the new hook
+  const { data: rawData = [], isLoading: loading } = useStatsTable();
+
+  const data = React.useMemo(() => {
+    return (rawData ?? []).map((bond: any) => ({
+      Otr: bond.Otr,
+      Filter1: bond.Filter1,
+      Filter2: bond.Filter2,
+      Id_: bond.Id_,
+      BondIssueNo: bond.BondIssueNo,
+      IssueDate: bond.IssueDate ? new Date(bond.IssueDate).toLocaleDateString() : null,
+      MaturityDate: bond.MaturityDate ? new Date(bond.MaturityDate).toLocaleDateString() : null,
+      ValueDate: bond.ValueDate ? new Date(bond.ValueDate).toLocaleDateString() : null,
+      QuotedYield: bond.QuotedYield,
+      SpotYield: bond.SpotYield,
+      DirtyPrice: typeof bond.DirtyPrice === 'number' ? bond.DirtyPrice.toFixed(2) : bond.DirtyPrice,
+      Coupon: typeof bond.Coupon === 'number' ? bond.Coupon.toFixed(4) : bond.Coupon, 
+      NextCpnDays: bond.NextCpnDays,
+      DtmYrs: typeof bond.DtmYrs === 'number' ? bond.DtmYrs.toFixed(4) : bond.DtmYrs,
+      Dtc: typeof bond.Dtc === 'number' ? bond.Dtc.toFixed(4) : bond.Dtc,
+      Duration: typeof bond.Duration === 'number' ? bond.Duration.toFixed(4) : bond.Duration,
+      MDuration: typeof bond.MDuration === 'number' ? bond.MDuration.toFixed(4) : bond.MDuration,
+      Convexity: typeof bond.Convexity === 'number' ? bond.Convexity.toFixed(4) : bond.Convexity,
+      ExpectedReturn: typeof bond.ExpectedReturn === 'number' ? bond.ExpectedReturn.toFixed(4) : bond.ExpectedReturn,
+      ExpectedShortfall: typeof bond.ExpectedShortfall === 'number' ? bond.ExpectedShortfall.toFixed(4) : bond.ExpectedShortfall,
+      Dv01: typeof bond.Dv01 === 'number' ? bond.Dv01.toFixed(4) : bond.Dv01,
+      Last91Days: bond.Last91Days,
+      Last364Days: bond.Last364Days,
+      LqdRank: bond.LqdRank,
+      Spread: bond.Spread,
+      CreditRiskPremium: bond.CreditRiskPremium,
+      MdRank: bond.MdRank,
+      ErRank: bond.ErRank,
+      Basis: bond.Basis,
+    }));
+  }, [rawData]);
 
   const table = useReactTable({
     data,

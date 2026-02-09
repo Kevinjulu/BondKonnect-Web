@@ -4,54 +4,106 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/app/(dashboard)/layouts/sidebar/Sidebar"
 import Header from "./layouts/header/Header"
 import { Toaster } from "@/components/ui/toaster"
-import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { WebSocketProvider } from "@/components/providers/WebSocketProvider";
+import { useTheme } from "next-themes";
+import { FloatingUtilityDock } from "./components/apps/dashboard/FloatingUtilityDock";
+import { useAuth } from "@/hooks/use-auth";
+import { AlertCircle } from "lucide-react";
+
+// Simple Error Boundary component
+function ErrorBoundary({ children }: { children: React.ReactNode }) {
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    const handleError = (error: ErrorEvent) => {
+      console.error("Caught by layout boundary:", error);
+      setHasError(true);
+    };
+    window.addEventListener("error", handleError);
+    return () => window.removeEventListener("error", handleError);
+  }, []);
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] p-8 text-center">
+        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+        <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
+        <p className="text-neutral-500 mb-6 max-w-md">The application encountered an error while rendering this section.</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-black text-white rounded-md font-bold"
+        >
+          Reload Dashboard
+        </button>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
 
 // Simple content loader component using CSS classes
 const ContentLoader = () => {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const logoSrc = mounted && resolvedTheme === "light" 
+    ? "/images/logos/logo-c.png" 
+    : "/images/logos/logo.png";
+
   return (
-    <div className="content-loader">
-      <div className="mb-4">
+    <div className="flex flex-col justify-center items-center w-full h-[60vh] bg-white animate-in fade-in duration-300">
+      <div className="relative mb-8">
+        <div className="absolute inset-0 bg-neutral-100 rounded-full blur-2xl opacity-20 animate-pulse" />
         <Image
-          src="/images/logos/logo-c.svg"
+          src={logoSrc}
           alt="BondKonnect"
-          width={120}
-          height={40}
+          width={140}
+          height={48}
+          className="relative h-12 w-auto object-contain animate-pulse"
           priority
         />
       </div>
-      <div className="spinner"></div>
+      
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-[2px] w-24 bg-neutral-100 overflow-hidden relative">
+          <div className="absolute inset-0 bg-black animate-[loading-bar_1.5s_infinite]" />
+        </div>
+        <span className="text-[8px] font-black uppercase tracking-[0.5em] text-neutral-400">
+          Syncing Node
+        </span>
+      </div>
+
+      <style jsx>{`
+        @keyframes loading-bar {
+          0% { transform: translateX(-100%); }
+          50% { transform: translateX(0); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </div>
   );
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  // const [currentUser, setCurrentUser] = useState<UserData>({});
-  const [isLoading, setIsLoading] = useState(true);
   const [isPageLoading, setIsPageLoading] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const [user, setUser] = useState<UserData | null>(null);
-  // Load user details on initial mount
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const user = await getCurrentUserDetails();
-        if (!user) {
-          router.push("/auth/login");
-          return;
-        }
-        setUser(user);
-        setIsLoading(false);
-      } catch {
-        router.push("/auth/login");
-      }
-    };
+  
+  // Use centralized auth hook
+  const { user, isAuthenticated, isLoading } = useAuth();
 
-    fetchUserDetails();
-  }, [router]); // Remove 'user' from dependencies to prevent infinite loop
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push("/auth/login");
+    }
+  }, [isLoading, isAuthenticated, router]);
 
   // Show content loader on page navigation
   useEffect(() => {
@@ -63,8 +115,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(timer);
   }, [pathname]);
 
+  const showFloatingCalculator = [
+    "/apps/bond-stats",
+    "/apps/analysis",
+    "/apps/research-assistant",
+    "/apps/portfolio-assistant",
+    "/apps/financials",
+    "/apps/transactions",
+  ].some(path => pathname?.includes(path));
+
   if (isLoading) {
-    return null; // Empty during initial authentication check
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-white">
+        <Image src="/images/logos/logo-c.png" alt="Loading..." width={100} height={35} className="animate-pulse" />
+      </div>
+    );
   }
 
   return (
@@ -75,8 +140,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex-1 flex flex-col">
             <Header userDetails={user} />
             <div className="flex-1 overflow-y-auto">
-              {isPageLoading ? <ContentLoader /> : children}
-              <Toaster />
+              <ErrorBoundary>
+                {isPageLoading ? <ContentLoader /> : children}
+                {showFloatingCalculator && <FloatingUtilityDock />}
+                <Toaster />
+              </ErrorBoundary>
             </div>
           </div>
         </div>

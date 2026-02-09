@@ -11,31 +11,33 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot, } from "@/com
 // import { Input } from '@/components/ui/input';
 // import { Label } from '@/components/ui/label';
 // const axios = require('@/utils/axios');
-import { otpVerify, resendOtp, getIPAddress, } from "@/lib/actions/api.actions";
-import { createSession } from "../session/auth1";
-
-import { getCurrentUserDetails } from "@/lib/actions/user.check";
+import { otpVerify, resendOtp } from "@/lib/actions/auth.actions";
+import { getIPAddress } from "@/lib/actions/api.actions";
+import { Loader2 } from "lucide-react";
 
 const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => {
-    const otpRef = useRef<HTMLInputElement>(null);
     const [timeLeft, setTimeLeft] = useState(45);
     const [resendActive, setResendActive] = useState(false);
     const [otpValue, setotpValue] = React.useState("")
-    const [isClient, setIsClient] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
     const emailfromparams = searchParams.get("email");
+
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarTitle, setSnackbarTitle] = useState("");
+    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
-      // setIsClient(true);
       const checkUser = async () => {
-        const user = await getCurrentUserDetails();
-        if (user) {
-          redirect("/");
+        const result = await getCurrentUserDetails();
+        if (result) {
+          router.push("/");
         }
       };
-  
       checkUser();
-    }, []);
+    }, [router]);
 
     useEffect(() => {
         if (timeLeft === 0) setResendActive(true);
@@ -45,53 +47,21 @@ const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => 
         }
       }, [timeLeft]);
     
-      // Snackbar state
-      const [snackbarOpen, setSnackbarOpen] = useState(false);
-      const [snackbarTitle, setSnackbarTitle] = useState("");
-      const [snackbarMessage, setSnackbarMessage] = useState("");
-      const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
-    // loading
-    const [loading, setLoading] = useState(false);
-  
-    useEffect(() => {
-      setIsClient(true);
-    }, []);
-  
-  
     useEffect(() => {
       if (!emailfromparams) {
-        setSnackbarMessage("Email is missing from URL");
+        setSnackbarTitle("Missing Email");
+        setSnackbarMessage("Email is missing from the request.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
-        return;
       }
-  
-      const timer = setInterval(() => {
-        setTimeLeft((prevTime) => {
-          if (prevTime <= 0) {
-            clearInterval(timer);
-            setResendActive(true);
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-  
-      return () => clearInterval(timer);
     }, [emailfromparams]);
-    
     
     const handleSnackbarClose = () => {
       setSnackbarOpen(false);
     };
   
     const handleSubmit = async () => {
-      if (!emailfromparams) {
-        setSnackbarMessage("Email is missing");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-        return;
-      }
+      if (!emailfromparams) return;
   
       if (otpValue.length !== 6) {
         setSnackbarMessage("Please enter a valid 6-digit OTP");
@@ -104,45 +74,34 @@ const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => 
   
       try {
         const ipAddress = await getIPAddress();
-        const params = new URLSearchParams();
-        params.append("email", emailfromparams);
-        params.append("otp", otpValue);
-        params.append("ip_address", ipAddress);
+        const queryParams = `email=${encodeURIComponent(emailfromparams)}&otp=${encodeURIComponent(otpValue)}&ip_address=${encodeURIComponent(ipAddress)}`;
   
-        const response = await otpVerify(params.toString());
+        const response = await otpVerify(queryParams);
   
-        createSession(emailfromparams);
-  
-        if (response?.success) {
-          createSession(emailfromparams);
+        if (response.success) {
+          const token = response.data;
+          
+          if (token) {
+            document.cookie = `k-o-t=${token}; path=/; max-age=86400; SameSite=Lax`;
+          }
+          
+          setSnackbarTitle("Success");
           setSnackbarMessage("OTP verified successfully");
           setSnackbarSeverity("success");
           setSnackbarOpen(true);
   
-  
-  
-          const token = response.data;
-          const expires = new Date(
-            Date.now() + 60 * 24 * 60 * 60 * 1000
-          ).toUTCString();
-          
-          // Only set cookie on client side
-          if (typeof document !== 'undefined') {
-            document.cookie = `k-o-t=${token}; expires=${expires}; path=/; SameSite=Lax`;
-          }
-  
-          // push to the role selection page
-          router.push("/auth/role");
+          setTimeout(() => {
+            router.push("/auth/role");
+          }, 1000);
   
         } else {
-          setSnackbarMessage(response?.message || "Verification failed");
+          setSnackbarTitle("Verification Failed");
+          setSnackbarMessage(response.message || "Invalid OTP code.");
           setSnackbarSeverity("error");
           setSnackbarOpen(true);
         }
       } catch (error) {
-        setSnackbarMessage(
-          error instanceof Error ? error.message : "An error occurred"
-        );
+        setSnackbarMessage("An unexpected error occurred. Please try again.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       } finally {
@@ -151,37 +110,28 @@ const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => 
     };
 
     const handleResendOtp = async () => {
-      if (!emailfromparams) {
-        setSnackbarMessage("Email is missing");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-        return;
-      }
+      if (!emailfromparams) return;
+      
       setLoading(true);
       try {
-        const params = new URLSearchParams();
-        params.append("email", emailfromparams);
+        const queryParams = `email=${encodeURIComponent(emailfromparams)}`;
+        const response = await resendOtp(queryParams);
   
-        const response = await resendOtp(params.toString());
-  
-        if (response?.success) {
-          setSnackbarMessage("OTP resent successfully");
+        if (response.success) {
+          setSnackbarTitle("OTP Sent");
+          setSnackbarMessage("A new code has been sent to your email.");
           setSnackbarSeverity("success");
           setSnackbarOpen(true);
-          setTimeLeft(20);
+          setTimeLeft(45);
           setResendActive(false);
-          setotpValue(""); // Clear existing OTP
-
-
+          setotpValue("");
         } else {
-          setSnackbarMessage(response?.message || "Failed to resend OTP");
+          setSnackbarMessage(response.message || "Failed to resend OTP");
           setSnackbarSeverity("error");
           setSnackbarOpen(true);
         }
       } catch (error) {
-        setSnackbarMessage(
-          error instanceof Error ? error.message : "An error occurred"
-        );
+        setSnackbarMessage("Network error. Could not resend OTP.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       } finally {
@@ -267,14 +217,14 @@ const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => 
                     )}
                 </div>
               {loading ? (
-                <Button type="submit" className="w-full" color="primary" onClick={handleSubmit}   disabled>
+                <Button type="submit" className="w-full bg-black text-white" disabled>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Verifying...
                 </Button>
               ) : (
-                <Button type="submit" className="w-full"  color="primary" onClick={handleSubmit}  >
-                  Proceed 
+                <Button type="submit" className="w-full bg-black text-white hover:bg-neutral-800" onClick={handleSubmit}  >
+                  Verify & Proceed 
                 </Button>
-
               )}
               </div>
             </CardContent>

@@ -9,27 +9,15 @@ import PageContainer from '../../(dashboard)/components/container/PageContainer'
 // import AuthLogin from '../authForms/AuthLogin';
 import AuthOtp from '../authForms/AuthOtp';
 import { TbPassword } from "react-icons/tb";
-// next import
-import Image from "next/image";
+import { AuthLogo } from '@/components/AuthLogo';
+
 const Otp = () => {
   return (
   <PageContainer title="OTP Page" description="this is OTP page">
     <section className=" py-6">
       <div className="container">
         <div className="flex flex-col gap-4">
-         <Box display="flex" justifyContent="center" width="100%">
-
-            <Image
-              src="/images/logos/logo-c.svg"
-              alt="logo"
-              className="h-9"
-              width={400}
-              height={100}
-            />
-
-          </Box>
-          
-         
+          <AuthLogo className="mb-4" />
           <AuthOtp
           
             icon={

@@ -4,54 +4,22 @@ import { cookies } from "next/headers";
 import { getCurrentUser } from "./api.actions";
 
 export async function getCurrentUserDetails() {
-  // --- MOCK USER FOR BYPASS ---
-  // ALWAYS return mock user for dev
-  if (true) {
-      console.log("Bypassing Auth with Mock User");
-      return {
-        id: 999,
-        first_name: "Developer",
-        firstName: "Developer",
-        full_name: "Developer User",
-        email: "dev@bondkonnect.com",
-        phone_number: "0000000000",
-        company_name: "Dev Corp",
-        account_id: "DEV001",
-        other_names: "Mode",
-        lastName: "Mode",
-        cookie: "mock_cookie=true",
-        roles: [
-            {
-                id: 1,
-                role_name: "admin",
-                is_active: 1,
-                role_permissions: [],
-            },
-             {
-                id: 2,
-                role_name: "individual",
-                is_active: 0,
-                role_permissions: [],
-            }
-        ],
-        leave_assignments: [],
-      };
-  }
-  // --- END MOCK ---
-
   const cookieStore = await cookies();
   const rawCookie = cookieStore.get("k-o-t");
   
-  let full_name = "mock=true";
-  if (rawCookie) {
-    const c = rawCookie as { name: string; value: string };
-    full_name = `${c.name}=${c.value}`;
+  if (!rawCookie) {
+    return null;
   }
-  
-  console.log("Cookie: ", full_name);
+
+  const full_name = `${rawCookie.name}=${rawCookie.value}`;
+  console.log("Validating Session Cookie: ", rawCookie.name);
 
   // Get the current user
-  const currentUser = await getCurrentUser(full_name || "");
+  const currentUser = await getCurrentUser(full_name);
+  
+  if (!currentUser || !currentUser.data) {
+    return null;
+  }
 
 
   // Map user data to a standardized result format

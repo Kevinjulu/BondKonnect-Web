@@ -2,9 +2,8 @@
   "name": "bondkonnect",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": " next dev --turbo -p 4000",
+    "dev": "next dev -p 4000",
     "build": "next build",
     "start": "next start -p 4000",
     "start:dev": "next start -p 4000",
@@ -40,6 +39,7 @@
     "@radix-ui/react-toast": "^1.2.6",
     "@radix-ui/react-tooltip": "^1.1.3",
     "@reduxjs/toolkit": "^2.3.0",
+    "@tanstack/react-query": "^5.90.20",
     "@tanstack/react-table": "^8.20.5",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
