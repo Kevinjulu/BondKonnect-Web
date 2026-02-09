@@ -146,20 +146,25 @@ interface ApiUser {
   created_on: string
 }
 
+import { useUsers, useRoles, useUserMutations } from "@/hooks/use-user-data"
+
 export default function UserManagementPage() {
   const { toast } = useToast()
-  const [users, setUsers] = useState<ApiUser[]>([])
-  const [filteredUsers, setFilteredUsers] = useState<ApiUser[]>([])
   const [selectedUser, setSelectedUser] = useState<ApiUser | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [displayMode, setDisplayMode] = useState<"table" | "board" | "list">("table")
-  const [availableRoles, setAvailableRoles] = useState<Role[]>([])
   const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [sortConfig, setSortConfig] = useState<{ key: keyof ApiUser | 'fullName', direction: 'asc' | 'desc' } | null>(null)
   
+  // Use the new hooks
+  const { data: users = [], isLoading: isLoadingUsers } = useUsers();
+  const { data: availableRoles = [] } = useRoles();
+  const { suspendUser, reactivateUser, createUser, isSuspending, isReactivating, isCreating } = useUserMutations();
+
+  const isLoading = isLoadingUsers || isSuspending || isReactivating || isCreating;
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(15)
@@ -237,15 +242,6 @@ export default function UserManagementPage() {
     return result
   }, [users, searchQuery, selectedRoleFilter, statusFilter, sortConfig])
 
-  const totalPages = Math.ceil(processedUsers.length / pageSize)
-  
-  // Get current items for pagination
-  const currentItems = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize
-    const endIndex = startIndex + pageSize
-    return processedUsers.slice(startIndex, endIndex)
-  }, [processedUsers, currentPage, pageSize])
-  
   // Pagination handlers
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -255,106 +251,7 @@ export default function UserManagementPage() {
     setPageSize(parseInt(size))
     setCurrentPage(1)
   }
-  
-  // Get page numbers to display
-  const getPageNumbers = () => {
-    const maxPagesToShow = 5
-    let pages: (number | null)[] = []
-    
-    if (totalPages <= maxPagesToShow) {
-      pages = Array.from({ length: totalPages }, (_, i) => i + 1)
-    } else {
-      if (currentPage <= 3) {
-        pages = [1, 2, 3, 4, null, totalPages]
-      } else if (currentPage >= totalPages - 2) {
-        pages = [1, null, totalPages - 3, totalPages - 2, totalPages - 1, totalPages]
-      } else {
-        pages = [1, null, currentPage - 1, currentPage, currentPage + 1, null, totalPages]
-      }
-    }
-    return pages
-  }
 
-  // State for broker/dealer selection
-  const [selectedBrokers, setSelectedBrokers] = useState<string[]>([])
-  const [newDealerEmails, setNewDealerEmails] = useState<string[]>([''])
-  const [brokerOptions] = useState([
-    { value: "broker1", label: "ABC Securities" },
-    { value: "broker2", label: "XYZ Investments" },
-    { value: "broker3", label: "Capital Markets Ltd" },
-    { value: "broker4", label: "Equity Traders Inc" },
-    { value: "broker5", label: "Bond Street Securities" },
-  ])
-  
-  const handleNewDealerInputChange = (index: number, value: string) => {
-    const newInputs = [...newDealerEmails]
-    newInputs[index] = value
-    setNewDealerEmails(newInputs)
-  }
-  
-  const addNewDealerInput = () => {
-    setNewDealerEmails([...newDealerEmails, ''])
-  }
-
-  const fetchUsers = async () => {
-    setIsLoading(true)
-    try {
-      const response = await getAllUsers()
-      if (response?.success && response.data) {
-        const mappedUsers: ApiUser[] = (response.data as any[]).map((user) => ({
-          Id: user.Id,
-          AccountId: user.AccountId || '',
-          UserName: user.UserName || null,
-          CompanyName: user.CompanyName || null,
-          FirstName: user.FirstName || '',
-          OtherNames: user.OtherNames || '',
-          Email: user.Email,
-          PhoneNumber: user.PhoneNumber || '',
-          PostalAddress: user.PostalAddress || null,
-          IsActive: user.IsActive,
-          CdsNo: user.CdsNo || '',
-          IsLocal: user.IsLocal || 0,
-          IsForeign: user.IsForeign || 0,
-          Roles: user.Roles || [],
-          created_on: user.created_on || ''
-        }))
-        setUsers(mappedUsers)
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to fetch users",
-          variant: "destructive"
-        })
-      }
-    } catch (error) {
-      console.error("Error fetching users:", error)
-      toast({
-        title: "Error",
-        description: "Failed to fetch users",
-        variant: "destructive"
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // Fetch users and roles when component mounts
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const response = await getRoles()
-        if (response?.success && response.data) {
-          setAvailableRoles(response.data)
-        }
-      } catch (error) {
-        console.error("Error fetching roles:", error)
-      }
-    }
-    
-    fetchUsers()
-    fetchRoles()
-  }, [toast])
-  
   // User activation/deactivation confirmation
   const [confirmationOpen, setConfirmationOpen] = useState(false)
   const [userToToggle, setUserToToggle] = useState<ApiUser | null>(null)
@@ -367,51 +264,12 @@ export default function UserManagementPage() {
   }
 
   const handleToggleUserStatus = async (user: ApiUser) => {
-    try {
-      setIsLoading(true)
-      let response
-      if (user.IsActive === 1) {
-        response = await suspendUser(user.Id)
-      } else {
-        response = await reactivateUser(user.Id)
-      }
-      
-      if (response?.success) {
-        const updatedUsers = users.map(u => {
-          if (u.Id === user.Id) {
-            return {...u, IsActive: u.IsActive === 1 ? 0 : 1}
-          }
-          return u
-        })
-        setUsers(updatedUsers)
-        
-        toast({
-          title: "Success",
-          description: `User ${user.IsActive === 1 ? "deactivated" : "activated"} successfully`,
-          variant: "default"
-        })
-        
-        if (detailsOpen && selectedUser?.Id === user.Id) {
-          setSelectedUser({...selectedUser, IsActive: user.IsActive === 1 ? 0 : 1})
-        }
-      } else {
-        toast({
-          title: "Error",
-          description: response?.message || `Failed to ${user.IsActive === 1 ? "deactivate" : "activate"} user`,
-          variant: "destructive"
-        })
-      }
-    } catch (error) {
-      console.error(`Error toggling user status:`, error)
-      toast({
-        title: "Error",
-        description: "Failed to update user status",
-        variant: "destructive"
-      })
-    } finally {
-      setIsLoading(false)
-      setConfirmationOpen(false)
+    if (user.IsActive === 1) {
+      await suspendUser(user.Id)
+    } else {
+      await reactivateUser(user.Id)
     }
+    setConfirmationOpen(false)
   }
 
   const handleViewDetails = (user: ApiUser) => {
@@ -421,26 +279,6 @@ export default function UserManagementPage() {
 
   const [addUserOpen, setAddUserOpen] = useState(false)
   const [addUserStep, setAddUserStep] = useState(1)
-
-  // Form schema for user creation
-  const userFormSchema = z.object({
-    role: z.string({
-      required_error: "Please select a role",
-    }),
-    firstName: z.string().min(2, { message: "First name must be at least 2 characters" }).optional(),
-    otherNames: z.string().min(2, { message: "Last name must be at least 2 characters" }).optional(),
-    email: z.string().email({ message: "Please enter a valid email address" }),
-    userName: z.string().min(3, { message: "Username must be at least 3 characters" }).optional(),
-    companyName: z.string().min(2, { message: "Company name must be at least 2 characters" }).optional(),
-    phoneNumber: z.string().min(5, { message: "Please enter a valid phone number" }),
-    postalAddress: z.string().min(5, { message: "Please enter a valid address" }).optional(),
-    isActive: z.boolean().default(true),
-    cdsNo: z.string().optional(),
-    isLocal: z.boolean().default(true),
-    isForeign: z.boolean().default(false),
-    locality: z.string().optional(),
-    categoryType: z.string().optional(),
-  })
 
   const form = useForm<z.infer<typeof userFormSchema>>({
     resolver: zodResolver(userFormSchema),
@@ -466,61 +304,34 @@ export default function UserManagementPage() {
     setAddUserOpen(false)
     setAddUserStep(1)
     form.reset()
-    setSelectedBrokers([])
-    setNewDealerEmails([''])
   }
 
   async function onSubmit(values: z.infer<typeof userFormSchema>) {
-    setIsLoading(true)
-    try {
-      const roleType = values.role
-      
-      if ((roleType === "individual" || roleType === "agent") && (!values.firstName || !values.otherNames)) {
-        if (!values.firstName) form.setError("firstName", { type: "manual", message: "First name is required" })
-        if (!values.otherNames) form.setError("otherNames", { type: "manual", message: "Last name is required" })
-        setIsLoading(false)
-        return
-      }
-      
-      if ((roleType === "agent" || roleType === "corporate") && !values.companyName) {
-        form.setError("companyName", { type: "manual", message: "Company name is required" })
-        setIsLoading(false)
-        return
-      }
-      
-      const registrationData = {
-        is_individual: roleType === "individual",
-        is_agent: roleType === "agent",
-        is_corporate: roleType === "corporate",
-        is_admin: roleType === "admin",
-        is_broker: values.categoryType === "broker",
-        is_dealer: values.categoryType === "dealer",
-        email: values.email,
-        phone: values.phoneNumber,
-        company_name: values.companyName || "",
-        first_name: values.firstName || "",
-        other_names: values.otherNames || "",
-        cds_number: values.cdsNo || "",
-        broker_dealer: selectedBrokers,
-        locality: values.locality || "",
-        category_type: values.categoryType || "",
-        alternate_dealer: [],
-        new_dealer_emails: newDealerEmails.filter(email => email.trim() !== ""),
-      }
-      
-      const response = await register(registrationData)
-      if (response?.success) {
-        handleAddUserClose()
-        toast({ title: "Success", description: "User created successfully" })
-        fetchUsers()
-      } else {
-        toast({ title: "Error", description: response?.message || "Failed to create user", variant: "destructive" })
-      }
-    } catch (error) {
-      console.error("Error creating user:", error)
-      toast({ title: "Error", description: "An error occurred", variant: "destructive" })
-    } finally {
-      setIsLoading(false)
+    const roleType = values.role
+    
+    const registrationData = {
+      is_individual: roleType === "individual",
+      is_agent: roleType === "agent",
+      is_corporate: roleType === "corporate",
+      is_admin: roleType === "admin",
+      is_broker: values.categoryType === "broker",
+      is_dealer: values.categoryType === "dealer",
+      email: values.email,
+      phone: values.phoneNumber,
+      company_name: values.companyName || "",
+      first_name: values.firstName || "",
+      other_names: values.otherNames || "",
+      cds_number: values.cdsNo || "",
+      broker_dealer: [],
+      locality: values.locality || "",
+      category_type: values.categoryType || "",
+      alternate_dealer: [],
+      new_dealer_emails: [],
+    }
+    
+    const result = await createUser(registrationData)
+    if (result?.success) {
+      handleAddUserClose()
     }
   }
 

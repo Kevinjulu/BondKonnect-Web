@@ -26,8 +26,10 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 // const axios = require('@/utils/axios');
-import { register, getAllBrokersAndDealers } from "@/lib/actions/api.actions";
+import { register } from "@/lib/actions/auth.actions";
+import { getAllBrokersAndDealers } from "@/lib/actions/api.actions";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
+import { Loader2 } from "lucide-react";
 
 // Define interface for broker/dealer data
 interface BrokerDealer {
@@ -72,7 +74,6 @@ const AuthSignUp = ({ icon, title, subtitle, role = "", socialauths,subtext, }: 
     const newInputs = [...newDealerInputs];
     newInputs[index] = value;
     setNewDealerInputs(newInputs);
-    console.log('Updated newDealerInputs:', newInputs);
   };
 
   const addNewDealerInput = () => {
@@ -93,7 +94,6 @@ const AuthSignUp = ({ icon, title, subtitle, role = "", socialauths,subtext, }: 
    const alternateDealerRef: string[] = selectedAlternateValues;;
    const newDealerEmails: string[] = newDealerInputs.filter(email => email.trim() !== ""); //for individual
     
-    const [isClient, setIsClient] = useState(false);
     const router = useRouter();
   
       // Snackbar state
@@ -104,6 +104,7 @@ const AuthSignUp = ({ icon, title, subtitle, role = "", socialauths,subtext, }: 
     // loading
     const [loading, setLoading] = useState(false);
     const [isChecked, setIsChecked] = useState(false); // State to track checkbox
+    const [errors, setErrors] = useState<any>({});
 
 
     const handleCheckboxChange = (checked: boolean) => {
@@ -111,16 +112,14 @@ const AuthSignUp = ({ icon, title, subtitle, role = "", socialauths,subtext, }: 
       };
       
       useEffect(() => {
-        // setIsClient(true);
         const checkUser = async () => {
-          const user = await getCurrentUserDetails();
-          if (user) {
-            redirect("/");
+          const result = await getCurrentUserDetails();
+          if (result) {
+            router.push("/");
           }
         };
-    
         checkUser();
-      }, []);
+      }, [router]);
       
       // Fetch brokers and dealers on component mount
       useEffect(() => {
@@ -129,7 +128,6 @@ const AuthSignUp = ({ icon, title, subtitle, role = "", socialauths,subtext, }: 
           try {
             const response = await getAllBrokersAndDealers();
             if (response && response.success && response.data) {
-              // Transform the data into the format needed for the selection lists
               const options = response.data.map((broker: BrokerDealer) => ({
                 value: broker.Email,
                 label: `${broker.FirstName} ${broker.OtherNames} (${broker.Email})`
@@ -152,70 +150,62 @@ const AuthSignUp = ({ icon, title, subtitle, role = "", socialauths,subtext, }: 
     };
   
     const handleSignUp = async (e: React.MouseEvent<HTMLButtonElement>) => {
-      setLoading(true);
       e.preventDefault();
-  
-      console.log('newDealerInputs before API call:', newDealerInputs);
+      setErrors({});
+      setLoading(true);
   
       try {
+        const email = emailRef.current?.value || "";
+        const phone = phoneRef.current?.value || "";
+        const companyName = companyNameRef.current?.value || "";
+        const firstName = firstNameRef.current?.value || "";
+        const otherNames = otherNamesRef.current?.value || "";
+        const cdsNumber = cdsNumberRef.current?.value || "";
+        const locality = base || "";
+        const categoryType = category || "";
+        const isBroker = categoryType === "broker";
+        const isDealer = categoryType === "dealer";
 
-      const email = emailRef.current?.value || "";
-      const phone = phoneRef.current?.value || "";
-      const companyName = companyNameRef.current?.value || "";
-      const firstName = firstNameRef.current?.value || "";
-      const otherNames = otherNamesRef.current?.value || "";
-      const cdsNumber = cdsNumberRef.current?.value || "";
-      const locality = base || "";
-      const categoryType = category || "";
-      const isBroker = categoryType === "broker";
-      const isDealer = categoryType === "dealer";
-
-      // Prepare role-based fields
-      const isIndividual = role === "individual";
-      const isAgent = role === "agent"; 
-      const isCorporate = role === "corporate";
-      const isAdmin = role === "admin";
-
-      // Call register function with necessary data
-      const response = await register({
-        is_individual: isIndividual,
-        is_agent: isAgent,
-        is_corporate: isCorporate,
-        is_broker: isBroker,
-        is_dealer: isDealer,
-        is_admin: isAdmin,
-        email,
-        phone,
-        company_name: companyName,
-        first_name: firstName,
-        other_names: otherNames,
-        cds_number: cdsNumber,
-        broker_dealer: brokerDealerRef,
-        locality: locality,
-        category_type: categoryType,
-        alternate_dealer: alternateDealerRef,
-       new_dealer_emails: newDealerEmails,
-      });
+        // Call register function with necessary data
+        const response = await register({
+          is_individual: role === "individual",
+          is_agent: role === "agent",
+          is_corporate: role === "corporate",
+          is_broker: isBroker,
+          is_dealer: isDealer,
+          is_admin: role === "admin",
+          email,
+          phone,
+          company_name: companyName,
+          first_name: firstName,
+          other_names: otherNames,
+          cds_number: cdsNumber,
+          broker_dealer: brokerDealerRef,
+          locality: locality,
+          category_type: categoryType,
+          alternate_dealer: alternateDealerRef,
+          new_dealer_emails: newDealerEmails,
+        });
   
-        if (response && response.success) {
+        if (response.success) {
+          setSnackbarTitle("Account Created");
+          setSnackbarMessage("Registration successful! Redirecting...");
+          setSnackbarSeverity("success");
+          setSnackbarOpen(true);
+          
           setTimeout(() => {
-            setSnackbarMessage("Registration successful!");
-            setSnackbarSeverity("success");
-            setSnackbarOpen(true);
-            // Optionally navigate to a new page after showing the success message
-          }, 300);
-          router.push("/auth/success");
+            router.push("/auth/success");
+          }, 1500);
         } else {
-          setSnackbarMessage(
-            response?.message || "Registration failed. Please try again later"
-          );
+          setErrors(response.errors || {});
+          setSnackbarTitle("Registration Failed");
+          setSnackbarMessage(response.message || "Please correct the highlighted errors.");
           setSnackbarSeverity("error");
+          setSnackbarOpen(true);
         }
-  
-        setSnackbarOpen(true);
       } catch (error) {
-        console.error("Error during registration:", error);
-        setSnackbarMessage("An error occurred. Please try again.");
+        setSnackbarTitle("Error");
+        setSnackbarMessage("An unexpected error occurred. Please try again.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       } finally {
@@ -254,54 +244,64 @@ const AuthSignUp = ({ icon, title, subtitle, role = "", socialauths,subtext, }: 
                 {role === "individual" && (
                 <>
                   <div className="grid gap-2">
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName" className={errors.first_name ? "text-red-500" : ""}>First Name</Label>
                   <Input
                     id="firstName"
                     type="text"
                     placeholder="e.g John"
                     ref={firstNameRef}
                     required
+                    className={errors.first_name ? "border-red-500" : ""}
                   />
+                  {errors.first_name && <p className="text-[10px] font-bold text-red-500 uppercase">{errors.first_name[0]}</p>}
                   </div>
                   <div className="grid gap-2">
-                  <Label htmlFor="otherNames">Other Names</Label>
+                  <Label htmlFor="otherNames" className={errors.other_names ? "text-red-500" : ""}>Other Names</Label>
                   <Input
                     id="otherNames" 
                     type="text"
                     placeholder="e.g Doe"
                     ref={otherNamesRef}
                     required
+                    className={errors.other_names ? "border-red-500" : ""}
                   />
+                  {errors.other_names && <p className="text-[10px] font-bold text-red-500 uppercase">{errors.other_names[0]}</p>}
                   </div>
                   <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className={errors.email ? "text-red-500" : ""}>Email</Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="abc@company.com"
                     ref={emailRef}
                     required
+                    className={errors.email ? "border-red-500" : ""}
                   />
+                  {errors.email && <p className="text-[10px] font-bold text-red-500 uppercase">{errors.email[0]}</p>}
                   </div>
                   <div className="grid gap-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone" className={errors.phone ? "text-red-500" : ""}>Phone Number</Label>
                   <Input
                     id="phone"
                     type="text"
                     placeholder="07** *** ***"
                     ref={phoneRef}
                     required
+                    className={errors.phone ? "border-red-500" : ""}
                   />
+                  {errors.phone && <p className="text-[10px] font-bold text-red-500 uppercase">{errors.phone[0]}</p>}
                   </div>
                   <div className="grid gap-2">
-                  <Label htmlFor="cds">CDS Number</Label>
+                  <Label htmlFor="cds" className={errors.cds_number ? "text-red-500" : ""}>CDS Number</Label>
                   <Input
                     id="cds"
                     type="text"
                     placeholder="e.g 000000123456"
                     ref={cdsNumberRef}
                     required
+                    className={errors.cds_number ? "border-red-500" : ""}
                   />
+                  {errors.cds_number && <p className="text-[10px] font-bold text-red-500 uppercase">{errors.cds_number[0]}</p>}
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="select">Select Broker/Dealer (Max 5)</Label>

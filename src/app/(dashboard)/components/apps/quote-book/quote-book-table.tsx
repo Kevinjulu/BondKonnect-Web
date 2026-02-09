@@ -44,6 +44,17 @@ import {
 import React from "react"
 import { cn } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
+import {
+  addDays as addDaysHelper,
+  daysBetween as daysBetweenHelper,
+  calculatePreviousCoupon as calculatePreviousCouponHelper,
+  calculateNextCouponDate as calculateNextCouponDateHelper,
+  calculateNextCouponDays as calculateNextCouponDaysHelper,
+  calculateCouponsDue as calculateCouponsDueHelper,
+  calculateBondPrice as calculateBondPriceHelper,
+  calculateFinancialValues,
+  FinancialRates
+} from '@/lib/calculator/bond-math';
 
 interface QuoteData {
   id: number;
@@ -157,6 +168,9 @@ interface BondCalcDetails {
   IfbFiveYrs: number;
   PercentUnderTenYrs: number;
   DailyBasis: number;
+  NseCommission?: number;
+  NseMinCommission?: number;
+  CmaLevies?: number;
 }
 
 interface PlaceQuoteState {
@@ -201,119 +215,7 @@ const getDefaultSettlementDate = (): string => {
   return threeBDaysFromNow.toISOString().split('T')[0];
 };
 
-// Helper functions for bond price calculation (matching BondCalc implementation)
-const addDaysHelper = (date: Date, days: number): Date => {
-  const result = new Date(date);
-  result.setDate(result.getDate() + days);
-  return result;
-}
-
-const daysBetweenHelper = (date1: Date, date2: Date): number => {
-  const timeDiff = Math.abs(date2.getTime() - date1.getTime());
-  return Math.ceil(timeDiff / (1000 * 3600 * 24));
-}
-
-const calculatePreviousCouponHelper = (
-  issueDate: Date,
-  settlementDate: Date,
-  dailyBasis: number
-): Date | null => {
-  if (dailyBasis === 364 || dailyBasis === 182) {
-    const daysSinceIssue = daysBetweenHelper(issueDate, settlementDate);
-    const couponPeriods = Math.floor(daysSinceIssue / 182);
-    
-    if (couponPeriods > 0) {
-      return addDaysHelper(issueDate, couponPeriods * 182);
-    }
-    return issueDate;
-  }
-  
-  const daysSinceIssue = daysBetweenHelper(issueDate, settlementDate);
-  const couponPeriods = Math.floor(daysSinceIssue / (dailyBasis / 2));
-  
-  if (couponPeriods > 0) {
-    return addDaysHelper(issueDate, couponPeriods * (dailyBasis / 2));
-  }
-  
-  return issueDate;
-}
-
-const calculateNextCouponDateHelper = (
-  issueDate: Date,
-  settlementDate: Date,
-  maturityDate: Date,
-  dailyBasis: number,
-  previousCoupon: Date | null
-): Date | null => {
-  if (settlementDate > maturityDate) {
-    return maturityDate;
-  }
-  
-  if (dailyBasis === 364 || dailyBasis === 182) {
-    if (previousCoupon) {
-      const nextCoupon = addDaysHelper(previousCoupon, 182);
-      return nextCoupon > maturityDate ? maturityDate : nextCoupon;
-    }
-    const nextCoupon = addDaysHelper(issueDate, 182);
-    return nextCoupon > maturityDate ? maturityDate : nextCoupon;
-  }
-  
-  if (previousCoupon) {
-    const nextCoupon = addDaysHelper(previousCoupon, dailyBasis / 2);
-    return nextCoupon > maturityDate ? maturityDate : nextCoupon;
-  }
-  
-  const nextCoupon = addDaysHelper(issueDate, dailyBasis / 2);
-  return nextCoupon > maturityDate ? maturityDate : nextCoupon;
-}
-
-const calculateNextCouponDaysHelper = (
-  settlementDate: Date,
-  nextCouponDate: Date | null
-): number => {
-  if (!nextCouponDate) return 0;
-  return daysBetweenHelper(settlementDate, nextCouponDate);
-}
-
-const calculateCouponsDueHelper = (
-  settlementDate: Date,
-  maturityDate: Date,
-  dailyBasis: number
-): number => {
-  if (settlementDate > maturityDate) return 0;
-  
-  const remainingDays = daysBetweenHelper(settlementDate, maturityDate);
-  const couponPeriod = dailyBasis === 364 ? 182 : dailyBasis / 2;
-  
-  return Math.ceil(remainingDays / couponPeriod);
-}
-
-// Main bond price calculation function (matching BondCalc implementation)
-const calculateBondPriceHelper = (
-  yieldTM: number,
-  coupon: number,
-  couponsDue: number,
-  nextCouponDays: number,
-  dailyBasis: number
-): number => {
-  if (yieldTM === 0) return 100 + (coupon / 2) * couponsDue;
-  
-  const y = yieldTM / 100 / 2; // Semi-annual yield
-  const c = coupon / 2; // Semi-annual coupon
-  const couponPeriod = dailyBasis === 364 ? 182 : dailyBasis / 2;
-  const t = nextCouponDays / couponPeriod;
-  
-  const discountFactor = Math.pow(1 + y, -t);
-  
-  if (couponsDue <= 1) {
-    return discountFactor * (100 + c);
-  }
-  
-  const annuityValue = c * (1 - Math.pow(1 + y, -(couponsDue - 1))) / y;
-  const principalValue = 100 * Math.pow(1 + y, -(couponsDue - 1));
-  
-  return discountFactor * (annuityValue + principalValue + c);
-}
+// Helper functions for bond price calculation (imported from shared library)
 
 export default function QuoteBookTable({ userDetails }: { userDetails: UserData }) {
   const [selectedQuote, setSelectedQuote] = useState<EditableQuoteData | null>(null)
@@ -739,23 +641,43 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
   };
 
   const calculateValues = (quote: EditableQuoteData) => {
-    let consideration = 0;
+    let faceValue = 0;
+    let price = 0;
+    
     if (quote.IsBid) {
-      consideration = (quote.BidAmount || 0) * (quote.bid_price || 0) / 100;
+      faceValue = quote.BidAmount || 0;
+      price = quote.bid_price || 0;
     } else if (quote.IsOffer) {
-      consideration = (quote.OfferAmount || 0) * (quote.offer_price || 0) / 100;
+      faceValue = quote.OfferAmount || 0;
+      price = quote.offer_price || 0;
     }
-    const commission = Math.max(consideration * 0.00024, 1000);
-    const otherLevies = consideration * 0.00011;
-    const totalPayable = consideration + commission + otherLevies;
-    const totalReceivable = consideration - commission - otherLevies;
+
+    const rates: FinancialRates = {
+      nseCommission: bondCalcDetails.NseCommission || 0.00024,
+      nseMinCommission: bondCalcDetails.NseMinCommission || 1000,
+      cmaLevies: bondCalcDetails.CmaLevies || 0.00011
+    };
+
+    // Calculate using shared library
+    // Note: detailed tax logic requires clean price separation, using price as proxy for now to maintain commission logic
+    const values = calculateFinancialValues(
+      faceValue,
+      price,
+      price, // proxy for clean price
+      quote.bond_issue_no,
+      0, // term not needed for commissions
+      'price',
+      0, 0, bondCalcDetails.IfbFiveYrs,
+      rates
+    );
+
     return {
       ...quote,
-      commission_nse: commission,
-      other_levies: otherLevies,
-      total_payable: totalPayable,
-      total_receivable: totalReceivable,
-      consideration: consideration,
+      commission_nse: values.commissionNSE,
+      other_levies: values.otherLevies,
+      total_payable: values.totalPayable,
+      total_receivable: values.totalReceivable,
+      consideration: values.consideration,
     };
   };
 

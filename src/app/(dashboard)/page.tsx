@@ -1,6 +1,4 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import PageContainer from "./components/container/PageContainer";
 import { Tabs, TabsContent, TabsList, TabsTrigger,} from "@/components/ui/tabs"
 import { CalendarDateRangePicker } from "./components/apps/dashboard/DateRangePicker";
@@ -8,39 +6,10 @@ import { BondCalc } from "./components/apps/dashboard/BondCalc";
 import { InlineBondCalc } from "./components/apps/dashboard/InlineBondCalc";
 import  { BondScreensTable } from "./components/apps/dashboard/BondScreensTable";
 import { SpotYieldChart } from "./components/apps/dashboard/SpotYieldChart";
-import { BondMarketChart } from "./components/apps/dashboard/BondMarketChart";
 import { Barbell } from "./components/apps/dashboard/BarbellTable";
-import { getCurrentUserDetails } from "@/lib/actions/user.check";
-import { Loader2, LayoutDashboard } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 
 export default function Home() {
-    const [isLoading, setIsLoading] = useState(true);
-    const router = useRouter();
-
-    useEffect(() => {
-        const fetchUserDetails = async () => {
-          try {
-            const user = await getCurrentUserDetails();
-            if (!user) {
-              router.push("/auth/login");
-            }
-            setIsLoading(false);
-          } catch (error) {
-            router.push("/auth/login");
-          }
-        };
-    
-        fetchUserDetails();
-      }, [router]);
-    
-      if (isLoading) {
-        return (
-          <div className="flex h-screen items-center justify-center bg-white">
-            <Loader2 className="h-10 w-10 animate-spin text-black opacity-20" />
-          </div>
-        );
-      }
-    
   return (
     <PageContainer title="BondKonnect Dashboard" description="Bond trading and portfolio analytics dashboard">
         <div className="flex h-screen flex-col lg:flex-row bg-white text-black overflow-hidden">

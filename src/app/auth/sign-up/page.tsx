@@ -7,6 +7,7 @@ import Image from "next/image";
 import PageContainer from '../../(dashboard)/components/container/PageContainer';
 // import AuthLogin from '../authForms/AuthLogin';
 import AuthSignUp from '../authForms/AuthSignUp';
+import { AuthLogo } from '@/components/AuthLogo';
 
 
 const SignUp = () => {
@@ -14,25 +15,12 @@ const SignUp = () => {
   const role = searchParams.get("role");
   console.log(role);
 
-
-
-
   return (
   <PageContainer title="Sign Up Page" description="this is Sign Up page">
     <section className=" py-6">
       <div className="container">
         <div className="flex flex-col gap-4">
-         <Box display="flex" justifyContent="center" width="100%">
-
-            <Image
-              src="/images/logos/logo-c.svg"
-              alt="logo"
-              className="h-9"
-              width={400}
-              height={36}
-            />
-
-          </Box>
+          <AuthLogo className="mb-4" />
           <AuthSignUp
           
             icon={

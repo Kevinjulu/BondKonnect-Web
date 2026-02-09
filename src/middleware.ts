@@ -17,6 +17,26 @@ const ALLOWED_ORIGINS = [
 ].filter(Boolean);
 
 export function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
+    const authToken = request.cookies.get('k-o-t');
+    
+    // 1. Route Protection
+    const isAuthRoute = pathname.startsWith('/auth');
+    const isPublicAuthPage = ['/auth/login', '/auth/sign-up', '/auth/forgot-password'].includes(pathname);
+    
+    // Protect dashboard routes (all routes except /auth, /api, and static assets)
+    if (!isAuthRoute && !pathname.startsWith('/api') && !pathname.includes('.') && !authToken) {
+        const loginUrl = new URL('/auth/login', request.url);
+        return NextResponse.redirect(loginUrl);
+    }
+
+    // Redirect to dashboard if already logged in and trying to access login/signup
+    // but allow /auth/role, /auth/otp etc. to complete the flow
+    if (isPublicAuthPage && authToken) {
+        const dashboardUrl = new URL('/', request.url);
+        return NextResponse.redirect(dashboardUrl);
+    }
+
     const response = NextResponse.next();
 
     // Handle preflight OPTIONS requests
@@ -108,16 +128,19 @@ export function middleware(request: NextRequest) {
         'X-Permitted-Cross-Domain-Policies': 'none',
         'Server': '',
         'X-Powered-By': '',
-        'Cross-Origin-Resource-Policy': 'same-origin',
-        'Cross-Origin-Opener-Policy': 'same-origin',
-        'Cross-Origin-Embedder-Policy': 'require-corp',
+        // These headers can cause ChunkLoadError in development
+        // 'Cross-Origin-Resource-Policy': 'same-origin',
+        // 'Cross-Origin-Opener-Policy': 'same-origin',
+        // 'Cross-Origin-Embedder-Policy': 'require-corp',
          
     };
 
+    /*
     // Apply all security headers
     Object.entries(securityHeaders).forEach(([key, value]) => {
         response.headers.set(key, value);
     });
+    */
 
     return response;
 }

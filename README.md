@@ -137,10 +137,26 @@ yarn test:coverage
 ## Deployment
 
 ### Vercel (Recommended)
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Configure environment variables
-4. Deploy
+
+1. **Push your code to GitHub:**
+   Ensure your latest changes are pushed to your repository: `https://github.com/Kevinjulu/BondKonnect.git`.
+
+2. **Import to Vercel:**
+   - Log in to your [Vercel Dashboard](https://vercel.com/dashboard).
+   - Click **"New Project"**.
+   - Import the `BondKonnect` repository.
+   - Set the **Root Directory** to `bondkonnect_web`.
+
+3. **Configure Environment Variables:**
+   Add the following environment variables in the Vercel project settings:
+   - `NEXT_PUBLIC_BK_PROD_API_URL`: Your production API URL.
+   - `NEXT_PUBLIC_PUSHER_APP_KEY`: Your Pusher app key.
+   - `NEXT_PUBLIC_PUSHER_APP_CLUSTER`: Your Pusher app cluster.
+   - `APP_ENV`: set to `production`.
+
+4. **Build and Deploy:**
+   - Vercel will automatically detect Next.js and use `npm run build` as the build command.
+   - Click **"Deploy"**.
 
 ### Other Platforms
 - Netlify

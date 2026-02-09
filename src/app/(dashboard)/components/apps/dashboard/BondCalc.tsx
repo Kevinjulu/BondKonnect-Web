@@ -12,6 +12,21 @@ import { Sheet,  SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetT
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { getBondCalcDetails, getPrimaryMarketBonds, getSecondaryMarketBonds } from '@/lib/actions/api.actions';
 import { Loader2, Calculator } from 'lucide-react';
+import {
+  addBusinessDays,
+  daysBetween,
+  calculateIndicativeRange,
+  calculatePreviousCoupon,
+  calculateNextCouponDate,
+  calculateNextCouponDays,
+  calculateCouponsDue,
+  calculateAccruedInterest,
+  calculateBondPrice,
+  calculateBondYield,
+  calculateFinancialValues,
+  FinancialRates,
+  FinancialValues
+} from '@/lib/calculator/bond-math';
 
 interface BondCalcState {
   valueDate: Date
@@ -31,6 +46,10 @@ interface BondDetails {
   PercentUnderTenYrs: number;
   DailyBasis: number;
   ValueDate?: string;
+  // Financial Rates from Backend
+  NseCommission?: number;
+  NseMinCommission?: number;
+  CmaLevies?: number;
 }
 
 interface SecondaryMarketBond {
@@ -66,7 +85,7 @@ interface PrimaryMarketBond {
   ParYield: string;
 }
 
-interface BondCalcResult {
+interface BondCalcResult extends FinancialValues {
   indicativeRange: string;
   previousCoupon: Date | null;
   nextCouponDate: Date | null;
@@ -78,256 +97,6 @@ interface BondCalcResult {
   accruedInterest: number;
   bondTenor: number;
   termToMaturity: number;
-  consideration: number;
-  commissionNSE: number;
-  otherLevies: number;
-  withholdingTax: number;
-  totalPayable: number;
-  totalReceivable: number;
-}
-
-// Utility functions
-function addDays(date: Date, days: number): Date {
-  const result = new Date(date);
-  result.setDate(result.getDate() + days);
-  return result;
-}
-
-function addBusinessDays(date: Date, days: number): Date {
-  let count = 0;
-  const result = new Date(date);
-  while (count < days) {
-    result.setDate(result.getDate() + 1);
-    const day = result.getDay();
-    if (day !== 0 && day !== 6) { // Skip Sunday (0) and Saturday (6)
-      count++;
-    }
-  }
-  return result;
-}
-
-function daysBetween(date1: Date, date2: Date): number {
-  const timeDiff = Math.abs(date2.getTime() - date1.getTime());
-  return Math.ceil(timeDiff / (1000 * 3600 * 24));
-}
-
-function calculateIndicativeRange(spotYield: number, spread: number): string {
-  if (!spotYield) return "";
-  
-  const spreadValue = Math.abs(spread) || 0.01;
-  const lowerBound = Math.round((spotYield - spreadValue) * 100 * 100) / 100;
-  const upperBound = Math.round((spotYield + spreadValue) * 100 * 100) / 100;
-  
-  return `${upperBound.toFixed(2)}% - ${lowerBound.toFixed(2)}%`;
-}
-
-function calculatePreviousCoupon(
-  issueDate: Date,
-  settlementDate: Date,
-  dailyBasis: number
-): Date | null {
-  if (dailyBasis === 364 || dailyBasis === 182) {
-    const daysSinceIssue = daysBetween(issueDate, settlementDate);
-    const couponPeriods = Math.floor(daysSinceIssue / 182);
-    
-    if (couponPeriods > 0) {
-      return addDays(issueDate, couponPeriods * 182);
-    }
-    return issueDate;
-  }
-  
-  const daysSinceIssue = daysBetween(issueDate, settlementDate);
-  const couponPeriods = Math.floor(daysSinceIssue / (dailyBasis / 2));
-  
-  if (couponPeriods > 0) {
-    return addDays(issueDate, couponPeriods * (dailyBasis / 2));
-  }
-  
-  return issueDate;
-}
-
-function calculateNextCouponDate(
-  issueDate: Date,
-  settlementDate: Date,
-  maturityDate: Date,
-  dailyBasis: number,
-  previousCoupon: Date | null
-): Date | null {
-  if (settlementDate > maturityDate) {
-    return maturityDate;
-  }
-  
-  if (dailyBasis === 364 || dailyBasis === 182) {
-    if (previousCoupon) {
-      const nextCoupon = addDays(previousCoupon, 182);
-      return nextCoupon > maturityDate ? maturityDate : nextCoupon;
-    }
-    const nextCoupon = addDays(issueDate, 182);
-    return nextCoupon > maturityDate ? maturityDate : nextCoupon;
-  }
-  
-  if (previousCoupon) {
-    const nextCoupon = addDays(previousCoupon, dailyBasis / 2);
-    return nextCoupon > maturityDate ? maturityDate : nextCoupon;
-  }
-  
-  const nextCoupon = addDays(issueDate, dailyBasis / 2);
-  return nextCoupon > maturityDate ? maturityDate : nextCoupon;
-}
-
-function calculateNextCouponDays(
-  settlementDate: Date,
-  nextCouponDate: Date | null
-): number {
-  if (!nextCouponDate) return 0;
-  return daysBetween(settlementDate, nextCouponDate);
-}
-
-function calculateCouponsDue(
-  settlementDate: Date,
-  maturityDate: Date,
-  dailyBasis: number
-): number {
-  if (settlementDate > maturityDate) return 0;
-  
-  const remainingDays = daysBetween(settlementDate, maturityDate);
-  const couponPeriod = dailyBasis === 364 ? 182 : dailyBasis / 2;
-  
-  return Math.ceil(remainingDays / couponPeriod);
-}
-
-function calculateAccruedInterest(
-  settlementDate: Date,
-  previousCoupon: Date | null,
-  nextCouponDate: Date | null,
-  coupon: number,
-  dailyBasis: number
-): number {
-  if (!previousCoupon || !nextCouponDate) return 0;
-  
-  const couponPeriod = dailyBasis === 364 ? 182 : dailyBasis / 2;
-  const nextCouponDays = daysBetween(settlementDate, nextCouponDate);
-  
-  return ((couponPeriod - nextCouponDays) / couponPeriod) * (coupon / 2);
-}
-
-function calculateBondPrice(
-  yieldTM: number,
-  coupon: number,
-  couponsDue: number,
-  nextCouponDays: number,
-  dailyBasis: number
-): number {
-  if (yieldTM === 0) return 100 + (coupon / 2) * couponsDue;
-  
-  const y = yieldTM / 100 / 2; // Semi-annual yield
-  const c = coupon / 2; // Semi-annual coupon
-  const couponPeriod = dailyBasis === 364 ? 182 : dailyBasis / 2;
-  const t = nextCouponDays / couponPeriod;
-  
-  const discountFactor = Math.pow(1 + y, -t);
-  
-  if (couponsDue <= 1) {
-    return discountFactor * (100 + c);
-  }
-  
-  const annuityValue = c * (1 - Math.pow(1 + y, -(couponsDue - 1))) / y;
-  const principalValue = 100 * Math.pow(1 + y, -(couponsDue - 1));
-  
-  return discountFactor * (annuityValue + principalValue + c);
-}
-
-function calculateBondYield(
-  dirtyPrice: number,
-  coupon: number,
-  couponsDue: number,
-  nextCouponDays: number,
-  dailyBasis: number
-): number {
-  // Newton-Raphson method for yield calculation
-  let yield_guess = 0.1; // 10% initial guess
-  const tolerance = 1e-6;
-  const maxIterations = 100;
-  
-  for (let i = 0; i < maxIterations; i++) {
-    const price = calculateBondPrice(yield_guess * 100, coupon, couponsDue, nextCouponDays, dailyBasis);
-    const error = price - dirtyPrice;
-    
-    if (Math.abs(error) < tolerance) {
-      return yield_guess * 100;
-    }
-    
-    // Calculate derivative for Newton-Raphson
-    const delta = 0.0001;
-    const priceUp = calculateBondPrice((yield_guess + delta) * 100, coupon, couponsDue, nextCouponDays, dailyBasis);
-    const derivative = (priceUp - price) / delta;
-    
-    if (Math.abs(derivative) < tolerance) break;
-    
-    yield_guess = yield_guess - error / derivative;
-    
-    if (yield_guess < 0) yield_guess = 0.001;
-    if (yield_guess > 1) yield_guess = 0.999;
-  }
-  
-  return yield_guess * 100;
-}
-
-function calculateFinancialValues(
-  faceValue: number,
-  pricePerHundred: number,
-  cleanPrice: number,
-  bondIssueNo: string,
-  termToMaturity: number,
-  calculationType: 'yield' | 'price',
-  bondTermUnder10: number,
-  bondTermOver10: number,
-  ifbRate: number
-) {
-  let consideration = 0;
-  if (faceValue === 0) {
-    consideration = 0;
-  } else if (calculationType === 'yield') {
-    consideration = Math.floor(faceValue * (pricePerHundred / 100));
-  } else {
-    const excelPrice = Math.floor(pricePerHundred * 1000) / 1000;
-    consideration = Math.floor(faceValue * (excelPrice / 100));
-  }
-  
-  const commissionNSE = consideration === 0 ? 0 : 
-    Math.max(consideration * 0.00024, 1000);
-  
-  const otherLevies = consideration === 0 ? 0 : 
-    consideration * 0.00011;
-  
-  let withholdingTax = 0;
-  
-  if (calculationType === 'yield' || cleanPrice >= 100) {
-    withholdingTax = 0;
-  } else if (calculationType === 'price' && cleanPrice < 100 && faceValue > 0) {
-    const discount = 100 - cleanPrice;
-    
-    if (bondIssueNo.startsWith('IFB')) {
-      withholdingTax = discount * (ifbRate / 100) * (consideration / 100);
-    }
-  } else {
-    withholdingTax = 0;
-  }
-  
-  const totalPayable = consideration === 0 ? 0 : 
-    consideration + commissionNSE + otherLevies + withholdingTax;
-  
-  const totalReceivable = consideration === 0 ? 0 : 
-    consideration - commissionNSE - otherLevies - withholdingTax;
-  
-  return {
-    consideration,
-    commissionNSE,
-    otherLevies,
-    withholdingTax,
-    totalPayable,
-    totalReceivable
-  };
 }
 
 function calculateBondValues(params: {
@@ -342,6 +111,7 @@ function calculateBondValues(params: {
   bondTermOver10: number;
   ifbRate: number;
   marketType: 'secondary' | 'primary';
+  rates: FinancialRates;
 }): BondCalcResult {
   const {
     bondData,
@@ -354,7 +124,8 @@ function calculateBondValues(params: {
     bondTermUnder10,
     bondTermOver10,
     ifbRate,
-    marketType
+    marketType,
+    rates
   } = params;
 
   const issueDate = new Date(bondData.IssueDate);
@@ -419,7 +190,8 @@ function calculateBondValues(params: {
     calculationType,
     bondTermUnder10,
     bondTermOver10,
-    ifbRate
+    ifbRate,
+    rates
   );
 
   return {
@@ -450,7 +222,11 @@ function formatPercentage(value: number): string {
   return `${value.toFixed(4)}%`;
 }
 
-export function BondCalc() {
+interface BondCalcProps {
+  trigger?: React.ReactNode;
+}
+
+export function BondCalc({ trigger }: BondCalcProps) {
   const [state, setState] = useState<BondCalcState>({
     valueDate: new Date(),
     marketType: 'secondary',
@@ -468,7 +244,10 @@ export function BondCalc() {
     IfbFiveYrs: 0,
     PercentUnderTenYrs: 10,
     DailyBasis: 364,
-    ValueDate: undefined
+    ValueDate: undefined,
+    NseCommission: 0.00024, // Default fallback
+    NseMinCommission: 1000,
+    CmaLevies: 0.00011
   });
 
   const [secondaryMarketBonds, setSecondaryMarketBonds] = useState<SecondaryMarketBond[]>([]);
@@ -489,7 +268,7 @@ export function BondCalc() {
         // Fetch bond calculation details
         const detailsResponse = await getBondCalcDetails();
         if (detailsResponse?.data) {
-          setDetails(detailsResponse.data);
+          setDetails(prev => ({ ...prev, ...detailsResponse.data }));
         }
 
         // Fetch secondary market bonds
@@ -585,6 +364,12 @@ export function BondCalc() {
     try {
       const settlementDate = new Date(state.settlementDate);
       
+      const rates: FinancialRates = {
+        nseCommission: details.NseCommission || 0.00024,
+        nseMinCommission: details.NseMinCommission || 1000,
+        cmaLevies: details.CmaLevies || 0.00011
+      };
+
       const result = calculateBondValues({
         bondData: selectedBondData,
         settlementDate,
@@ -596,7 +381,8 @@ export function BondCalc() {
         bondTermUnder10: details.PercentUnderTenYrs,
         bondTermOver10: details.PercentUnderTenYrs,
         ifbRate: details.IfbFiveYrs,
-        marketType: state.marketType
+        marketType: state.marketType,
+        rates
       });
 
       setCalculationResult(result);
@@ -624,6 +410,9 @@ export function BondCalc() {
     details.DailyBasis,
     details.PercentUnderTenYrs,
     details.IfbFiveYrs,
+    details.NseCommission,
+    details.NseMinCommission,
+    details.CmaLevies,
     state.marketType
   ]);
 
@@ -676,10 +465,12 @@ export function BondCalc() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button className="bg-black text-white hover:bg-neutral-800">
-          <Calculator className="mr-2 h-4 w-4" />
-          Bond Calculator
-        </Button>
+        {trigger || (
+          <Button className="bg-black text-white hover:bg-neutral-800">
+            <Calculator className="mr-2 h-4 w-4" />
+            Bond Calculator
+          </Button>
+        )}
       </SheetTrigger>
       <SheetContent className="overflow-y-auto w-[500px] sm:w-[600px] bg-white text-black border-l border-neutral-200">
         <SheetHeader className="border-b border-neutral-100 pb-4">

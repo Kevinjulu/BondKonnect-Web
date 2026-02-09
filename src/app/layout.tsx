@@ -12,13 +12,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [loading, setLoading] = React.useState(true);
   const [mounted, setMounted] = React.useState(false);
   
   React.useEffect(() => {
     setMounted(true);
-    // Shorter loading time for better UX
-    setTimeout(() => setLoading(false), 1000);
   }, []);
 
   // Prevent hydration mismatch by not rendering until mounted
@@ -48,7 +45,7 @@ export default function RootLayout({
               height={3}
               shadow={false}
             />
-            {loading ? <Loading /> : children}
+            {children}
           </Providers>
         </Provider>
       </body>

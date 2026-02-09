@@ -23,6 +23,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ClientSelectionDialog } from "../quote-book/client-selection-dialog"
 import * as XLSX from 'xlsx'
+import { cn } from "@/lib/utils"
 
 interface BondStats {
   Id: number;
@@ -539,10 +540,11 @@ function recalculatePortfolio(data: PortfolioEntry[], availableBonds: BondStats[
   return newData;
 }
 
+import { useStatsTable, useUserPortfolios, usePortfolioMutations } from "@/hooks/use-portfolio-data"
+
 export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
   const [value, setValue] = useState<string[]>([])
   const [selectedBondsToAdd, setSelectedBondsToAdd] = useState<{issueNo: string, id?: number}[]>([])
-  const [bonds, setBonds] = useState<BondStats[]>([])
   const [data, setData] = useState<PortfolioEntry[]>([])
   const [sectionVisibility, setSectionVisibility] = useState<SectionVisibility>({
     notepad: true, profitLoss: true, scorecard: true,
@@ -552,54 +554,73 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
   });
   const [portfolioName, setPortfolioName] = useState("Create New Portfolio")
   const [portfolioDate, setPortfolioDate] = useState(formatDate(new Date()))
-  const [availableBonds, setAvailableBonds] = useState<BondStats[]>([])
-  const [portfolios, setPortfolios] = useState<Portfolio[]>([])
   const [selectedPortfolio, setSelectedPortfolio] = useState<Portfolio | null>(null)
   const [isNewPortfolioDialogOpen, setIsNewPortfolioDialogOpen] = useState(false)
   const [newPortfolioData, setNewPortfolioData] = useState({ portfolio_name: '', value_date: new Date().toISOString().split('T')[0], description: '', })
   const { toast } = useToast()
-  const [loading, setLoading] = useState(false);
-  const [clientDialogOpen, setClientDialogOpen] = useState(false);
-  const [pendingQuoteData, setPendingQuoteData] = useState<QuoteData | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  const [quickTipsOpen, setQuickTipsOpen] = useState(false);
-  const selectedPortfolioIdRef = useRef<number | null>(null);
+  
+  // Use the new hooks
+  const { data: availableBonds = [], isLoading: isLoadingBonds } = useStatsTable();
+  const { data: portfolios = [], isLoading: isLoadingPortfolios, refetch: refetchPortfolios } = useUserPortfolios(userDetails?.email);
+  const { createPortfolio, isCreating, updatePortfolio, isUpdating } = usePortfolioMutations(userDetails?.email);
 
-  useEffect(() => { console.log("Component mounted with userDetails:", userDetails); }, [userDetails]);
+  const loading = isLoadingBonds || isLoadingPortfolios || isCreating || isUpdating;
 
-  const fetchPortfolios = useCallback(async () => {
-    setLoading(true);
-    try {
-      if (!userDetails?.email) { toast({ title: "Error", description: "User email not found" }); return; }
-      let bondsResult = availableBonds;
-      if (availableBonds.length === 0) {
-        const fetched = await getStatsTable();
-        bondsResult = Array.isArray(fetched) ? fetched : [];
-        setAvailableBonds(bondsResult);
-        setBonds(bondsResult);
-      }
-      const result = await getUserPortfolios(userDetails.email);
-      if (result?.success && result.data && result.data.length > 0) {
-        setPortfolios(result.data);
-        const currentPortfolioId = selectedPortfolioIdRef.current;
-        const portfolioToSelect = currentPortfolioId ? result.data.find((p: any) => p.Id === currentPortfolioId) || result.data[0] : result.data[0];
-        selectedPortfolioIdRef.current = portfolioToSelect.Id;
-        setSelectedPortfolio(portfolioToSelect);
-        setPortfolioName(portfolioToSelect.Name);
-        setPortfolioDate(formatDate(portfolioToSelect.ValueDate));
-        const mappedBonds: PortfolioEntry[] = portfolioToSelect.bonds.map((bond: PortfolioBond) => {
-          const bondData = bondsResult.find(b => b.Id === bond.BondId);
-          return {
-            id: bond.BondId.toString(), id_: bond.Id_, bondId: bond.BondId, type: bond.Type as "HFS" | "HTM" | "AFS", bondsHeld: bond.BondIssueNo, buyingDate: formatDate(bond.BuyingDate), buyingPrice: Number(bond.BuyingPrice), buyingWAP: Number(bond.BuyingWAP), faceValueBuys: Number(bond.FaceValueBuys), sellingDate: bond.SellingDate ? formatDate(bond.SellingDate) : '', sellingPrice: bond.SellingPrice ? Number(bond.SellingPrice) : 0, sellingWAP: bond.SellingWAP ? Number(bond.SellingWAP) : 0, faceValueSales: bond.FaceValueSales ? Number(bond.FaceValueSales) : 0, faceValueBal: Number(bond.FaceValueBAL), closingPrice: Number(bond.ClosingPrice), couponNet: Number(bond.CouponNET), nextCouponDays: Number(bond.NextCpnDays), realizedPL: Number(bond.RealizedPNL), unrealizedPL: Number(bond.UnrealizedPNL), totalReturn: Number(bond.OneYrTotalReturn), maturityYears: bondData ? bondData.DtmYrs : 0, coupon: bondData ? bondData.Coupon : 0, duration: bondData ? bondData.Duration : 0, mDuration: bondData ? bondData.MDuration : 0, dv01: bondData ? bondData.Dv01 : 0, expectedShortfall: bondData ? bondData.ExpectedShortfall : 0, spotYTM: bondData ? bondData.SpotYield : 0, dirtyPrice: bondData ? bondData.DirtyPrice : 0, portfolioValue: Number(bond.PortfolioValue)
-          };
-        });
-        setData(recalculatePortfolio(mappedBonds, bondsResult, formatDate(result.data[0].ValueDate)));
-      }
-    } catch { toast({ title: "Error", description: "Failed to fetch portfolios" }); } finally { setLoading(false); }
-  }, [userDetails?.email, toast]);
+  useEffect(() => {
+    if (portfolios.length > 0 && !selectedPortfolio) {
+      const p = portfolios[0];
+      setSelectedPortfolio(p);
+      setPortfolioName(p.Name);
+      setPortfolioDate(formatDate(p.ValueDate));
+      
+      const mappedBonds: PortfolioEntry[] = p.bonds.map((bond: PortfolioBond) => {
+        const bondData = availableBonds.find(b => b.Id === bond.BondId);
+        return {
+          id: bond.BondId.toString(), id_: bond.Id_, bondId: bond.BondId, type: bond.Type as "HFS" | "HTM" | "AFS", bondsHeld: bond.BondIssueNo, buyingDate: formatDate(bond.BuyingDate), buyingPrice: Number(bond.BuyingPrice), buyingWAP: Number(bond.BuyingWAP), faceValueBuys: Number(bond.FaceValueBuys), sellingDate: bond.SellingDate ? formatDate(bond.SellingDate) : '', sellingPrice: bond.SellingPrice ? Number(bond.SellingPrice) : 0, sellingWAP: bond.SellingWAP ? Number(bond.SellingWAP) : 0, faceValueSales: bond.FaceValueSales ? Number(bond.FaceValueSales) : 0, faceValueBal: Number(bond.FaceValueBAL), closingPrice: Number(bond.ClosingPrice), couponNet: Number(bond.CouponNET), nextCouponDays: Number(bond.NextCpnDays), realizedPL: Number(bond.RealizedPNL), unrealizedPL: Number(bond.UnrealizedPNL), totalReturn: Number(bond.OneYrTotalReturn), maturityYears: bondData ? bondData.DtmYrs : 0, coupon: bondData ? bondData.Coupon : 0, duration: bondData ? bondData.Duration : 0, mDuration: bondData ? bondData.MDuration : 0, dv01: bondData ? bondData.Dv01 : 0, expectedShortfall: bondData ? bondData.ExpectedShortfall : 0, spotYTM: bondData ? bondData.SpotYield : 0, dirtyPrice: bondData ? bondData.DirtyPrice : 0, portfolioValue: Number(bond.PortfolioValue)
+        };
+      });
+      setData(recalculatePortfolio(mappedBonds, availableBonds, formatDate(p.ValueDate)));
+    }
+  }, [portfolios, availableBonds, selectedPortfolio]);
 
-  useEffect(() => { if (userDetails?.email) { fetchPortfolios(); } }, [userDetails?.email]);
+  const handleBondSelect = (bondIssueNo: string, specificBondId?: number) => {
+    let selectedBond: BondStats | undefined;
+    if (specificBondId) selectedBond = availableBonds.find(bond => bond.Id === specificBondId);
+    if (!selectedBond) { const matchingBonds = availableBonds.filter(bond => bond.BondIssueNo === bondIssueNo); selectedBond = matchingBonds[0]; }
+    if (selectedBond) {
+      const newEntry = generateDefaultValues(selectedBond);
+      newEntry.bondsHeld = selectedBond.BondIssueNo;
+      setData(prevData => { const updatedData = [...prevData, newEntry]; return recalculatePortfolio(updatedData, availableBonds, portfolioDate); });
+    }
+  };
+
+  const updateData = (rowIndex: number, columnId: string, value: string) => {
+    setData(oldData => {
+      const newData = JSON.parse(JSON.stringify(oldData));
+      newData[rowIndex][columnId] = value;
+      if (['buyingPrice', 'sellingPrice', 'faceValueBuys', 'faceValueSales'].includes(columnId)) newData[rowIndex][columnId] = parseFloat(value) || 0;
+      const recalculatedData = recalculateRow(rowIndex, newData, availableBonds, portfolioDate);
+      return recalculatePortfolio(recalculatedData, availableBonds, portfolioDate);
+    });
+  };
+
+  const handleCreatePortfolio = async () => {
+    if (!newPortfolioData.portfolio_name || !newPortfolioData.value_date) {
+      toast({ title: "Error", description: "Name and Date are required", variant: "destructive" });
+      return;
+    }
+    const portfolioBondsFormatted = data.filter(bond => bond.bondsHeld !== "Overall Portfolio").map(bond => ({ bond_id: bond.bondId, type: bond.type, bond_issue_no: bond.bondsHeld, buying_date: bond.buyingDate, buying_price: bond.buyingPrice, buying_wap: bond.buyingWAP, face_value_buys: bond.faceValueBuys, face_value_bal: bond.faceValueBal, closing_price: bond.closingPrice, coupon_net: bond.couponNet, next_cpn_days: bond.nextCouponDays.toString(), realized_pnl: bond.realizedPL.toString(), unrealized_pnl: bond.unrealizedPL.toString(), one_yr_total_return: bond.totalReturn, portfolio_value: bond.portfolioValue.toString() }));
+    
+    await createPortfolio({ ...newPortfolioData, user_email: userDetails.email, bonds: portfolioBondsFormatted });
+    setIsNewPortfolioDialogOpen(false);
+  };
+
+  const handleSavePortfolio = async () => {
+    if (!selectedPortfolio) return;
+    const portfolioBonds = data.filter(bond => bond.bondsHeld !== "Overall Portfolio").map(bond => ({ bond_id: bond.bondId, type: bond.type, bond_issue_no: bond.bondsHeld, buying_date: bond.buyingDate, buying_price: bond.buyingPrice, buying_wap: bond.buyingWAP, face_value_buys: bond.faceValueBuys, face_value_bal: bond.faceValueBal, closing_price: bond.closingPrice, coupon_net: bond.couponNet, next_cpn_days: bond.nextCouponDays.toString(), realized_pnl: bond.realizedPL.toString(), unrealized_pnl: bond.unrealizedPL.toString(), one_yr_total_return: bond.totalReturn, portfolio_value: bond.portfolioValue.toString() }));
+    
+    await updatePortfolio({ portfolio_id: selectedPortfolio.Id, portfolio_name: portfolioName, value_date: portfolioDate, description: selectedPortfolio.Description, user_email: userDetails.email, bonds: portfolioBonds });
+  };
 
   const mapBondToStats = (bond: Record<string, unknown>): BondStats => {
     return {
@@ -717,88 +738,95 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
   };
 
   return (
-    <div className="space-y-6 w-full max-w-[95vw] mx-auto bg-white p-6 rounded-lg shadow-sm border border-neutral-200 text-black">
+    <div className="space-y-6 w-full max-w-[98vw] mx-auto bg-white p-4 rounded-xl shadow-sm border border-neutral-200 text-black">
       {/* Header & Controls */}
       <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-black tracking-tight">Portfolio Assistant</h2>
+        <div className="flex items-center justify-between border-b border-neutral-100 pb-6">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-black text-black tracking-tight uppercase">Portfolio Assistant</h2>
+            <p className="text-xs text-neutral-500 font-bold uppercase tracking-widest">Real-time Valuation & Risk Management</p>
+          </div>
           <div className="flex items-center gap-3">
-            <Select 
-              value={selectedPortfolio?.Id.toString()} 
-              onValueChange={(val) => { 
-                const selected = portfolios.find(p => p.Id.toString() === val); 
-                if (selected) { 
-                  selectedPortfolioIdRef.current = selected.Id; 
-                  setSelectedPortfolio(selected); 
-                  setPortfolioName(selected.Name); 
-                  setPortfolioDate(formatDate(selected.ValueDate)); 
-                  // Trigger recalculation logic (reused from fetchPortfolios)
-                  const mappedBonds: PortfolioEntry[] = selected.bonds.map((bond: PortfolioBond) => {
-                    const bondData = availableBonds.find(b => b.Id === bond.BondId);
-                    return { id: bond.BondId.toString(), id_: bond.Id_, bondId: bond.BondId, type: bond.Type as "HFS" | "HTM" | "AFS", bondsHeld: bond.BondIssueNo, buyingDate: formatDate(bond.BuyingDate), buyingPrice: Number(bond.BuyingPrice), buyingWAP: Number(bond.BuyingWAP), faceValueBuys: Number(bond.FaceValueBuys), sellingDate: bond.SellingDate ? formatDate(bond.SellingDate) : '', sellingPrice: bond.SellingPrice ? Number(bond.SellingPrice) : 0, sellingWAP: bond.SellingWAP ? Number(bond.SellingWAP) : 0, faceValueSales: bond.FaceValueSales ? Number(bond.FaceValueSales) : 0, faceValueBal: Number(bond.FaceValueBAL), closingPrice: Number(bond.ClosingPrice), couponNet: Number(bond.CouponNET), nextCouponDays: Number(bond.NextCpnDays), realizedPL: Number(bond.RealizedPNL), unrealizedPL: Number(bond.UnrealizedPNL), totalReturn: Number(bond.OneYrTotalReturn), maturityYears: bondData ? bondData.DtmYrs : 0, coupon: bondData ? bondData.Coupon : 0, duration: bondData ? bondData.Duration : 0, mDuration: bondData ? bondData.MDuration : 0, dv01: bondData ? bondData.Dv01 : 0, expectedShortfall: bondData ? bondData.ExpectedShortfall : 0, spotYTM: bondData ? bondData.SpotYield : 0, dirtyPrice: bondData ? bondData.DirtyPrice : 0, portfolioValue: Number(bond.PortfolioValue) };
-                  });
-                  setData(recalculatePortfolio(mappedBonds, availableBonds, formatDate(selected.ValueDate)));
-                } 
-              }}
-            >
-              <SelectTrigger className="w-[280px] border-neutral-200 bg-white text-black font-medium focus:ring-black">
-                <SelectValue placeholder="Select Portfolio" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border-neutral-200">
-                {portfolios.map(p => <SelectItem key={p.Id} value={p.Id.toString()} className="text-black focus:bg-neutral-100">{p.Name}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2 bg-neutral-50 p-1 rounded-xl border border-neutral-200">
+              <Select 
+                value={selectedPortfolio?.Id.toString()} 
+                onValueChange={(val) => { 
+                  const selected = portfolios.find(p => p.Id.toString() === val); 
+                  if (selected) { 
+                    selectedPortfolioIdRef.current = selected.Id; 
+                    setSelectedPortfolio(selected); 
+                    setPortfolioName(selected.Name); 
+                    setPortfolioDate(formatDate(selected.ValueDate)); 
+                    const mappedBonds: PortfolioEntry[] = selected.bonds.map((bond: PortfolioBond) => {
+                      const bondData = availableBonds.find(b => b.Id === bond.BondId);
+                      return { id: bond.BondId.toString(), id_: bond.Id_, bondId: bond.BondId, type: bond.Type as "HFS" | "HTM" | "AFS", bondsHeld: bond.BondIssueNo, buyingDate: formatDate(bond.BuyingDate), buyingPrice: Number(bond.BuyingPrice), buyingWAP: Number(bond.BuyingWAP), faceValueBuys: Number(bond.FaceValueBuys), sellingDate: bond.SellingDate ? formatDate(bond.SellingDate) : '', sellingPrice: bond.SellingPrice ? Number(bond.SellingPrice) : 0, sellingWAP: bond.SellingWAP ? Number(bond.SellingWAP) : 0, faceValueSales: bond.FaceValueSales ? Number(bond.FaceValueSales) : 0, faceValueBal: Number(bond.FaceValueBAL), closingPrice: Number(bond.ClosingPrice), couponNet: Number(bond.CouponNET), nextCouponDays: Number(bond.NextCpnDays), realizedPL: Number(bond.RealizedPNL), unrealizedPL: Number(bond.UnrealizedPNL), totalReturn: Number(bond.OneYrTotalReturn), maturityYears: bondData ? bondData.DtmYrs : 0, coupon: bondData ? bondData.Coupon : 0, duration: bondData ? bondData.Duration : 0, mDuration: bondData ? bondData.MDuration : 0, dv01: bondData ? bondData.Dv01 : 0, expectedShortfall: bondData ? bondData.ExpectedShortfall : 0, spotYTM: bondData ? bondData.SpotYield : 0, dirtyPrice: bondData ? bondData.DirtyPrice : 0, portfolioValue: Number(bond.PortfolioValue) };
+                    });
+                    setData(recalculatePortfolio(mappedBonds, availableBonds, formatDate(selected.ValueDate)));
+                  } 
+                }}
+              >
+                <SelectTrigger className="w-[240px] border-none bg-transparent text-black font-black text-[10px] uppercase tracking-widest focus:ring-0">
+                  <SelectValue placeholder="Select Portfolio" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-neutral-200">
+                  {portfolios.map(p => <SelectItem key={p.Id} value={p.Id.toString()} className="text-[10px] font-bold uppercase tracking-widest text-black focus:bg-neutral-100">{p.Name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
 
             <Dialog open={isNewPortfolioDialogOpen} onOpenChange={setIsNewPortfolioDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-black text-white hover:bg-neutral-800 font-bold"><Plus className="mr-2 h-4 w-4" /> New Portfolio</Button>
+                <Button className="bg-black text-white hover:bg-neutral-800 font-black uppercase tracking-widest text-[10px] h-10 px-6 rounded-xl shadow-lg"><Plus className="mr-2 h-4 w-4" /> New</Button>
               </DialogTrigger>
-              <DialogContent className="bg-white border-neutral-200 text-black">
+              <DialogContent className="bg-white border-neutral-200 text-black rounded-[32px] p-8 max-w-md">
                 <DialogHeader>
-                  <DialogTitle className="text-black font-bold">Create New Portfolio</DialogTitle>
+                  <DialogTitle className="text-2xl font-black text-black uppercase tracking-tight">Create Portfolio</DialogTitle>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name" className="text-black font-semibold">Portfolio Name</Label>
-                    <Input id="name" value={newPortfolioData.portfolio_name} onChange={(e) => setNewPortfolioData({ ...newPortfolioData, portfolio_name: e.target.value })} className="border-neutral-200 focus:border-black text-black font-medium" />
+                <div className="grid gap-6 py-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Portfolio Name</Label>
+                    <Input id="name" value={newPortfolioData.portfolio_name} onChange={(e) => setNewPortfolioData({ ...newPortfolioData, portfolio_name: e.target.value })} className="h-12 border-neutral-200 focus:border-black text-black font-bold rounded-xl" />
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="date" className="text-black font-semibold">Value Date</Label>
-                    <Input id="date" type="date" value={newPortfolioData.value_date} onChange={(e) => setNewPortfolioData({ ...newPortfolioData, value_date: e.target.value })} className="border-neutral-200 focus:border-black text-black font-medium" />
+                  <div className="space-y-2">
+                    <Label htmlFor="date" className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Value Date</Label>
+                    <Input id="date" type="date" value={newPortfolioData.value_date} onChange={(e) => setNewPortfolioData({ ...newPortfolioData, value_date: e.target.value })} className="h-12 border-neutral-200 focus:border-black text-black font-bold rounded-xl" />
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="desc" className="text-black font-semibold">Description</Label>
-                    <Textarea id="desc" value={newPortfolioData.description} onChange={(e) => setNewPortfolioData({ ...newPortfolioData, description: e.target.value })} className="border-neutral-200 focus:border-black text-black font-medium" />
+                  <div className="space-y-2">
+                    <Label htmlFor="desc" className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Description</Label>
+                    <Textarea id="desc" value={newPortfolioData.description} onChange={(e) => setNewPortfolioData({ ...newPortfolioData, description: e.target.value })} className="border-neutral-200 focus:border-black text-black font-bold rounded-xl min-h-[100px]" />
                   </div>
                 </div>
-                <div className="flex justify-end gap-3">
-                  <Button variant="outline" onClick={() => setIsNewPortfolioDialogOpen(false)} className="border-neutral-200 text-black hover:bg-neutral-50 bg-white font-medium">Cancel</Button>
-                  <Button onClick={handleCreatePortfolio} className="bg-black text-white hover:bg-neutral-800 font-bold">Create</Button>
+                <div className="flex justify-end gap-3 pt-4">
+                  <Button variant="ghost" onClick={() => setIsNewPortfolioDialogOpen(false)} className="text-neutral-400 hover:text-black font-black uppercase tracking-widest text-[10px]">Cancel</Button>
+                  <Button onClick={handleCreatePortfolio} className="bg-black text-white hover:bg-neutral-800 font-black uppercase tracking-widest text-[10px] h-12 px-10 rounded-xl shadow-xl">Initialize</Button>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-neutral-50 rounded-lg border border-neutral-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-neutral-50/50 rounded-2xl border border-neutral-100">
           <div className="space-y-2">
-            <Label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Portfolio Name</Label>
-            <Input value={portfolioName} onChange={(e) => setPortfolioName(e.target.value)} className="bg-white border-neutral-200 focus:border-black text-black font-semibold" />
+            <Label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Active Reference</Label>
+            <Input value={portfolioName} onChange={(e) => setPortfolioName(e.target.value)} className="h-11 bg-white border-neutral-200 focus:border-black text-black font-bold rounded-xl shadow-sm" />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Valuation Date</Label>
-            <Input type="date" value={portfolioDate} onChange={(e) => handlePortfolioDateChange(e.target.value)} className="bg-white border-neutral-200 focus:border-black text-black font-semibold" />
+            <Label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Effective Date</Label>
+            <Input type="date" value={portfolioDate} onChange={(e) => handlePortfolioDateChange(e.target.value)} className="h-11 bg-white border-neutral-200 focus:border-black text-black font-bold rounded-xl shadow-sm" />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Add Bond</Label>
+            <Label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Asset Acquisition</Label>
             <Select onValueChange={(val) => handleBondSelect(val.split('|')[0], parseInt(val.split('|')[1]))}>
-              <SelectTrigger className="bg-white border-neutral-200 text-black font-medium focus:ring-black">
-                <SelectValue placeholder="Search bonds..." />
+              <SelectTrigger className="h-11 bg-white border-neutral-200 text-black font-bold rounded-xl shadow-sm focus:ring-black">
+                <SelectValue placeholder="Add Bond to Portfolio" />
               </SelectTrigger>
-              <SelectContent className="bg-white border-neutral-200 max-h-[300px]">
+              <SelectContent className="bg-white border-neutral-200 max-h-[400px]">
                 {availableBonds.map(bond => (
-                  <SelectItem key={bond.Id} value={`${bond.BondIssueNo}|${bond.Id}`} className="text-black focus:bg-neutral-100">
-                    <span className="font-bold">{bond.BondIssueNo}</span> <span className="text-neutral-500 ml-2 text-xs">({bond.Coupon}% - {new Date(bond.MaturityDate).getFullYear()})</span>
+                  <SelectItem key={bond.Id} value={`${bond.BondIssueNo}|${bond.Id}`} className="text-black focus:bg-neutral-100 py-3">
+                    <div className="flex flex-col">
+                      <span className="font-black text-xs uppercase tracking-tight">{bond.BondIssueNo}</span>
+                      <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mt-0.5">Yield: {bond.SpotYield}% • Dirty Price: {bond.DirtyPrice}</span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -806,168 +834,256 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <Button variant="outline" size="sm" onClick={() => setSectionVisibility(prev => ({ ...prev, notepad: !prev.notepad }))} className="bg-white border-neutral-200 text-black hover:bg-neutral-50 font-medium">
-            {sectionVisibility.notepad ? "Hide" : "Show"} Trading Notepad
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setSectionVisibility(prev => ({ ...prev, profitLoss: !prev.profitLoss }))} className="bg-white border-neutral-200 text-black hover:bg-neutral-50 font-medium">
-            {sectionVisibility.profitLoss ? "Hide" : "Show"} P&L
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setSectionVisibility(prev => ({ ...prev, scorecard: !prev.scorecard }))} className="bg-white border-neutral-200 text-black hover:bg-neutral-50 font-medium">
-            {sectionVisibility.scorecard ? "Hide" : "Show"} Analytics
-          </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1 bg-neutral-100 p-1 rounded-xl">
+            <Button variant="ghost" size="sm" onClick={() => setSectionVisibility(prev => ({ ...prev, notepad: !prev.notepad }))} className={cn("px-4 font-black uppercase tracking-widest text-[9px] h-8 rounded-lg transition-all", sectionVisibility.notepad ? "bg-white text-black shadow-sm" : "text-neutral-400 hover:text-black")}>
+              Notepad
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setSectionVisibility(prev => ({ ...prev, profitLoss: !prev.profitLoss }))} className={cn("px-4 font-black uppercase tracking-widest text-[9px] h-8 rounded-lg transition-all", sectionVisibility.profitLoss ? "bg-white text-black shadow-sm" : "text-neutral-400 hover:text-black")}>
+              P&L Matrix
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setSectionVisibility(prev => ({ ...prev, scorecard: !prev.scorecard }))} className={cn("px-4 font-black uppercase tracking-widest text-[9px] h-8 rounded-lg transition-all", sectionVisibility.scorecard ? "bg-white text-black shadow-sm" : "text-neutral-400 hover:text-black")}>
+              Analytics
+            </Button>
+          </div>
           <div className="ml-auto flex gap-3">
-            <Button size="sm" onClick={handleSavePortfolio} disabled={loading} className="bg-black text-white hover:bg-neutral-800 font-bold px-6">
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Save Changes"}
+            <Button variant="outline" size="sm" onClick={async () => {
+              if (selectedPortfolio) {
+                const blob = await exportPortfolioToExcel(selectedPortfolio.Id);
+                if (blob) {
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `${portfolioName}_Report.xlsx`;
+                  a.click();
+                }
+              }
+            }} className="h-10 bg-white border-neutral-200 text-black hover:bg-neutral-50 font-black uppercase tracking-widest text-[9px] px-6 rounded-xl border-2">
+              <FileDown className="mr-2 h-4 w-4" /> Export Spreadsheet
+            </Button>
+            <Button size="sm" onClick={handleSavePortfolio} disabled={loading} className="h-10 bg-black text-white hover:bg-neutral-800 font-black uppercase tracking-widest text-[10px] px-8 rounded-xl shadow-xl transition-all active:scale-95">
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Commit Changes"}
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Main Table */}
-      <div className="rounded-lg border border-neutral-200 overflow-hidden bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <Table>
+      {/* Main Table - Excel SpreadSheet UI */}
+      <div className="relative rounded-[24px] border-2 border-neutral-100 overflow-hidden bg-white shadow-2xl mt-4">
+        {loading && (
+          <div className="absolute inset-0 z-50 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="h-10 w-10 animate-spin text-black opacity-20" />
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400">Syncing Portfolio Ledger...</p>
+            </div>
+          </div>
+        )}
+        
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-200 scrollbar-track-transparent">
+          <Table className="border-collapse">
             <TableHeader>
-              <TableRow className="bg-neutral-50 border-b border-neutral-200 hover:bg-neutral-50">
-                <TableHead className="w-[50px] font-bold text-neutral-600">Action</TableHead>
-                {columnVisibility.bondIssueNo && <TableHead className="min-w-[120px] font-bold text-black uppercase text-xs">Bond Issue</TableHead>}
-                <TableHead className="min-w-[100px] font-bold text-black uppercase text-xs">Type</TableHead>
+              <TableRow className="bg-black hover:bg-black border-none h-14">
+                <TableHead className="w-[50px] border-r border-white/10 text-white font-black uppercase text-[9px] tracking-widest text-center">#</TableHead>
+                {columnVisibility.bondIssueNo && <TableHead className="min-w-[160px] border-r border-white/10 text-white font-black uppercase text-[9px] tracking-widest px-6">Instrument</TableHead>}
+                <TableHead className="min-w-[80px] border-r border-white/10 text-white font-black uppercase text-[9px] tracking-widest text-center px-4">Type</TableHead>
                 
-                {/* Trading Notepad */}
+                {/* Excel Notepad Section */}
                 {sectionVisibility.notepad && (
                   <>
-                    <TableHead className="min-w-[120px] font-bold text-neutral-600 uppercase text-xs text-right bg-neutral-50/50">Buying Date</TableHead>
-                    <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right bg-neutral-50/50">Buying Price</TableHead>
-                    <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right bg-neutral-50/50">Buying WAP</TableHead>
-                    <TableHead className="min-w-[120px] font-bold text-neutral-600 uppercase text-xs text-right bg-neutral-50/50">Face Value Buys</TableHead>
-                    <TableHead className="min-w-[120px] font-bold text-neutral-600 uppercase text-xs text-right bg-neutral-50/50">Selling Date</TableHead>
-                    <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right bg-neutral-50/50">Selling Price</TableHead>
-                    <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right bg-neutral-50/50">Selling WAP</TableHead>
-                    <TableHead className="min-w-[120px] font-bold text-neutral-600 uppercase text-xs text-right bg-neutral-50/50">Face Value Sales</TableHead>
-                    <TableHead className="min-w-[120px] font-bold text-black uppercase text-xs text-right bg-neutral-100">Face Value Bal</TableHead>
+                    <TableHead className="min-w-[130px] border-r border-white/10 text-neutral-400 font-black uppercase text-[8px] tracking-[0.2em] text-center bg-neutral-900">Buy Date</TableHead>
+                    <TableHead className="min-w-[110px] border-r border-white/10 text-neutral-400 font-black uppercase text-[8px] tracking-[0.2em] text-right px-4 bg-neutral-900">Buy Price</TableHead>
+                    <TableHead className="min-w-[110px] border-r border-white/10 text-neutral-400 font-black uppercase text-[8px] tracking-[0.2em] text-right px-4 bg-neutral-900">Buy WAP</TableHead>
+                    <TableHead className="min-w-[130px] border-r border-white/10 text-neutral-400 font-black uppercase text-[8px] tracking-[0.2em] text-right px-4 bg-neutral-900">Face Value (B)</TableHead>
+                    <TableHead className="min-w-[130px] border-r border-white/10 text-neutral-400 font-black uppercase text-[8px] tracking-[0.2em] text-center bg-neutral-900">Sell Date</TableHead>
+                    <TableHead className="min-w-[110px] border-r border-white/10 text-neutral-400 font-black uppercase text-[8px] tracking-[0.2em] text-right px-4 bg-neutral-900">Sell Price</TableHead>
+                    <TableHead className="min-w-[110px] border-r border-white/10 text-neutral-400 font-black uppercase text-[8px] tracking-[0.2em] text-right px-4 bg-neutral-900">Sell WAP</TableHead>
+                    <TableHead className="min-w-[130px] border-r border-white/10 text-neutral-400 font-black uppercase text-[8px] tracking-[0.2em] text-right px-4 bg-neutral-900">Face Value (S)</TableHead>
+                    <TableHead className="min-w-[140px] border-r border-white/10 text-white font-black uppercase text-[9px] tracking-widest text-right px-6 bg-neutral-800">Balance</TableHead>
                   </>
                 )}
 
-                {/* Profit & Loss */}
+                {/* Profit Matrix Section */}
                 {sectionVisibility.profitLoss && (
                   <>
-                    <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right">Closing Price</TableHead>
-                    <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right">Coupon (Net)</TableHead>
-                    <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right">Next Cpn Days</TableHead>
-                    <TableHead className="min-w-[120px] font-bold text-black uppercase text-xs text-right">Realized P&L</TableHead>
-                    <TableHead className="min-w-[120px] font-bold text-black uppercase text-xs text-right">Unrealized P&L</TableHead>
-                    <TableHead className="min-w-[100px] font-bold text-black uppercase text-xs text-right bg-neutral-100">Total Return</TableHead>
+                    <TableHead className="min-w-[110px] border-r border-white/10 text-neutral-300 font-black uppercase text-[8px] tracking-[0.2em] text-right px-4">Closing</TableHead>
+                    <TableHead className="min-w-[110px] border-r border-white/10 text-neutral-300 font-black uppercase text-[8px] tracking-[0.2em] text-right px-4">Net Cpn</TableHead>
+                    <TableHead className="min-w-[90px] border-r border-white/10 text-neutral-300 font-black uppercase text-[8px] tracking-[0.2em] text-center px-4">DTC</TableHead>
+                    <TableHead className="min-w-[140px] border-r border-white/10 text-white font-black uppercase text-[9px] tracking-widest text-right px-6">Realized</TableHead>
+                    <TableHead className="min-w-[140px] border-r border-white/10 text-white font-black uppercase text-[9px] tracking-widest text-right px-6">Unrealized</TableHead>
+                    <TableHead className="min-w-[120px] border-r border-white/10 text-white font-black uppercase text-[9px] tracking-widest text-right px-6 bg-neutral-800">Total Return</TableHead>
                   </>
                 )}
 
-                {/* Scorecard / Analytics */}
+                {/* Scorecard / Analytics Section */}
                 {sectionVisibility.scorecard && (
                   <>
-                    <TableHead className="min-w-[120px] font-bold text-neutral-600 uppercase text-xs text-right">Portfolio Value</TableHead>
-                    {columnVisibility.bondValuationMetrics && (
-                      <>
-                        <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right">Maturity (Yrs)</TableHead>
-                        <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right">Coupon</TableHead>
-                      </>
-                    )}
-                    {columnVisibility.riskBudgetingIndicators && (
-                      <>
-                        <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right">Duration</TableHead>
-                        <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right">M-Duration</TableHead>
-                        <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right">DV01</TableHead>
-                        <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right">Exp. Shortfall</TableHead>
-                        <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right">Spot YTM</TableHead>
-                        <TableHead className="min-w-[100px] font-bold text-neutral-600 uppercase text-xs text-right">Dirty Price</TableHead>
-                      </>
-                    )}
+                    <TableHead className="min-w-[150px] border-none text-white font-black uppercase text-[9px] tracking-widest text-right px-8 bg-neutral-800">Position Value</TableHead>
                   </>
                 )}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((row, index) => (
-                <TableRow key={row.id} className={row.bondsHeld === "Overall Portfolio" ? "bg-neutral-100 font-bold border-t-2 border-neutral-300 hover:bg-neutral-100" : "hover:bg-neutral-50 border-b border-neutral-100"}>
-                  <TableCell>
-                    {row.bondsHeld !== "Overall Portfolio" && (
-                      <Button variant="ghost" size="icon" onClick={() => handleRemoveEntry(row.id)} className="h-8 w-8 text-neutral-400 hover:text-red-600 hover:bg-red-50">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+              {data.map((row, index) => {
+                const isOverall = row.bondsHeld === "Overall Portfolio";
+                return (
+                  <TableRow 
+                    key={row.id} 
+                    className={cn(
+                      "group border-b border-neutral-100 transition-colors",
+                      isOverall ? "bg-black text-white hover:bg-black font-black" : "hover:bg-neutral-50/50"
                     )}
-                  </TableCell>
-                  {columnVisibility.bondIssueNo && <TableCell className="font-semibold text-black">{row.bondsHeld}</TableCell>}
-                  <TableCell>
-                    {row.bondsHeld !== "Overall Portfolio" ? (
-                      <Select value={row.type} onValueChange={(val) => updateData(index, "type", val)}>
-                        <SelectTrigger className="h-8 w-[100px] border-neutral-200 bg-white text-black text-xs font-medium focus:ring-black">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border-neutral-200">
-                          <SelectItem value="HFS">HFS</SelectItem>
-                          <SelectItem value="HTM">HTM</SelectItem>
-                          <SelectItem value="AFS">AFS</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <span className="font-bold text-black">TOTALS</span>
+                  >
+                    <TableCell className="border-r border-neutral-100 p-0 text-center">
+                      {!isOverall ? (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleRemoveEntry(row.id)} 
+                          className="h-10 w-10 text-neutral-300 hover:text-red-600 hover:bg-red-50 transition-all"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <div className="h-10 flex items-center justify-center">
+                          <Info className="h-4 w-4 text-neutral-500" />
+                        </div>
+                      )}
+                    </TableCell>
+                    
+                    {columnVisibility.bondIssueNo && (
+                      <TableCell className={cn(
+                        "border-r border-neutral-100 px-6 py-4 text-xs font-black uppercase tracking-tight",
+                        isOverall ? "text-white" : "text-black"
+                      )}>
+                        {row.bondsHeld}
+                      </TableCell>
                     )}
-                  </TableCell>
 
-                  {/* Notepad Inputs */}
-                  {sectionVisibility.notepad && (
-                    <>
-                      <TableCell>{row.bondsHeld !== "Overall Portfolio" ? <Input type="date" value={row.buyingDate} onChange={(e) => updateData(index, "buyingDate", e.target.value)} className="h-8 w-full border-neutral-200 bg-white text-xs font-medium focus:border-black" /> : ""}</TableCell>
-                      <TableCell>{row.bondsHeld !== "Overall Portfolio" ? <Input type="number" value={row.buyingPrice} onChange={(e) => updateData(index, "buyingPrice", e.target.value)} className="h-8 w-full border-neutral-200 bg-white text-xs text-right font-medium focus:border-black" /> : calculateTotals().buyingPrice?.toFixed(4)}</TableCell>
-                      <TableCell className="text-right font-medium">{row.buyingWAP?.toFixed(4)}</TableCell>
-                      <TableCell>{row.bondsHeld !== "Overall Portfolio" ? <Input type="number" value={row.faceValueBuys} onChange={(e) => updateData(index, "faceValueBuys", e.target.value)} className="h-8 w-full border-neutral-200 bg-white text-xs text-right font-medium focus:border-black" /> : calculateTotals().faceValueBuys?.toLocaleString()}</TableCell>
-                      <TableCell>{row.bondsHeld !== "Overall Portfolio" ? <Input type="date" value={row.sellingDate} onChange={(e) => updateData(index, "sellingDate", e.target.value)} className="h-8 w-full border-neutral-200 bg-white text-xs font-medium focus:border-black" /> : ""}</TableCell>
-                      <TableCell>{row.bondsHeld !== "Overall Portfolio" ? <Input type="number" value={row.sellingPrice} onChange={(e) => updateData(index, "sellingPrice", e.target.value)} className="h-8 w-full border-neutral-200 bg-white text-xs text-right font-medium focus:border-black" /> : calculateTotals().sellingPrice?.toFixed(4)}</TableCell>
-                      <TableCell className="text-right font-medium">{row.sellingWAP?.toFixed(4)}</TableCell>
-                      <TableCell>{row.bondsHeld !== "Overall Portfolio" ? <Input type="number" value={row.faceValueSales} onChange={(e) => updateData(index, "faceValueSales", e.target.value)} className="h-8 w-full border-neutral-200 bg-white text-xs text-right font-medium focus:border-black" /> : calculateTotals().faceValueSales?.toLocaleString()}</TableCell>
-                      <TableCell className="text-right font-bold text-black bg-neutral-100/50">{row.faceValueBal?.toLocaleString()}</TableCell>
-                    </>
-                  )}
-
-                  {/* P&L */}
-                  {sectionVisibility.profitLoss && (
-                    <>
-                      <TableCell className="text-right font-medium">{row.closingPrice?.toFixed(4)}</TableCell>
-                      <TableCell className="text-right font-medium">{row.couponNet?.toFixed(4)}</TableCell>
-                      <TableCell className="text-right font-medium">{row.nextCouponDays}</TableCell>
-                      <TableCell className={row.realizedPL < 0 ? "text-right text-black font-bold" : "text-right font-medium text-black"}>{Math.round(row.realizedPL).toLocaleString()}</TableCell>
-                      <TableCell className={row.unrealizedPL < 0 ? "text-right text-black font-bold" : "text-right font-medium text-black"}>{Math.round(row.unrealizedPL).toLocaleString()}</TableCell>
-                      <TableCell className="text-right font-bold text-black bg-neutral-100/50">{row.totalReturn?.toFixed(4)}%</TableCell>
-                    </>
-                  )}
-
-                  {/* Scorecard */}
-                  {sectionVisibility.scorecard && (
-                    <>
-                      <TableCell className="text-right font-bold text-black">{Math.round(row.portfolioValue).toLocaleString()}</TableCell>
-                      {columnVisibility.bondValuationMetrics && (
-                        <>
-                          <TableCell className="text-right font-medium">{row.maturityYears?.toFixed(4)}</TableCell>
-                          <TableCell className="text-right font-medium">{row.coupon?.toFixed(4)}</TableCell>
-                        </>
+                    <TableCell className="border-r border-neutral-100 px-4">
+                      {!isOverall ? (
+                        <Select value={row.type} onValueChange={(val) => updateData(index, "type", val)}>
+                          <SelectTrigger className="h-8 w-full border-neutral-200 bg-white text-black text-[9px] font-black uppercase tracking-widest focus:ring-black rounded-lg">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-neutral-200">
+                            <SelectItem value="HFS" className="text-[9px] font-black">HFS</SelectItem>
+                            <SelectItem value="HTM" className="text-[9px] font-black">HTM</SelectItem>
+                            <SelectItem value="AFS" className="text-[9px] font-black">AFS</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <div className="text-[9px] font-black text-center text-neutral-500 tracking-[0.3em]">AGG</div>
                       )}
-                      {columnVisibility.riskBudgetingIndicators && (
-                        <>
-                          <TableCell className="text-right font-medium">{row.duration?.toFixed(4)}</TableCell>
-                          <TableCell className="text-right font-medium">{row.mDuration?.toFixed(4)}</TableCell>
-                          <TableCell className="text-right font-medium">{row.dv01?.toFixed(4)}</TableCell>
-                          <TableCell className="text-right font-medium">{row.expectedShortfall?.toFixed(4)}</TableCell>
-                          <TableCell className="text-right font-medium">{row.spotYTM?.toFixed(4)}</TableCell>
-                          <TableCell className="text-right font-medium">{row.dirtyPrice?.toFixed(4)}</TableCell>
-                        </>
-                      )}
-                    </>
-                  )}
-                </TableRow>
-              ))}
+                    </TableCell>
+
+                    {/* Notepad Cells */}
+                    {sectionVisibility.notepad && (
+                      <>
+                        <TableCell className="border-r border-neutral-100 px-3">
+                          {!isOverall && <Input type="date" value={row.buyingDate} onChange={(e) => updateData(index, "buyingDate", e.target.value)} className="h-8 w-full border-transparent bg-transparent text-[10px] font-bold text-center focus:border-black focus:bg-white rounded-md transition-all" />}
+                        </TableCell>
+                        <TableCell className="border-r border-neutral-100 px-3">
+                          {!isOverall ? (
+                            <Input type="number" value={row.buyingPrice} onChange={(e) => updateData(index, "buyingPrice", e.target.value)} className="h-8 w-full border-transparent bg-transparent text-[11px] font-mono tabular-nums text-right font-bold focus:border-black focus:bg-white rounded-md transition-all" />
+                          ) : (
+                            <div className="text-right font-mono text-[11px] px-2">{calculateTotals().buyingPrice?.toFixed(4)}</div>
+                          )}
+                        </TableCell>
+                        <TableCell className="border-r border-neutral-100 px-4 text-right font-mono text-[11px] font-bold text-neutral-400">
+                          {row.buyingWAP?.toFixed(4)}
+                        </TableCell>
+                        <TableCell className="border-r border-neutral-100 px-3">
+                          {!isOverall ? (
+                            <Input type="number" value={row.faceValueBuys} onChange={(e) => updateData(index, "faceValueBuys", e.target.value)} className="h-8 w-full border-transparent bg-transparent text-[11px] font-mono tabular-nums text-right font-bold focus:border-black focus:bg-white rounded-md transition-all" />
+                          ) : (
+                            <div className="text-right font-mono text-[11px] px-2">{Number(calculateTotals().faceValueBuys).toLocaleString()}</div>
+                          )}
+                        </TableCell>
+                        <TableCell className="border-r border-neutral-100 px-3">
+                          {!isOverall && <Input type="date" value={row.sellingDate} onChange={(e) => updateData(index, "sellingDate", e.target.value)} className="h-8 w-full border-transparent bg-transparent text-[10px] font-bold text-center focus:border-black focus:bg-white rounded-md transition-all" />}
+                        </TableCell>
+                        <TableCell className="border-r border-neutral-100 px-3">
+                          {!isOverall ? (
+                            <Input type="number" value={row.sellingPrice} onChange={(e) => updateData(index, "sellingPrice", e.target.value)} className="h-8 w-full border-transparent bg-transparent text-[11px] font-mono tabular-nums text-right font-bold focus:border-black focus:bg-white rounded-md transition-all" />
+                          ) : (
+                            <div className="text-right font-mono text-[11px] px-2">{calculateTotals().sellingPrice?.toFixed(4)}</div>
+                          )}
+                        </TableCell>
+                        <TableCell className="border-r border-neutral-100 px-4 text-right font-mono text-[11px] font-bold text-neutral-400">
+                          {row.sellingWAP?.toFixed(4)}
+                        </TableCell>
+                        <TableCell className="border-r border-neutral-100 px-3">
+                          {!isOverall ? (
+                            <Input type="number" value={row.faceValueSales} onChange={(e) => updateData(index, "faceValueSales", e.target.value)} className="h-8 w-full border-transparent bg-transparent text-[11px] font-mono tabular-nums text-right font-bold focus:border-black focus:bg-white rounded-md transition-all" />
+                          ) : (
+                            <div className="text-right font-mono text-[11px] px-2">{Number(calculateTotals().faceValueSales).toLocaleString()}</div>
+                          )}
+                        </TableCell>
+                        <TableCell className={cn(
+                          "border-r border-neutral-100 px-6 text-right font-mono text-xs font-black",
+                          isOverall ? "text-white" : "text-black bg-neutral-50/50"
+                        )}>
+                          {row.faceValueBal?.toLocaleString()}
+                        </TableCell>
+                      </>
+                    )}
+
+                    {/* P&L Matrix Cells */}
+                    {sectionVisibility.profitLoss && (
+                      <>
+                        <TableCell className="border-r border-neutral-100 px-4 text-right font-mono text-[11px] font-bold text-neutral-500">{row.closingPrice?.toFixed(4)}</TableCell>
+                        <TableCell className="border-r border-neutral-100 px-4 text-right font-mono text-[11px] font-bold text-neutral-500">{row.couponNet?.toFixed(4)}</TableCell>
+                        <TableCell className="border-r border-neutral-100 px-4 text-center font-mono text-[11px] font-bold text-neutral-500">{row.nextCouponDays}</TableCell>
+                        <TableCell className={cn(
+                          "border-r border-neutral-100 px-6 text-right font-mono text-xs font-black",
+                          row.realizedPL < 0 ? "text-red-600" : isOverall ? "text-white" : "text-black"
+                        )}>
+                          {Math.round(row.realizedPL).toLocaleString()}
+                        </TableCell>
+                        <TableCell className={cn(
+                          "border-r border-neutral-100 px-6 text-right font-mono text-xs font-black",
+                          row.unrealizedPL < 0 ? "text-red-600" : isOverall ? "text-white" : "text-black"
+                        )}>
+                          {Math.round(row.unrealizedPL).toLocaleString()}
+                        </TableCell>
+                        <TableCell className={cn(
+                          "border-r border-neutral-100 px-6 text-right font-mono text-xs font-black",
+                          isOverall ? "text-white" : "text-black bg-neutral-50/50"
+                        )}>
+                          {row.totalReturn?.toFixed(4)}%
+                        </TableCell>
+                      </>
+                    )}
+
+                    {/* Scorecard Position Value */}
+                    {sectionVisibility.scorecard && (
+                      <TableCell className={cn(
+                        "px-8 text-right font-mono text-sm font-black tracking-tighter",
+                        isOverall ? "text-white bg-neutral-900" : "text-black"
+                      )}>
+                        {Math.round(row.portfolioValue).toLocaleString()}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
       </div>
+      
+      {!loading && data.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 bg-neutral-50 rounded-[32px] border-2 border-dashed border-neutral-200">
+          <div className="p-6 bg-white rounded-full shadow-xl mb-6">
+            <Plus className="h-10 w-10 text-neutral-300" />
+          </div>
+          <h3 className="text-xl font-black text-black tracking-tight">Empty Portfolio Ledger</h3>
+          <p className="text-xs text-neutral-400 font-bold uppercase tracking-widest mt-2">Initialize a new portfolio or select from reference</p>
+          <Button onClick={() => setIsNewPortfolioDialogOpen(true)} className="mt-8 bg-black text-white px-10 h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl transition-all hover:scale-105 active:scale-95">
+            Create First Portfolio
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
