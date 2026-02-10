@@ -1,25 +1,45 @@
-# BondKonnect Web
+# BondKonnect Frontend
 
-This is the frontend application for BondKonnect, built with Next.js. It provides a modern, responsive interface for bond trading and portfolio management.
+This repository contains the **frontend part** of the BondKonnect project. It is a modern, responsive interface for bond trading and portfolio management, built with Next.js and styled with Tailwind CSS and Material UI.
 
-## Project Structure
+## Deployment
 
+The application is hosted on **Vercel** and can be accessed at: [https://bondkonnect-web.vercel.app/](https://bondkonnect-web.vercel.app/) (or your specific Vercel URL).
+
+## Architecture
+
+BondKonnect follows a decoupled architecture:
+- **Frontend (This Repo):** Next.js application deployed on Vercel.
+- **Backend:** Hosted in a separate repository, providing the RESTful API and WebSocket services.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18.17 or higher
+- npm
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/Kevinjulu/BondKonnect-Web.git
+cd BondKonnect-Web
 ```
-bondkonnect_web/
-├── src/                    # Source code
-├── public/                 # Static files
-├── .next/                  # Next.js build output
-├── node_modules/           # NPM dependencies
-├── .codegpt/              # CodeGPT configuration
-├── .eslintrc.json         # ESLint configuration
-├── components.json        # Component configuration
-├── next.config.ts         # Next.js configuration
-├── next-env.d.ts          # Next.js TypeScript declarations
-├── package.json           # NPM configuration
-├── package-lock.json      # NPM lock file
-├── postcss.config.mjs     # PostCSS configuration
-├── tailwind.config.ts     # Tailwind configuration
-└── tsconfig.json          # TypeScript configuration
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Environment Setup:
+   The project uses a `.env` file for configuration. Ensure the `NEXT_PUBLIC_BK_*_API_URL` variables point to the correct backend environment.
+
+### Development
+
+Start the development server:
+```bash
+npm run dev
 ```
 
 ## Features
@@ -28,153 +48,23 @@ bondkonnect_web/
 - Order book visualization
 - Trade execution
 - Position management
-- Trade history
 
 ### Portfolio Management
-- Portfolio overview
-- P&L tracking
-- Performance analytics
-- Risk metrics
+- Portfolio overview and P&L tracking
+- Performance analytics and risk metrics using advanced bond math
 
 ### Market Data
-- Real-time pricing
-- Historical charts
-- Market depth
-- Yield curves
+- Real-time pricing via WebSockets (Pusher)
+- Interactive charts and yield curves
 
-### User Experience
-- Responsive design
-- Dark/Light mode
-- Internationalization
-- Accessibility
+## Deployment to Vercel
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18.17 or higher
-- npm or yarn
-- Modern web browser
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/your-username/bondkonnect.git
-cd bondkonnect/bondkonnect_web
-```
-
-2. Install dependencies:
-```bash
-npm install
-# or
-yarn install
-```
-
-3. Create environment file:
-```bash
-cp .env.example .env.local
-```
-
-4. Configure environment variables in `.env.local`:
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_WS_URL=ws://localhost:8000
-```
-
-### Development
-
-1. Start the development server:
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-2. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-## Building for Production
-
-1. Build the application:
-```bash
-npm run build
-# or
-yarn build
-```
-
-2. Start the production server:
-```bash
-npm start
-# or
-yarn start
-```
-
-## Styling
-
-The project uses Tailwind CSS for styling. Custom styles can be added in the `src/styles` directory.
-
-```bash
-# Build CSS
-npm run build:css
-# or
-yarn build:css
-```
-
-## Testing
-
-```bash
-# Run tests
-npm test
-# or
-yarn test
-
-# Run tests with coverage
-npm run test:coverage
-# or
-yarn test:coverage
-```
-
-## Deployment
-
-### Vercel (Recommended)
-
-1. **Push your code to GitHub:**
-   Ensure your latest changes are pushed to your repository: `https://github.com/Kevinjulu/BondKonnect.git`.
-
-2. **Import to Vercel:**
-   - Log in to your [Vercel Dashboard](https://vercel.com/dashboard).
-   - Click **"New Project"**.
-   - Import the `BondKonnect` repository.
-   - Set the **Root Directory** to `bondkonnect_web`.
-
-3. **Configure Environment Variables:**
-   Add the following environment variables in the Vercel project settings:
-   - `NEXT_PUBLIC_BK_PROD_API_URL`: Your production API URL.
-   - `NEXT_PUBLIC_PUSHER_APP_KEY`: Your Pusher app key.
-   - `NEXT_PUBLIC_PUSHER_APP_CLUSTER`: Your Pusher app cluster.
-   - `APP_ENV`: set to `production`.
-
-4. **Build and Deploy:**
-   - Vercel will automatically detect Next.js and use `npm run build` as the build command.
-   - Click **"Deploy"**.
-
-### Other Platforms
-- Netlify
-- AWS Amplify
-- Docker
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+This repository is optimized for Vercel deployment:
+1. Connect this GitHub repo to your Vercel account.
+2. Vercel will automatically detect the Next.js framework.
+3. Configure the environment variables from your `.env` file in the Vercel Dashboard.
+4. The application will automatically deploy on every push to the `master` or `development` branches.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For support, please open an issue in the GitHub repository or contact the development team.
+This project is licensed under the MIT License.

@@ -594,16 +594,6 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
     }
   };
 
-  const updateData = (rowIndex: number, columnId: string, value: string) => {
-    setData(oldData => {
-      const newData = JSON.parse(JSON.stringify(oldData));
-      newData[rowIndex][columnId] = value;
-      if (['buyingPrice', 'sellingPrice', 'faceValueBuys', 'faceValueSales'].includes(columnId)) newData[rowIndex][columnId] = parseFloat(value) || 0;
-      const recalculatedData = recalculateRow(rowIndex, newData, availableBonds, portfolioDate);
-      return recalculatePortfolio(recalculatedData, availableBonds, portfolioDate);
-    });
-  };
-
   const handleCreatePortfolio = async () => {
     if (!newPortfolioData.portfolio_name || !newPortfolioData.value_date) {
       toast({ title: "Error", description: "Name and Date are required", variant: "destructive" });
