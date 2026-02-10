@@ -2,10 +2,7 @@
 nixPkgs = ["php83", "php83Packages.composer", "nodejs"]
 
 [phases.install]
-cmds = ["cd bondkonnect_api && composer install --no-dev --optimize-autoloader"]
+cmds = ["composer install --no-dev --optimize-autoloader"]
 
 [phases.build]
-cmds = ["cd bondkonnect_api && php artisan optimize"]
-
-[start]
-cmd = "cd bondkonnect_api && php artisan serve --host 0.0.0.0 --port $PORT"
+cmds = ["php artisan optimize"]
