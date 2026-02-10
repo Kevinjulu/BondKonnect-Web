@@ -1,0 +1,199 @@
+"use server";
+import { cookies } from "next/headers";
+import { ModulePermissions, ActionPermissions } from "@/app/config/permissions";
+
+const APP_ENVIRONMENT = process.env.APP_ENV;
+let BASE_URL = "";
+
+if (APP_ENVIRONMENT === "production") {
+  BASE_URL = process.env.NEXT_PUBLIC_BK_PROD_API_URL ?? "";
+} else if (APP_ENVIRONMENT === "uat") {
+  BASE_URL = process.env.NEXT_PUBLIC_BK_UAT_API_URL ?? "";
+} else {
+  BASE_URL = process.env.NEXT_PUBLIC_BK_DEV_API_URL ?? "";
+}
+
+const getHeaders = async (cookie?: string) => {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
+  };
+  if (cookie) headers["Cookie"] = cookie;
+  return headers;
+};
+
+export const login = async (queryParams: string) => {
+  try {
+    const url = `${BASE_URL}/V1/auth/user-login?${queryParams}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: await getHeaders(),
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok) {
+      return {
+        success: false,
+        message: result.message || "Login failed",
+        errors: result.errors || null,
+        status: response.status
+      };
+    }
+    
+    return {
+      success: true,
+      data: result,
+      message: result.message || "Login successful"
+    };
+  } catch (error) {
+    console.error("Login error:", error);
+    return {
+      success: false,
+      message: "Connection refused. Please ensure the local server is running.",
+      status: 503
+    };
+  }
+};
+
+export const logout = async (cookie: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/user-logout`, {
+      method: "POST",
+      headers: await getHeaders(cookie),
+    });
+    const result = await response.json();
+    return {
+      success: response.ok,
+      message: result.message || (response.ok ? "Logged out" : "Logout failed")
+    };
+  } catch (error) {
+    console.error("Logout error:", error);
+    return { success: false, message: "Network error during logout" };
+  }
+};
+
+export const register = async (data: any) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/user-register`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify(data),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      return {
+        success: false,
+        message: result.message || "Registration failed",
+        errors: result.errors || null,
+        status: response.status
+      };
+    }
+    return { success: true, data: result, message: result.message || "Registration successful" };
+  } catch (error) {
+    console.error("Registration error:", error);
+    return { success: false, message: "Could not connect to server", status: 503 };
+  }
+};
+
+export const getCurrentUser = async (queryParams: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/get-user-details`, {
+      method: "POST",
+      headers: await getHeaders(queryParams),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      return {
+        success: false,
+        message: "Session expired or invalid",
+        status: response.status
+      };
+    }
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Get user details error:", error);
+    return { success: false, message: "Server unreachable", status: 503 };
+  }
+};
+
+export const getAllUsers = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/get-all-users`, {
+      method: "POST",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Get all users error:", error);
+    throw error;
+  }
+};
+
+export const getAdminUsers = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/V1/auth/get-admin-users`, {
+        method: 'GET',
+        headers: await getHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch admin users');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching admin users:', error);
+      throw error;
+    }
+  };
+  
+export const setActiveRole = async (data: FormData, token: string) => {
+    try {
+      const response = await fetch(`${BASE_URL}/V1/auth/set-active-role`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          Cookie: token,
+        },
+        body: data,
+      });
+      return await response.json();
+    } catch (error) {
+      console.error("Error setting active role:", error);
+      return null;
+    }
+  };
+
+export async function otpVerify(queryParams: string) {
+  try {
+    const url = `${BASE_URL}/V1/auth/verify-otp?${queryParams}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: await getHeaders(),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      return { success: false, message: result.message || "OTP verification failed", status: response.status };
+    }
+    return { success: true, data: result.data, message: result.message };
+  } catch (error) {
+    console.error("OTP verify error:", error);
+    return { success: false, message: "Server unreachable", status: 503 };
+  }
+}
+
+export const resendOtp = async (queryParams: string) => {
+  try {
+    const url = `${BASE_URL}/V1/auth/resend-otp?${queryParams}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: await getHeaders(),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      return { success: false, message: result.message || "Resending OTP failed", status: response.status };
+    }
+    return { success: true, message: result.message || "OTP resent" };
+  } catch (error) {
+    console.error("Resend OTP error:", error);
+    return { success: false, message: "Server unreachable", status: 503 };
+  }
+};
