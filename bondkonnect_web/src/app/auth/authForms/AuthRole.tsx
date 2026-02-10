@@ -232,7 +232,7 @@ const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, m
     };
 
     fetchUserRoles();
-  }, [mode, user_details, handleClick]);
+  }, [mode, user_details, handleClick, selectedRole]);
 
   
  
