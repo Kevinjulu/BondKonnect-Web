@@ -628,17 +628,6 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
     };
   };
 
-  const handleBondSelect = (bondIssueNo: string, specificBondId?: number) => {
-    let selectedBond: BondStats | undefined;
-    if (specificBondId) selectedBond = availableBonds.find(bond => bond.Id === specificBondId);
-    if (!selectedBond) { const matchingBonds = availableBonds.filter(bond => bond.BondIssueNo === bondIssueNo); selectedBond = matchingBonds[0]; }
-    if (selectedBond) {
-      const newEntry = generateDefaultValues(selectedBond);
-      newEntry.bondsHeld = selectedBond.BondIssueNo;
-      setData(prevData => { const updatedData = [...prevData, newEntry]; return recalculatePortfolio(updatedData, availableBonds, portfolioDate); });
-    }
-  };
-
   const updateData = (rowIndex: number, columnId: string, value: string) => {
     setData(oldData => {
       const newData = JSON.parse(JSON.stringify(oldData));
