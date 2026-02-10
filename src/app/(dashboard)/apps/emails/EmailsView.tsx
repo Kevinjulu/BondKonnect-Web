@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { format } from "date-fns"
-import { ArrowLeft, ArrowRight, Clock, Forward, MoreHorizontal, Reply, ReplyAll, Trash, FileText, FileSpreadsheet, Image, Paperclip, Video, Download, Send } from "lucide-react"
+import { ArrowLeft, ArrowRight, Clock, Forward, MoreHorizontal, Reply, ReplyAll, Trash, FileText, FileSpreadsheet, Image as ImageIcon, Paperclip, Video, Download, Send } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -320,7 +320,7 @@ function getFileTypeIcon(type: string) {
   if (t === "pdf") return <FileText className="h-5 w-5" />;
   if (t.includes("doc")) return <FileText className="h-5 w-5" />;
   if (t.includes("xls")) return <FileSpreadsheet className="h-5 w-5" />;
-  if (t.includes("jpg") || t.includes("png") || t.includes("jpeg")) return <Image className="h-5 w-5" />;
+  if (t.includes("jpg") || t.includes("png") || t.includes("jpeg")) return <ImageIcon className="h-5 w-5" />;
   if (t.includes("mp4")) return <Video className="h-5 w-5" />;
   return <FileText className="h-5 w-5" />;
 }
