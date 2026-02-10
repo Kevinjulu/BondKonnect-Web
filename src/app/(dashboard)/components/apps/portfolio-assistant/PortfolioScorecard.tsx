@@ -22,7 +22,6 @@ import { useToast } from "@/hooks/use-toast"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ClientSelectionDialog } from "../quote-book/client-selection-dialog"
-import * as XLSX from 'xlsx'
 import { cn } from "@/lib/utils"
 
 interface BondStats {
