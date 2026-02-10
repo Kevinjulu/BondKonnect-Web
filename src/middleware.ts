@@ -19,20 +19,33 @@ const ALLOWED_ORIGINS = [
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const authToken = request.cookies.get('k-o-t');
+    const userRole = request.cookies.get('userRole');
     
     // 1. Route Protection
-    const isAuthRoute = pathname.startsWith('/auth');
-    const isPublicAuthPage = ['/auth/login', '/auth/sign-up', '/auth/forgot-password'].includes(pathname);
+    const isAuthRoute = pathname.startsWith('/auth') || pathname.startsWith('/admin');
+    const isPublicAuthPage = [
+        '/auth/login', '/auth/sign-up', '/auth/forgot-password',
+        '/admin/login', '/admin/sign-up', '/admin/forgot-password'
+    ].includes(pathname);
+
+    const isRoleSelectionPage = pathname === '/auth/role' || pathname === '/admin/role';
+    const isOtpPage = pathname === '/auth/otp' || pathname === '/admin/otp';
     
-    // Protect dashboard routes (all routes except /auth, /api, and static assets)
+    // Protect dashboard routes (all routes except /auth, /admin, /api, and static assets)
     if (!isAuthRoute && !pathname.startsWith('/api') && !pathname.includes('.') && !authToken) {
         const loginUrl = new URL('/auth/login', request.url);
         return NextResponse.redirect(loginUrl);
     }
 
-    // Redirect to dashboard if already logged in and trying to access login/signup
-    // but allow /auth/role, /auth/otp etc. to complete the flow
-    if (isPublicAuthPage && authToken) {
+    // Redirect to role selection if logged in but no role selected (and not already on role/otp pages)
+    if (authToken && !userRole && !isRoleSelectionPage && !isOtpPage && !pathname.startsWith('/api') && !pathname.includes('.')) {
+        // Default to /auth/role, unless they are in the admin flow
+        const roleUrl = new URL(pathname.startsWith('/admin') ? '/admin/role' : '/auth/role', request.url);
+        return NextResponse.redirect(roleUrl);
+    }
+
+    // Redirect to dashboard if already logged in and role selected, and trying to access login/signup/role
+    if ((isPublicAuthPage || isRoleSelectionPage) && authToken && userRole) {
         const dashboardUrl = new URL('/', request.url);
         return NextResponse.redirect(dashboardUrl);
     }

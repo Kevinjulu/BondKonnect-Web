@@ -42,20 +42,39 @@ Start the development server:
 npm run dev
 ```
 
-## Features
+## Role-Based Access Control (RBAC)
 
-### Trading Interface
-- Order book visualization
-- Trade execution
-- Position management
+BondKonnect implements a robust RBAC system with 6 logical roles:
 
-### Portfolio Management
-- Portfolio overview and P&L tracking
-- Performance analytics and risk metrics using advanced bond math
+1.  **Individual**: Standard personal investor workstation.
+2.  **Agent**: Represents and manages other investors.
+3.  **Broker**: Certified broker with advanced trading and client management tools.
+4.  **Authorized Dealer**: Institutional dealer with direct market access.
+5.  **Corporate**: Company or institutional legal entity.
+6.  **Admin**: System administrator with full access to user management, security logs, and system configuration.
 
-### Market Data
-- Real-time pricing via WebSockets (Pusher)
-- Interactive charts and yield curves
+### Routing & Redirection Flow
+
+The application uses a secure multi-step authentication and role-selection flow:
+
+1.  **Authentication**: Users log in via `/auth/login` (User) or `/admin/login` (Admin).
+2.  **Verification**: After successful credentials, users are redirected to `/auth/otp` or `/admin/otp` for secondary verification.
+3.  **Role Selection**: Upon OTP verification, users must select an active role at `/auth/role` or `/admin/role`. This selection is persisted via a `userRole` secure cookie.
+4.  **Authorized Access**: The `middleware.ts` ensures that:
+    *   Unauthenticated users are redirected to login.
+    *   Authenticated users without a selected role are forced to the role selection page.
+    *   Authenticated users are prevented from accessing public login/signup pages.
+    *   Access to specific modules is governed by permissions tied to the selected role.
+
+### Dashboard Modules
+
+Access to the following modules is dynamically controlled based on the active role's permissions:
+- **Market Dashboard**: Real-time yield curves and screens.
+- **Bond Stats**: Advanced bond market indicators.
+- **Portfolio Assistant**: Real-time valuation and P&L tracking.
+- **Quote Book**: Secondary market buy/sell quote management.
+- **My Transactions**: Execution and trade history.
+- **Admin Tools**: User management and security audit logs.
 
 ## Deployment to Vercel
 
