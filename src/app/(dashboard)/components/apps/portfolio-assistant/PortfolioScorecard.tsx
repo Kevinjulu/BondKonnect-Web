@@ -594,24 +594,6 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
     }
   };
 
-  const handleCreatePortfolio = async () => {
-    if (!newPortfolioData.portfolio_name || !newPortfolioData.value_date) {
-      toast({ title: "Error", description: "Name and Date are required", variant: "destructive" });
-      return;
-    }
-    const portfolioBondsFormatted = data.filter(bond => bond.bondsHeld !== "Overall Portfolio").map(bond => ({ bond_id: bond.bondId, type: bond.type, bond_issue_no: bond.bondsHeld, buying_date: bond.buyingDate, buying_price: bond.buyingPrice, buying_wap: bond.buyingWAP, face_value_buys: bond.faceValueBuys, face_value_bal: bond.faceValueBal, closing_price: bond.closingPrice, coupon_net: bond.couponNet, next_cpn_days: bond.nextCouponDays.toString(), realized_pnl: bond.realizedPL.toString(), unrealized_pnl: bond.unrealizedPL.toString(), one_yr_total_return: bond.totalReturn, portfolio_value: bond.portfolioValue.toString() }));
-    
-    await createPortfolio({ ...newPortfolioData, user_email: userDetails.email, bonds: portfolioBondsFormatted });
-    setIsNewPortfolioDialogOpen(false);
-  };
-
-  const handleSavePortfolio = async () => {
-    if (!selectedPortfolio) return;
-    const portfolioBonds = data.filter(bond => bond.bondsHeld !== "Overall Portfolio").map(bond => ({ bond_id: bond.bondId, type: bond.type, bond_issue_no: bond.bondsHeld, buying_date: bond.buyingDate, buying_price: bond.buyingPrice, buying_wap: bond.buyingWAP, face_value_buys: bond.faceValueBuys, face_value_bal: bond.faceValueBal, closing_price: bond.closingPrice, coupon_net: bond.couponNet, next_cpn_days: bond.nextCouponDays.toString(), realized_pnl: bond.realizedPL.toString(), unrealized_pnl: bond.unrealizedPL.toString(), one_yr_total_return: bond.totalReturn, portfolio_value: bond.portfolioValue.toString() }));
-    
-    await updatePortfolio({ portfolio_id: selectedPortfolio.Id, portfolio_name: portfolioName, value_date: portfolioDate, description: selectedPortfolio.Description, user_email: userDetails.email, bonds: portfolioBonds });
-  };
-
   const mapBondToStats = (bond: Record<string, unknown>): BondStats => {
     return {
       Id: Number(bond.Id) || 0, Otr: String(bond.Otr || ""), Id_: Number(bond.Id_) || 0, Filter1: Number(bond.Filter1) || 0, Filter2: Number(bond.Filter2) || 0, BondIssueNo: String(bond.BondIssueNo || ""), IssueDate: String(bond.IssueDate || ""), MaturityDate: String(bond.MaturityDate || ""), ValueDate: String(bond.ValueDate || ""), QuotedYield: String(bond.QuotedYield || ""), SpotYield: Number(bond.SpotYield) || 0, DirtyPrice: Number(bond.DirtyPrice) || 0, Coupon: Number(bond.Coupon) || 0, NextCpnDays: Number(bond.NextCpnDays) || 0, DtmYrs: Number(bond.DtmYrs) || 0, Dtc: Number(bond.Dtc) || 0, Duration: Number(bond.Duration) || 0, MDuration: Number(bond.MDuration) || 0, Convexity: Number(bond.Convexity) || 0, ExpectedReturn: Number(bond.ExpectedReturn) || 0, ExpectedShortfall: Number(bond.ExpectedShortfall) || 0, Dv01: Number(bond.Dv01) || 0, Last91Days: Number(bond.Last91Days) || 0, Last364Days: Number(bond.Last364Days) || 0, LqdRank: String(bond.LqdRank || ""), Spread: Number(bond.Spread) || 0, CreditRiskPremium: bond.CreditRiskPremium ? Number(bond.CreditRiskPremium) : null, MdRank: bond.MdRank ? Number(bond.MdRank) : null, ErRank: bond.ErRank ? Number(bond.ErRank) : null, Basis: Number(bond.Basis) || 0, DayCount: Number(bond.DayCount) || 364
