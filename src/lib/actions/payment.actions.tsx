@@ -23,7 +23,7 @@ export interface PaypalCaptureData {
 }
 
 // M-Pesa Actions
-export const initiateMpesaPayment = async (data: MpesaPaymentData) => {
+export const initiateMpesaStkPush = async (data: MpesaPaymentData) => {
   try {
     const BASE_URL = await getCurrentApiUrl();
     if (!BASE_URL) throw new Error("API URL not found");
@@ -49,6 +49,8 @@ export const initiateMpesaPayment = async (data: MpesaPaymentData) => {
     throw error;
   }
 };
+
+export const initiateMpesaPayment = initiateMpesaStkPush;
 
 export const checkMpesaStatus = async (checkoutId: string) => {
   try {
@@ -77,6 +79,129 @@ export const checkMpesaStatus = async (checkoutId: string) => {
   } catch (error) {
     console.error("Error checking M-Pesa status:", error);
     throw error;
+  }
+};
+
+// Subscription Actions
+export const getAllSubscriptionPlans = async () => {
+  try {
+    const BASE_URL = await getCurrentApiUrl();
+    const response = await fetch(`${BASE_URL}/V1/payments/get-all-subscription-plans`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
+      },
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching subscription plans:", error);
+    return { success: false, data: [] };
+  }
+};
+
+export const getUserSubscriptions = async (email: string) => {
+  try {
+    const BASE_URL = await getCurrentApiUrl();
+    const response = await fetch(`${BASE_URL}/V1/payments/get-user-subscriptions?email=${encodeURIComponent(email)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
+      },
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching user subscriptions:", error);
+    return { success: false, data: [] };
+  }
+};
+
+export const getAllFeatures = async () => {
+  try {
+    const BASE_URL = await getCurrentApiUrl();
+    const response = await fetch(`${BASE_URL}/V1/payments/get-all-features`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
+      },
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching all features:", error);
+    return { success: false, data: [] };
+  }
+};
+
+export const getAllFeatureCategories = async () => {
+  try {
+    const BASE_URL = await getCurrentApiUrl();
+    const response = await fetch(`${BASE_URL}/V1/payments/get-all-feature-categories`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
+      },
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching all feature categories:", error);
+    return { success: false, data: [] };
+  }
+};
+
+// Transaction Actions
+export const createTransaction = async (data: any) => {
+  try {
+    const BASE_URL = await getCurrentApiUrl();
+    const response = await fetch(`${BASE_URL}/V1/payments/create-transaction`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
+      },
+      body: JSON.stringify(data),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Error creating transaction:", error);
+    return { success: false, message: "Failed to create transaction" };
+  }
+};
+
+export const getUserTransactions = async (email: string) => {
+  try {
+    const BASE_URL = await getCurrentApiUrl();
+    const response = await fetch(`${BASE_URL}/V1/payments/get-user-transactions?email=${encodeURIComponent(email)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
+      },
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching user transactions:", error);
+    return { success: false, data: [] };
+  }
+};
+
+export const markTransactionStatus = async (data: any) => {
+  try {
+    const BASE_URL = await getCurrentApiUrl();
+    const response = await fetch(`${BASE_URL}/V1/payments/mark-transaction-status`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
+      },
+      body: JSON.stringify(data),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Error marking transaction status:", error);
+    return { success: false, message: "Failed to update transaction status" };
   }
 };
 

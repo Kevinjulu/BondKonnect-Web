@@ -105,12 +105,12 @@ export function CreateEmailDialog({ userDetails, open, onOpenChange }: UserDataP
         if (templatesRes.success) setTemplates(templatesRes.data)
         if (adminsRes.success) setAdminUsers(adminsRes.data)
         if (usersRes.success) {
-          const mappedUsers = usersRes.data.map(user => ({
+          const mappedUsers = usersRes.data.map((user: User) => ({
             ...user,
             PhoneNumber: user.Email || null
           }));
           setAllUsers(mappedUsers);
-          setFilteredRecipients(mappedUsers.filter((user) => user.IsActive === 1))
+          setFilteredRecipients(mappedUsers.filter((user: User) => user.IsActive === 1))
         }
       } catch (error) {
         console.error("Error fetching data:", error)

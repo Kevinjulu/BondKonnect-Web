@@ -557,6 +557,7 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
   const [isNewPortfolioDialogOpen, setIsNewPortfolioDialogOpen] = useState(false)
   const [newPortfolioData, setNewPortfolioData] = useState({ portfolio_name: '', value_date: new Date().toISOString().split('T')[0], description: '', })
   const { toast } = useToast()
+  const selectedPortfolioIdRef = useRef<number | null>(null)
   
   // Use the new hooks
   const { data: availableBonds = [], isLoading: isLoadingBonds } = useStatsTable();
@@ -571,6 +572,7 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
       setSelectedPortfolio(p);
       setPortfolioName(p.Name);
       setPortfolioDate(formatDate(p.ValueDate));
+      selectedPortfolioIdRef.current = p.Id;
       
       const mappedBonds: PortfolioEntry[] = p.bonds.map((bond: PortfolioBond) => {
         const bondData = availableBonds.find(b => b.Id === bond.BondId);
@@ -675,12 +677,11 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
       if (!newPortfolioData.portfolio_name) { toast({ title: "Error", description: "Portfolio name is required" }); return; }
       if (!newPortfolioData.value_date) { toast({ title: "Error", description: "Value date is required" }); return; }
       if (!newPortfolioData.description) { toast({ title: "Error", description: "Description is required" }); return; }
-      let bondsResult = availableBonds;
-      if (availableBonds.length === 0) { const fetched = await getStatsTable(); bondsResult = Array.isArray(fetched) ? fetched : []; setAvailableBonds(bondsResult); setBonds(bondsResult); }
+      
       const portfolioBondsFormatted = data.filter(bond => bond.bondsHeld !== "Overall Portfolio").map(bond => ({ bond_id: bond.bondId, type: bond.type, bond_issue_no: bond.bondsHeld, buying_date: bond.buyingDate, buying_price: bond.buyingPrice, buying_wap: bond.buyingWAP, face_value_buys: bond.faceValueBuys, selling_date: bond.sellingDate || null, selling_price: bond.sellingPrice || null, selling_wap: bond.sellingWAP || null, face_value_sales: bond.faceValueSales || null, face_value_bal: bond.faceValueBal, closing_price: bond.closingPrice, coupon_net: bond.couponNet, next_cpn_days: bond.nextCouponDays.toString(), realized_pnl: bond.realizedPL.toString(), unrealized_pnl: bond.unrealizedPL.toString(), one_yr_total_return: bond.totalReturn, portfolio_value: bond.portfolioValue.toString() }));
       const portfolioData = { portfolio_name: newPortfolioData.portfolio_name, value_date: newPortfolioData.value_date, description: newPortfolioData.description, user_email: userDetails.email, bonds: portfolioBondsFormatted };
-      const response = await addNewPortfolio(portfolioData);
-      if (response?.success) { toast({ title: "Success", description: "Portfolio created successfully" }); setData([]); setNewPortfolioData({ portfolio_name: "", value_date: new Date().toISOString().split('T')[0], description: "" }); setIsNewPortfolioDialogOpen(false); fetchPortfolios(); } else { toast({ title: "Error", description: response?.message || "Failed to create portfolio" }); }
+      const response = await createPortfolio(portfolioData);
+      if (response?.success) { toast({ title: "Success", description: "Portfolio created successfully" }); setData([]); setNewPortfolioData({ portfolio_name: "", value_date: new Date().toISOString().split('T')[0], description: "" }); setIsNewPortfolioDialogOpen(false); refetchPortfolios(); } else { toast({ title: "Error", description: response?.message || "Failed to create portfolio" }); }
     } catch { toast({ title: "Error", description: "An error occurred while creating the portfolio" }); }
   };
 
@@ -688,12 +689,11 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
     try {
       if (!userDetails?.email || !selectedPortfolio) { toast({ title: "Error", description: "Portfolio not created or selected first." }); return; }
       if (data.length === 0) { toast({ title: "Error", description: "Please add at least one bond to the portfolio" }); return; }
-      let bondsResult = availableBonds;
-      if (availableBonds.length === 0) { const fetched = await getStatsTable(); bondsResult = Array.isArray(fetched) ? fetched : []; setAvailableBonds(bondsResult); setBonds(bondsResult); }
+      
       const portfolioBonds = data.filter(bond => bond.bondsHeld !== "Overall Portfolio").map(bond => ({ bond_id: bond.bondId, type: bond.type, bond_issue_no: bond.bondsHeld, buying_date: bond.buyingDate, buying_price: bond.buyingPrice, buying_wap: bond.buyingWAP, face_value_buys: bond.faceValueBuys, selling_date: bond.sellingDate || null, selling_price: bond.sellingPrice || null, selling_wap: bond.sellingWAP || null, face_value_sales: bond.faceValueSales || null, face_value_bal: bond.faceValueBal, closing_price: bond.closingPrice, coupon_net: bond.couponNet, next_cpn_days: bond.nextCouponDays.toString(), realized_pnl: bond.realizedPL.toString(), unrealized_pnl: bond.unrealizedPL.toString(), one_yr_total_return: bond.totalReturn, portfolio_value: bond.portfolioValue.toString() }));
       const portfolioData = { portfolio_id: selectedPortfolio.Id, portfolio_name: portfolioName, value_date: portfolioDate, description: selectedPortfolio.Description, user_email: userDetails.email, bonds: portfolioBonds };
       const response = await updatePortfolio(portfolioData);
-      if (response?.success) { toast({ title: "Success", description: "Portfolio updated successfully" }); fetchPortfolios(); } else { toast({ title: "Error", description: response?.message || "Failed to update portfolio" }); }
+      if (response?.success) { toast({ title: "Success", description: "Portfolio updated successfully" }); refetchPortfolios(); } else { toast({ title: "Error", description: response?.message || "Failed to update portfolio" }); }
     } catch { toast({ title: "Error", description: "An error occurred while updating the portfolio" }); }
   };
 
@@ -711,7 +711,7 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
               <Select 
                 value={selectedPortfolio?.Id.toString()} 
                 onValueChange={(val) => { 
-                  const selected = portfolios.find(p => p.Id.toString() === val); 
+                  const selected = portfolios.find((p: Portfolio) => p.Id.toString() === val); 
                   if (selected) { 
                     selectedPortfolioIdRef.current = selected.Id; 
                     setSelectedPortfolio(selected); 
@@ -729,7 +729,7 @@ export function PortfolioScorecard({ userDetails }: { userDetails: UserData }) {
                   <SelectValue placeholder="Select Portfolio" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-neutral-200">
-                  {portfolios.map(p => <SelectItem key={p.Id} value={p.Id.toString()} className="text-[10px] font-bold uppercase tracking-widest text-black focus:bg-neutral-100">{p.Name}</SelectItem>)}
+                  {portfolios.map((p: Portfolio) => <SelectItem key={p.Id} value={p.Id.toString()} className="text-[10px] font-bold uppercase tracking-widest text-black focus:bg-neutral-100">{p.Name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

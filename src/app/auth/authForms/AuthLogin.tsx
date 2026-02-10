@@ -50,8 +50,8 @@ const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) =
       e.preventDefault();
       setErrors({});
       
-      const email = emailRef.current?.value;
-      const password = passwordRef.current?.value;
+      const email = emailRef.current?.value || "";
+      const password = passwordRef.current?.value || "";
 
       let hasLocalError = false;
       const localErrors: { email?: string; password?: string } = {};

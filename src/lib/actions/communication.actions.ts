@@ -95,3 +95,154 @@ export const getEmails = async (email: string) => {
   }
 };
 
+export const getEmailTemplates = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/communication/get-email-templates`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching email templates:', error);
+    return { success: false, data: [] };
+  }
+};
+
+export const createEmail = async (data: any) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/communication/create-email`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating email:', error);
+    return { success: false, message: "Failed to create email" };
+  }
+};
+
+// Messaging Actions
+export const getMessageParticipants = async (email?: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/communication/get-message-participants${email ? `?email=${encodeURIComponent(email)}` : ''}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching message participants:', error);
+    return { success: false, data: [] };
+  }
+};
+
+export const getUserThread = async (threadId: string | number) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/communication/get-user-thread?thread_id=${threadId}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching user thread:', error);
+    return { success: false, data: null };
+  }
+};
+
+export const replyMessage = async (data: any) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/communication/reply-message`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error replying to message:', error);
+    return { success: false, message: "Failed to reply to message" };
+  }
+};
+
+export const getMessagesByUser = async (email: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/communication/get-messages-by-user?email=${encodeURIComponent(email)}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching messages by user:', error);
+    return { success: false, data: [] };
+  }
+};
+
+export const markMessageAsRead = async (email: string, messageId: number) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/communication/mark-message-as-read`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify({ email, message_id: messageId }),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error marking message as read:', error);
+    return { success: false, message: "Failed to mark message as read" };
+  }
+};
+
+export const getAllUnreadMessagesForUser = async (email: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/communication/get-all-unread-messages?email=${encodeURIComponent(email)}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching unread messages:', error);
+    return { success: false, data: [] };
+  }
+};
+
+// Notification Actions
+export const markOneNotificationsAsRead = async (email: string, notificationId: number) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/communication/mark-notification-as-read`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify({ email, notification_id: notificationId }),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    return { success: false, message: "Failed to mark notification as read" };
+  }
+};
+
+export const markOneNotificationsAsFavoriteOrArchive = async (email: string, notificationId: number, field: string, value: number) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/communication/mark-notification-status`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify({ email, notification_id: notificationId, field, value }),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error marking notification status:', error);
+    return { success: false, message: "Failed to update notification status" };
+  }
+};
+
+export const approveIntermediaryClient = async (data: any) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/communication/approve-intermediary-client`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error approving intermediary client:', error);
+    return { success: false, message: "Failed to approve client" };
+  }
+};
+

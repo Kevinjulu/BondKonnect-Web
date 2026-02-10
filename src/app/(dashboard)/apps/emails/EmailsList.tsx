@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
@@ -85,7 +86,7 @@ export default function EmailList({ userDetails }: { userDetails: UserData }) {
       is_draft: email.IsDraft === 1,
       is_bulk_email: email.IsBulkEmail === 1,
       role_group_sending_to: email.RoleGroupSendingTo,
-      attachments: email.attachments?.map((att) => ({
+      attachments: email.attachments?.map((att: any) => ({
         name: att.DocumentName,
         size: "Unknown",
         type: att.Extension,
@@ -93,7 +94,7 @@ export default function EmailList({ userDetails }: { userDetails: UserData }) {
     }));
   }, [rawEmails]);
 
-  const filteredEmails = emails.filter((email) => {
+  const filteredEmails = emails.filter((email: Email) => {
     if (
       searchQuery &&
       !email.subject.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -113,7 +114,7 @@ export default function EmailList({ userDetails }: { userDetails: UserData }) {
     return (
       <div className="flex flex-col items-center justify-center h-[400px] text-neutral-400">
         <RefreshCw className="h-8 w-8 animate-spin mb-4" />
-        <p className="text-sm font-medium text-black text-black">Syncing your inbox...</p>
+        <p className="text-sm font-medium text-black">Syncing your inbox...</p>
       </div>
     )
   }
@@ -131,7 +132,7 @@ export default function EmailList({ userDetails }: { userDetails: UserData }) {
               <InboxIcon className="h-5 w-5" />
               Inbox
             </h2>
-            <Button variant="ghost" size="icon" onClick={fetchEmails} className="text-neutral-400 hover:text-black">
+            <Button variant="ghost" size="icon" onClick={() => fetchEmails()} className="text-neutral-400 hover:text-black">
                <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
@@ -175,7 +176,7 @@ export default function EmailList({ userDetails }: { userDetails: UserData }) {
               </div>
             ) : (
               <div className="divide-y divide-neutral-100">
-                {filteredEmails.map((email) => {
+                {filteredEmails.map((email: Email) => {
                   const isSelected = selectedEmail?.id === email.id;
                   return (
                     <div
