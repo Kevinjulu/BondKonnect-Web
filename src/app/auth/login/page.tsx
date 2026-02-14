@@ -1,4 +1,5 @@
 "use client";
+import Link from 'next/link';
 import { Globe, UserRound } from 'lucide-react';
 // import { Button } from '@/components/ui/button';
 import { Grid, Box, Stack, Typography } from "@mui/material";
@@ -27,9 +28,9 @@ const Login = () => {
             subtext={
               <div className="mx-auto flex gap-1 text-sm">
               <p>Don&apos;t have an account yet?</p>
-              <a href="/auth/role" className="underline">
+              <Link href="/auth/role" className="underline">
                 Sign Up
-              </a>
+              </Link>
             </div>
             }
             // socialauths={

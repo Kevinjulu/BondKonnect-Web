@@ -35,6 +35,14 @@ import { setActiveRole } from "@/lib/actions/api.actions";
 
 type Role = "individual" | "agent" | "corporate" | "broker" | "authorizeddealer" | "admin";
 
+const SIGNUP_ROLES: UserRole[] = [
+  { role_name: "individual" },
+  { role_name: "agent" },
+  { role_name: "corporate" },
+  { role_name: "broker" },
+  { role_name: "authorizeddealer" },
+];
+
 // New interfaces for better type safety
 interface UserRole {
   role_name: string;
@@ -271,8 +279,8 @@ const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, m
           </div>
       ) : (    
           <div className="grid gap-4">
-           <h3 className="text-lg font-semibold">
-            You have multiple roles. Select one
+           <h3 className="text-lg font-semibold text-center">
+            {mode === "signup" ? "Select registration role" : "Select your active role"}
             </h3>
             {socialauths}
             {socialauths ? (
@@ -284,11 +292,11 @@ const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, m
             ) : null}
         
             <RadioGroup 
-              defaultValue={userRoles[0]} 
+              defaultValue={mode === "signup" ? SIGNUP_ROLES[0].role_name : (user_details.roles?.[0]?.role_name)} 
               className="grid grid-cols-3 gap-4 py-4" 
               onValueChange={(value) => setSelectedRole(value as Role)}
             >
-              {user_details.roles.map((roleObj) => {
+              {(mode === "signup" ? SIGNUP_ROLES : (user_details.roles || [])).map((roleObj) => {
                 const role = roleObj.role_name;
                 const Icon = role === 'individual' ? IoPersonOutline : 
                              role === 'agent' ? BsBuildings : 
