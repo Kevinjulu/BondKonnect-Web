@@ -69,7 +69,6 @@
     "recharts": "^2.13.3",
     "stylis-plugin-rtl": "^2.1.1",
     "tailwind-merge": "^2.5.4",
-    "xlsx": "^0.18.5",
     "zod": "^3.24.2"
   },
   "devDependencies": {

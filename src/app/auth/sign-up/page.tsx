@@ -4,6 +4,7 @@ import { UserRound } from 'lucide-react';
 import { Box } from "@mui/material";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
+import Link from 'next/link';
 import PageContainer from '../../(dashboard)/components/container/PageContainer';
 // import AuthLogin from '../authForms/AuthLogin';
 import AuthSignUp from '../authForms/AuthSignUp';
@@ -32,9 +33,9 @@ const SignUp = () => {
             subtext={
               <div className="mx-auto flex gap-1 text-sm">
               <p>Already Registered?</p>
-              <a href="/auth/login" className="underline">
+              <Link href="/auth/login" className="underline">
                 Sign In
-              </a>
+              </Link>
             </div>
             }
 

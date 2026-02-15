@@ -148,6 +148,23 @@ interface ApiUser {
 
 import { useUsers, useRoles, useUserMutations } from "@/hooks/use-user-data"
 
+const userFormSchema = z.object({
+  role: z.string().min(1, "Please select a profile"),
+  firstName: z.string().min(2, "First name is required"),
+  otherNames: z.string().min(2, "Other names are required"),
+  email: z.string().email("Invalid email address"),
+  userName: z.string().optional(),
+  companyName: z.string().optional(),
+  phoneNumber: z.string().min(10, "Valid phone number is required"),
+  postalAddress: z.string().optional(),
+  isActive: z.boolean().default(true),
+  cdsNo: z.string().optional(),
+  isLocal: z.boolean().default(true),
+  isForeign: z.boolean().default(false),
+  locality: z.string().optional(),
+  categoryType: z.string().optional(),
+})
+
 export default function UserManagementPage() {
   const { toast } = useToast()
   const [selectedUser, setSelectedUser] = useState<ApiUser | null>(null)
@@ -173,9 +190,9 @@ export default function UserManagementPage() {
   const stats = useMemo(() => {
     return {
       total: users.length,
-      active: users.filter(u => u.IsActive === 1).length,
-      inactive: users.filter(u => u.IsActive === 0).length,
-      newThisMonth: users.filter(u => {
+      active: users.filter((u: ApiUser) => u.IsActive === 1).length,
+      inactive: users.filter((u: ApiUser) => u.IsActive === 0).length,
+      newThisMonth: users.filter((u: ApiUser) => {
         const joinedDate = new Date(u.created_on)
         const now = new Date()
         return joinedDate.getMonth() === now.getMonth() && joinedDate.getFullYear() === now.getFullYear()
@@ -209,7 +226,7 @@ export default function UserManagementPage() {
     // Apply role filter
     if (selectedRoleFilter !== "all") {
       result = result.filter(user => 
-        user.Roles.some(role => role.RoleName === selectedRoleFilter)
+        user.Roles.some((role: Role) => role.RoleName === selectedRoleFilter)
       )
     }
     
@@ -256,6 +273,42 @@ export default function UserManagementPage() {
   const [confirmationOpen, setConfirmationOpen] = useState(false)
   const [userToToggle, setUserToToggle] = useState<ApiUser | null>(null)
   const [confirmationAction, setConfirmationAction] = useState<'activate' | 'deactivate'>('deactivate')
+
+  // New state for broker assignment
+  const [selectedBrokers, setSelectedBrokers] = useState<string[]>([])
+  const brokerOptions = useMemo(() => {
+    return users
+      .filter((u: ApiUser) => u.Roles.some((r: Role) => r.RoleName.toLowerCase() === 'broker'))
+      .map((u: ApiUser) => ({ label: `${u.FirstName} ${u.OtherNames}`, value: u.Email }))
+  }, [users])
+
+  // Pagination derived state
+  const totalPages = Math.ceil(processedUsers.length / pageSize)
+  const currentItems = useMemo(() => {
+    const start = (currentPage - 1) * pageSize
+    return processedUsers.slice(start, start + pageSize)
+  }, [processedUsers, currentPage, pageSize])
+
+  const getPageNumbers = () => {
+    const pages = []
+    const maxVisiblePages = 5
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage > 3) pages.push(null)
+      
+      const start = Math.max(2, currentPage - 1)
+      const end = Math.min(totalPages - 1, currentPage + 1)
+      
+      for (let i = start; i <= end; i++) pages.push(i)
+      
+      if (currentPage < totalPages - 2) pages.push(null)
+      pages.push(totalPages)
+    }
+    return pages
+  }
 
   const initiateToggleUserStatus = (user: ApiUser) => {
     setUserToToggle(user)
@@ -488,7 +541,7 @@ export default function UserManagementPage() {
                         </SelectTrigger>
                         <SelectContent className="bg-white border border-neutral-200 text-black">
                           <SelectItem value="all">All Roles</SelectItem>
-                          {availableRoles.map(role => (
+                          {availableRoles.map((role: Role) => (
                             <SelectItem key={role.Id} value={role.RoleName}>{role.RoleName}</SelectItem>
                           ))}
                         </SelectContent>
@@ -597,7 +650,7 @@ export default function UserManagementPage() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      currentItems.map((user) => (
+                      currentItems.map((user: ApiUser) => (
                         <TableRow key={user.Id} className="group transition-colors hover:bg-neutral-50 border-neutral-200">
                           <TableCell><Checkbox className="border-neutral-400 data-[state=checked]:bg-black data-[state=checked]:text-white" /></TableCell>
                           <TableCell>
@@ -626,7 +679,7 @@ export default function UserManagementPage() {
                           </TableCell>
                           <TableCell>
                             <div className="flex flex-wrap gap-1 max-w-[200px]">
-                              {user.Roles.slice(0, 2).map((role, idx) => (
+                              {user.Roles.slice(0, 2).map((role: Role, idx: number) => (
                                 <Badge key={idx} variant="outline" className="bg-neutral-100 text-black text-[10px] py-0 border-neutral-300">
                                   {role.RoleName}
                                 </Badge>
@@ -693,7 +746,7 @@ export default function UserManagementPage() {
                     <p className="text-lg font-medium">No users found</p>
                   </div>
                 ) : (
-                  currentItems.map(user => (
+                  currentItems.map((user: ApiUser) => (
                     <Card key={user.Id} className="group hover:shadow-md transition-all duration-300 border border-neutral-200 bg-white text-black shadow-sm overflow-hidden flex flex-col">
                       <div className={cn("h-1.5 w-full", user.IsActive === 1 ? "bg-black" : "bg-neutral-300")} />
                       <CardHeader className="pb-2">
@@ -727,7 +780,7 @@ export default function UserManagementPage() {
                           <div className="flex flex-col col-span-2">
                             <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider mb-1">Roles</span>
                             <div className="flex flex-wrap gap-1">
-                              {user.Roles.map((role, idx) => (
+                              {user.Roles.map((role: Role, idx: number) => (
                                 <Badge key={idx} variant="secondary" className="text-[10px] py-0 h-5 font-normal bg-neutral-100 text-black hover:bg-neutral-200">
                                   {role.RoleName}
                                 </Badge>
@@ -802,7 +855,7 @@ export default function UserManagementPage() {
                 />
               </PaginationItem>
               
-              {getPageNumbers().map((pageNumber, index) => (
+              {getPageNumbers().map((pageNumber: number | null, index: number) => (
                 <PaginationItem key={index} className="hidden sm:inline-block">
                   {pageNumber === null ? (
                     <PaginationEllipsis className="text-black" />
@@ -1247,14 +1300,14 @@ export default function UserManagementPage() {
                                     <CommandList>
                                       <CommandEmpty>No brokers found.</CommandEmpty>
                                       <CommandGroup>
-                                        {brokerOptions.map((broker) => (
+                                        {brokerOptions.map((broker: { label: string, value: string }) => (
                                           <CommandItem
                                             key={broker.value}
                                             value={broker.value}
                                             className="text-black hover:bg-neutral-100"
                                             onSelect={(val) => {
                                               const updated = selectedBrokers.includes(val)
-                                                ? selectedBrokers.filter(b => b !== val)
+                                                ? selectedBrokers.filter((b: string) => b !== val)
                                                 : selectedBrokers.length < 5 ? [...selectedBrokers, val] : selectedBrokers
                                               setSelectedBrokers(updated)
                                             }}

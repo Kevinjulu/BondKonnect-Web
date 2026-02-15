@@ -33,7 +33,7 @@ const AuthSetPassword = ({ icon, title,email, subtitle, socialauths,subtext,csrf
     const emailFromLink = queryParams.get("e");
     const is_res = queryParams.get("is_res") === "1";
     const s = queryParams.get("s") || "string";
-    const [isRes, setIsRes] = useState(false);
+    const [isRes, setIsRes] = useState(is_res);
 
   // State to manage password visibility
   const [showPassword, setShowPassword] = useState(false);

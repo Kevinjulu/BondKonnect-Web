@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { startPayment, paymentSuccess, paymentFailure, setMpesaCheckoutRequestID } from "@/store/apps/payment/PaymentSlice";
-import { initiateMpesaPayment } from "@/lib/actions/payment.actions";
+import { initiateMpesaPayment } from "@/lib/actions/api.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

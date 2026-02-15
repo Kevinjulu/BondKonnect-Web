@@ -2,6 +2,7 @@
 import { useRef, useState, useEffect } from "react";
 
 import { redirect, useRouter } from "next/navigation";
+import Link from 'next/link';
 import { loginType } from "../../(dashboard)/types/auth/auth";
 import CustomSnackbar from "../../(dashboard)/layouts/shared/snackbar/CustomSnackbar";
 
@@ -50,8 +51,8 @@ const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) =
       e.preventDefault();
       setErrors({});
       
-      const email = emailRef.current?.value;
-      const password = passwordRef.current?.value;
+      const email = emailRef.current?.value || "";
+      const password = passwordRef.current?.value || "";
 
       let hasLocalError = false;
       const localErrors: { email?: string; password?: string } = {};
@@ -166,9 +167,9 @@ const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) =
             <div className="grid gap-2">
               <div className="flex justify-between">
                 <Label htmlFor="password" className={errors.password ? "text-red-500" : ""}>Password</Label>
-                <a href="/auth/forgot-password/" className="text-sm underline">
+                <Link href="/auth/forgot-password" className="text-sm underline">
                   Forgot password
-                </a>
+                </Link>
               </div>
               <Input
                 id="password"
