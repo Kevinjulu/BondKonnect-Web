@@ -86,7 +86,7 @@ export const checkMpesaStatus = async (checkoutId: string) => {
 export const getAllSubscriptionPlans = async () => {
   try {
     const BASE_URL = await getCurrentApiUrl();
-    const response = await fetch(`${BASE_URL}/V1/payments/get-all-subscription-plans`, {
+    const response = await fetch(`${BASE_URL}/V1/financials/get-all-sub-plans`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -103,12 +103,14 @@ export const getAllSubscriptionPlans = async () => {
 export const getUserSubscriptions = async (email: string) => {
   try {
     const BASE_URL = await getCurrentApiUrl();
-    const response = await fetch(`${BASE_URL}/V1/payments/get-user-subscriptions?email=${encodeURIComponent(email)}`, {
-      method: "GET",
+    const payload = { user_email: email };
+    const response = await fetch(`${BASE_URL}/V1/financials/get-user-subscriptions`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
+      body: JSON.stringify(payload),
     });
     return await response.json();
   } catch (error) {
@@ -120,7 +122,7 @@ export const getUserSubscriptions = async (email: string) => {
 export const getAllFeatures = async () => {
   try {
     const BASE_URL = await getCurrentApiUrl();
-    const response = await fetch(`${BASE_URL}/V1/payments/get-all-features`, {
+    const response = await fetch(`${BASE_URL}/V1/financials/get-all-sub-features`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -137,7 +139,7 @@ export const getAllFeatures = async () => {
 export const getAllFeatureCategories = async () => {
   try {
     const BASE_URL = await getCurrentApiUrl();
-    const response = await fetch(`${BASE_URL}/V1/payments/get-all-feature-categories`, {
+    const response = await fetch(`${BASE_URL}/V1/financials/get-all-feature-categories`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -155,13 +157,17 @@ export const getAllFeatureCategories = async () => {
 export const createTransaction = async (data: any) => {
   try {
     const BASE_URL = await getCurrentApiUrl();
-    const response = await fetch(`${BASE_URL}/V1/payments/create-transaction`, {
+    // Normalize potential `email` -> `user_email` for backend expectations
+    const payload = { ...data, user_email: data.user_email ?? data.email };
+    delete payload.email;
+
+    const response = await fetch(`${BASE_URL}/V1/services/create-transaction`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
     return await response.json();
   } catch (error) {
@@ -173,12 +179,14 @@ export const createTransaction = async (data: any) => {
 export const getUserTransactions = async (email: string) => {
   try {
     const BASE_URL = await getCurrentApiUrl();
-    const response = await fetch(`${BASE_URL}/V1/payments/get-user-transactions?email=${encodeURIComponent(email)}`, {
-      method: "GET",
+    const payload = { user_email: email };
+    const response = await fetch(`${BASE_URL}/V1/services/get-user-transactions`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
+      body: JSON.stringify(payload),
     });
     return await response.json();
   } catch (error) {
@@ -190,13 +198,22 @@ export const getUserTransactions = async (email: string) => {
 export const markTransactionStatus = async (data: any) => {
   try {
     const BASE_URL = await getCurrentApiUrl();
-    const response = await fetch(`${BASE_URL}/V1/payments/mark-transaction-status`, {
+    // Normalize field names expected by backend: transaction_id -> trans_id, email -> user_email
+    const payload = { ...data };
+    if (payload.transaction_id && !payload.trans_id) {
+      payload.trans_id = payload.transaction_id;
+      delete payload.transaction_id;
+    }
+    payload.user_email = payload.user_email ?? payload.email;
+    delete payload.email;
+
+    const response = await fetch(`${BASE_URL}/V1/services/mark-transaction-status`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
     return await response.json();
   } catch (error) {
