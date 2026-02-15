@@ -197,3 +197,193 @@ export const resendOtp = async (queryParams: string) => {
     return { success: false, message: "Server unreachable", status: 503 };
   }
 };
+
+export const forgotPassword = async (queryParams: string) => {
+  try {
+    const url = `${BASE_URL}/V1/auth/forgot-password?${queryParams}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    return { success: false, message: "Server unreachable" };
+  }
+};
+
+export const setPassword = async (data: any) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/set-password`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Set password error:", error);
+    return { success: false, message: "Server unreachable" };
+  }
+};
+
+export const generateCsrfToken = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/generate-csrf-token`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Generate CSRF token error:", error);
+    return { success: false, token: "" };
+  }
+};
+
+// Role & Permission Management
+export const getRoles = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/get-roles`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Get roles error:", error);
+    return { success: false, data: [] };
+  }
+};
+
+export const getUsersByRole = async (data: { role_id: number }) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/get-users-by-role?role_id=${data.role_id}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Get users by role error:", error);
+    return { success: false, data: [] };
+  }
+};
+
+export const getRolePermissions = async (data: { role_id: number }) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/get-role-permissions?role_id=${data.role_id}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Get role permissions error:", error);
+    return { success: false, data: [] };
+  }
+};
+
+export const getUserPermissions = async (data: { role_id: number, user_email: string }) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/get-user-permissions?role_id=${data.role_id}&email=${encodeURIComponent(data.user_email)}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Get user permissions error:", error);
+    return { success: false, data: [] };
+  }
+};
+
+export const getAllRolesForUser = async (email: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/get-all-roles-for-user?email=${encodeURIComponent(email)}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Get all roles for user error:", error);
+    return { success: false, data: [] };
+  }
+};
+
+export const modifyUserPermissions = async (data: any) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/modify-user-permissions`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Modify user permissions error:", error);
+    return { success: false, message: "Failed to modify permissions" };
+  }
+};
+
+export const addUserToNewRole = async (data: any) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/add-user-to-new-role`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Add user to new role error:", error);
+    return { success: false, message: "Failed to add user to role" };
+  }
+};
+
+export const suspendUser = async (userId: number) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/suspend-user`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify({ user_id: userId }),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Suspend user error:", error);
+    return { success: false, message: "Failed to suspend user" };
+  }
+};
+
+export const reactivateUser = async (userId: number) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/reactivate-user`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify({ user_id: userId }),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Reactivate user error:", error);
+    return { success: false, message: "Failed to reactivate user" };
+  }
+};
+
+export const getAllBrokersAndDealers = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/get-all-brokers-and-dealers`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Get all brokers and dealers error:", error);
+    return { success: false, data: [] };
+  }
+};
+
+export const completeIntermediaryRegistration = async (data: any) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/auth/complete-intermediary-registration`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Complete intermediary registration error:", error);
+    return { success: false, message: "Failed to complete registration" };
+  }
+};

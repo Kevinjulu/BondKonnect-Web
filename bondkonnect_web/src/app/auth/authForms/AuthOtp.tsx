@@ -12,7 +12,7 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot, } from "@/com
 // import { Label } from '@/components/ui/label';
 // const axios = require('@/utils/axios');
 import { otpVerify, resendOtp } from "@/lib/actions/auth.actions";
-import { getIPAddress } from "@/lib/actions/api.actions";
+import { getIPAddress, getCurrentUserDetails } from "@/lib/actions/api.actions";
 import { Loader2 } from "lucide-react";
 
 const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => {

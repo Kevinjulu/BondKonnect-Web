@@ -81,6 +81,106 @@ export enum ActionPermissions {
 
 export type Permission = ModulePermissions | ActionPermissions;
 
+export interface MenuitemsType {
+    [x: string]: any;
+    id?: string;
+    isactive?: boolean;
+    navlabel?: boolean;
+    grouplabel?: string;
+    collapsible?: boolean;
+    header?: string;
+    footer?: string;
+    title?: string;
+    icon?: any;
+    href?: string;
+    children?: MenuitemsType[];
+    badge?: string;
+    chip?: string;
+    chipColor?: string;
+    roles?: string[];
+    permissions?: string[];
+    permissionKey?: PermissionKey;
+    modulePermissions?: ModulePermissions[];
+    actionPermissions?: ActionPermissions[];
+    requiredPermissions?: (ModulePermissions | ActionPermissions)[];
+}
+
+export const hasRequiredPermissions = (
+    userPermissions: string[],
+    item: MenuitemsType,
+    activeRole?: string
+): boolean => {
+    // Special case: Admin users have access to everything
+    if (activeRole === 'admin') {
+        return true;
+    }
+
+    // If no specific permission requirements, allow access
+    if (!item.roles && !item.permissionKey && !item.requiredPermissions && !item.permissions) {
+        return true;
+    }
+
+    if (!userPermissions?.length) {
+        return false;
+    }
+
+    // Check role restrictions first
+    if (item.roles && activeRole) {
+        if (!item.roles.includes(activeRole)) {
+            return false;
+        }
+    }
+
+    // Check permissionKey mapping first
+    if (item.permissionKey && item.permissionKey in permissionMap) {
+        const mappedPermissions =
+            permissionMap[item.permissionKey as keyof typeof permissionMap];
+        if (
+            mappedPermissions?.some((perm: string) => userPermissions.includes(perm))
+        ) {
+            return true;
+        }
+    }
+
+    // Check legacy permissions array
+    if (item.permissions?.length) {
+        const hasLegacyPermission = item.permissions.some((perm: string) =>
+            userPermissions.includes(perm)
+        );
+        if (hasLegacyPermission) {
+            return true;
+        }
+    }
+
+    // Check required permissions
+    if (item.requiredPermissions?.length) {
+        // Check module permissions first
+        const modulePermission = item.requiredPermissions.find((p) =>
+            Object.values(ModulePermissions).includes(p as ModulePermissions)
+        );
+
+        if (modulePermission && !userPermissions.includes(modulePermission)) {
+            return false;
+        }
+
+        // Then check if user has at least one of the required action permissions
+        const actionPermissions = item.requiredPermissions.filter((p) =>
+            Object.values(ActionPermissions).includes(p as ActionPermissions)
+        );
+
+        if (
+            actionPermissions.length &&
+            !actionPermissions.some((p) => userPermissions.includes(p))
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
+};
+
 export const permissionMap = {
     DASHBOARD: ["CanAccessBondscreens", "CanAccessBondCalc","CanViewYieldGraphs", "CanAccessDurationScreen", "CanAccessReturnScreen", "CanAccessBarbellScreen"],
     RESEARCH_ASSISTANT: ["CanAccessResearchAssistant","CanAccessResearchAssistantTools"],

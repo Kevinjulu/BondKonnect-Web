@@ -83,3 +83,29 @@ export const exportPortfolioToExcel = async (portfolioId: number) => {
   }
 };
 
+export const getActivityLogs = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/services/get-activity-logs`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching activity logs:', error);
+    return { success: false, data: [] };
+  }
+};
+
+export const getUserIntermediaries = async (email: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/services/get-user-intermediaries?email=${encodeURIComponent(email)}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching user intermediaries:', error);
+    return { success: false, data: [] };
+  }
+};
+

@@ -8,6 +8,7 @@ import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/componen
 // import { Label } from '@/components/ui/label';
 import { useRouter, useSearchParams } from "next/navigation";
 import PageContainer from '../../(dashboard)/components/container/PageContainer';
+import Link from 'next/link';
 // import AuthLogin from '../authForms/AuthLogin';
 import AuthSignUp from '../authForms/AuthSignUp';
 // next import
@@ -49,9 +50,9 @@ const SignUp = () => {
             subtext={
               <div className="mx-auto flex gap-1 text-sm">
               <p>Already Registered?</p>
-              <a href="/auth/login" className="underline">
+              <Link href="/auth/login" className="underline">
                 Sign In
-              </a>
+              </Link>
             </div>
             }
 

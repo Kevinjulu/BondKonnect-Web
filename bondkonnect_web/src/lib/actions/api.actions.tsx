@@ -6,6 +6,9 @@ export * from './auth.actions';
 export * from './market.actions';
 export * from './portfolio.actions';
 export * from './communication.actions';
+export * from './payment.actions';
+export * from './sms.actions';
+export * from './user.check';
 
 /**
  * Legacy utility functions maintained for backward compatibility

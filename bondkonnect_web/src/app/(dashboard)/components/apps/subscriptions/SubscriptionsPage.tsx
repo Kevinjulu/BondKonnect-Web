@@ -218,7 +218,7 @@ export function SubscriptionDashboard({ userDetails }: { userDetails: any }) {
               <QuickLink href="/apps/pricing" icon={ArrowUpCircle} label="Upgrade Terminal" />
               <QuickLink href="#" icon={Download} label="Download Invoices" isButton />
               <QuickLink href="/apps/account" icon={ExternalLink} label="Billing Settings" />
-              <QuickLink href="/apps/dashboard" icon={LayoutDashboard} label="Return to Hub" />
+              <QuickLink href="/" icon={LayoutDashboard} label="Return to Hub" />
             </div>
           </Card>
         </div>

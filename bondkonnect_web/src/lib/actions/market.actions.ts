@@ -159,3 +159,100 @@ export const getBondCalcDetails = async () => {
     }
   };
 
+export const getBarbellAndBullet = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/services/get-barbell-and-bullet`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching barbell and bullet data:', error);
+    return { success: false, data: [] };
+  }
+};
+
+// Quote Actions
+export const getQuotes = async (email?: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/services/get-quotes${email ? `?email=${encodeURIComponent(email)}` : ''}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching quotes:', error);
+    return { success: false, data: [] };
+  }
+};
+
+export const sendToQuoteBook = async (data: any) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/services/send-to-quote-book`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify(data),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error sending to quote book:', error);
+    return { success: false, message: "Failed to send to quote book" };
+  }
+};
+
+export const activateQuote = async (data: { quote_id: number, user_email: string } | number) => {
+  try {
+    const body = typeof data === 'number' ? { quote_id: data } : data;
+    const response = await fetch(`${BASE_URL}/V1/services/activate-quote`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify(body),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error activating quote:', error);
+    return { success: false, message: "Failed to activate quote" };
+  }
+};
+
+export const suspendQuote = async (data: { quote_id: number, user_email: string } | number) => {
+  try {
+    const body = typeof data === 'number' ? { quote_id: data } : data;
+    const response = await fetch(`${BASE_URL}/V1/services/suspend-quote`, {
+      method: "POST",
+      headers: await getHeaders(),
+      body: JSON.stringify(body),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error suspending quote:', error);
+    return { success: false, message: "Failed to suspend quote" };
+  }
+};
+
+export const getBondMarketPerformance = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/services/get-bond-market-performance`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching bond market performance:', error);
+    return { success: false, data: [] };
+  }
+};
+
+export const getViewingPartyQuotes = async (email: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/services/get-viewing-party-quotes?email=${encodeURIComponent(email)}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching viewing party quotes:', error);
+    return { success: false, data: [] };
+  }
+};
+

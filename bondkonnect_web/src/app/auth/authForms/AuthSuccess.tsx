@@ -1,4 +1,4 @@
-"usde client";
+"use client";
 import { useRef, useState, useEffect } from "react";
 
 import { redirect, useRouter } from "next/navigation";

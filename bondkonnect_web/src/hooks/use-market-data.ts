@@ -5,7 +5,8 @@ import {
   getHistoricalBonds, 
   getTableParams,
   getTotalReturnScreen,
-  getTotalDurationScreen 
+  getTotalDurationScreen,
+  getBondCalcDetails
 } from "@/lib/actions/api.actions";
 
 export const useYieldCurve = () => {

@@ -89,7 +89,7 @@ const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) =
           setSnackbarOpen(true);
   
           // Redirect to the dashboard or another page
-          router.push(`/auth/otp?email=${encodeURIComponent(email)}`);
+          router.push(`/admin/otp?email=${encodeURIComponent(email)}`);
          // setLoad(true);
         } else {
           setSnackbarMessage(
