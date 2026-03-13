@@ -122,6 +122,14 @@ const Menuitems: MenuitemsType[] = [
     },
     {
       id: uniqueId(),  
+      title: "Portfolio Analytics",
+      href: "/apps/portfolio-analytics",
+      icon: TbPresentationAnalytics,
+      permissionKey: "PORTFOLIO",
+      requiredPermissions: getRequiredPermissions('portfolio')
+    },
+    {
+      id: uniqueId(),  
       title: "Quote Book",
       href: "/apps/quote-book",
       icon: CiViewTable,

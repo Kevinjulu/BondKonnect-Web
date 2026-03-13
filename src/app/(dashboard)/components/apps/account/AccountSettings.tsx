@@ -6,7 +6,8 @@ import { NotificationsTab } from "./NotificationsTab"
 import { BillingTab } from "./BillingTab"
 import { SecurityTab } from "./SecurityTab"
 import { ApiTab } from "./APITab"
-import { User, Bell, CreditCard, Shield, Code, ChevronRight } from 'lucide-react'
+import { UserCredibilityProfile } from "@/components/ratings/UserCredibilityProfile"
+import { User, Bell, CreditCard, Shield, Code, ChevronRight, Star } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
 interface AccountSettingsProps {
@@ -18,6 +19,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
 
   const menuItems = [
     { id: "account", label: "General", icon: User, description: "Profile and basic info" },
+    { id: "reputation", label: "Reputation", icon: Star, description: "Trading credibility and ratings" },
     { id: "security", label: "Security", icon: Shield, description: "Password and access" },
     { id: "billing", label: "Billing", icon: CreditCard, description: "Plans and payments" },
     { id: "notifications", label: "Notifications", icon: Bell, description: "Alert preferences" },
@@ -61,6 +63,11 @@ export function AccountSettings({ user }: AccountSettingsProps) {
           {activeTab === "account" && (
             <div className="animate-in fade-in slide-in-from-right-4 duration-500">
               <AccountTab user={user} />
+            </div>
+          )}
+          {activeTab === "reputation" && (
+            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+              <UserCredibilityProfile userId={user.id.toString()} userName={user.name} />
             </div>
           )}
           {activeTab === "security" && (

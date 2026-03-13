@@ -109,3 +109,16 @@ export const getUserIntermediaries = async (email: string) => {
   }
 };
 
+export const getPortfolioAnalytics = async (portfolioId: number) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/bonds/portfolio-summary/${portfolioId}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching portfolio analytics:', error);
+    return { success: false, message: "Connection error" };
+  }
+};
+

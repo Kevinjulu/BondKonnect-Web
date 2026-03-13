@@ -1,10 +1,7 @@
 "use client";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
 import {
   ArrowLeft,
   FileText,
@@ -21,20 +18,60 @@ import {
   ExternalLink
 } from "lucide-react";
 import PageContainer from "../../(dashboard)/components/container/PageContainer";
-import { useRouter } from "next/navigation";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 export default function TermsPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const [activeSectionId, setActiveSectionId] = useState("intro");
 
-  const sections = [
+  const sections = React.useMemo(() => [
     { id: "intro", title: "Introduction", icon: <Globe className="h-4 w-4" /> },
     { id: "eligibility", title: "Eligibility & Registration", icon: <CheckCircle2 className="h-4 w-4" /> },
     { id: "risk", title: "Risk Disclosure", icon: <AlertTriangle className="h-4 w-4" /> },
     { id: "usage", title: "Usage Guidelines", icon: <Scale className="h-4 w-4" /> },
     { id: "ip", title: "Intellectual Property", icon: <Lock className="h-4 w-4" /> },
     { id: "termination", title: "Termination", icon: <Shield className="h-4 w-4" /> },
-  ];
+  ], []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSectionId(entry.target.id);
+          }
+        });
+      },
+      {
+        root: null, // viewport
+        rootMargin: "0px 0px -70% 0px", // Trigger when 30% of the section is visible from the top
+        threshold: 0.2, // Trigger when 20% of the section is visible
+      }
+    );
+
+    sections.forEach((section) => {
+      const element = document.getElementById(section.id);
+      if (element) {
+        observer.observe(element);
+      }
+    });
+
+    // Clean up the observer when the component unmounts
+    return () => {
+      sections.forEach((section) => {
+        const element = document.getElementById(section.id);
+        if (element) {
+          observer.unobserve(element);
+        }
+      });
+      observer.disconnect();
+    };
+  }, [sections]);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -97,7 +134,7 @@ If you have questions, please contact: support@bondkonnect.com
     });
     // Redirect or perform next action
     setTimeout(() => {
-      router.back();
+      router.push('/dashboard'); // Redirect to dashboard after agreeing
     }, 1000);
   };
 
@@ -110,7 +147,7 @@ If you have questions, please contact: support@bondkonnect.com
             <div>
               <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Terms of Service</h1>
               <div className="flex items-center gap-2 mt-2 text-sm">
-                <Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary hover:bg-primary/20">
                   Current Version 2.4
                 </Badge>
                 <span className="text-slate-500">Last updated January 8, 2026</span>
@@ -149,23 +186,32 @@ If you have questions, please contact: support@bondkonnect.com
                   {sections.map((section) => (
                     <button
                       key={section.id}
-                      onClick={() => scrollToSection(section.id)}
-                      className="flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium text-slate-600 rounded-md hover:bg-blue-50 hover:text-blue-700 transition-all text-left group"
+                      onClick={() => {
+                        scrollToSection(section.id);
+                        setActiveSectionId(section.id); // Update active section on click
+                      }}
+                      className={`flex items-center justify-between w-full px-3 py-2.5 text-sm rounded-md transition-all text-left group
+                      ${
+                        activeSectionId === section.id
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "text-slate-600 font-medium hover:bg-primary/10 hover:text-primary"
+                      }
+                      `}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-slate-400 group-hover:text-blue-500 transition-colors">{section.icon}</span>
+                        <span className={`transition-colors ${activeSectionId === section.id ? "text-primary" : "text-slate-400 group-hover:text-primary"}`}>{section.icon}</span>
                         {section.title}
                       </div>
-                      <ChevronRight className="h-3 w-3 opacity-0 group-hover:opacity-100 text-blue-400 transition-opacity" />
+                      <ChevronRight className={`h-3 w-3 transition-opacity ${activeSectionId === section.id ? "opacity-100 text-primary" : "opacity-0 group-hover:opacity-100 text-primary/70"}`} />
                     </button>
                   ))}
                 </CardContent>
               </Card>
 
-              <Card className="sticky top-[400px] border border-blue-100 shadow-sm bg-gradient-to-br from-blue-50 to-white">
+              <Card className="sticky top-[400px] border border-primary/20 shadow-sm bg-white">
                 <CardContent className="pt-6">
                   <div className="flex flex-col items-start space-y-3">
-                    <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                    <div className="p-2 bg-primary/20 rounded-lg text-primary">
                       <Mail className="h-5 w-5" />
                     </div>
                     <div>
@@ -174,7 +220,7 @@ If you have questions, please contact: support@bondkonnect.com
                         Questions about our terms? Our legal team is here to assist you.
                       </p>
                     </div>
-                    <Button variant="link" className="text-blue-600 h-auto p-0 text-sm font-medium hover:text-blue-700">
+                    <Button variant="link" className="text-primary h-auto p-0 text-sm font-medium hover:text-primary/70">
                       Contact Legal Support &rarr;
                     </Button>
                   </div>
@@ -184,11 +230,11 @@ If you have questions, please contact: support@bondkonnect.com
 
             {/* Main Content */}
             <div className="lg:col-span-9">
-              <Card className="shadow-xl border-t-4 border-t-blue-600 bg-white print:border-none print:shadow-none">
+              <Card className="shadow-xl border-t-4 border-t-primary bg-white print:border-none print:shadow-none">
                 <CardHeader className="border-b border-slate-100 pb-6">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 no-print">
-                      <FileText className="h-8 w-8 text-blue-600" />
+                    <div className="p-3 bg-primary/10 rounded-xl border border-primary/20 no-print">
+                      <FileText className="h-8 w-8 text-primary" />
                     </div>
                     <div>
                       <CardTitle className="text-xl text-slate-900">User Agreement</CardTitle>
@@ -206,7 +252,7 @@ If you have questions, please contact: support@bondkonnect.com
                       {/* Section 1: Introduction */}
                       <section id="intro" className="scroll-mt-6 group">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors no-print">
+                          <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors no-print">
                             <Globe className="h-5 w-5" />
                           </div>
                           <h2 className="text-xl font-bold text-slate-900">1. Introduction</h2>
@@ -229,14 +275,14 @@ If you have questions, please contact: support@bondkonnect.com
                       {/* Section 2: Eligibility */}
                       <section id="eligibility" className="scroll-mt-6 group">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors no-print">
+                          <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors no-print">
                             <CheckCircle2 className="h-5 w-5" />
                           </div>
                           <h2 className="text-xl font-bold text-slate-900">2. User Eligibility & Registration</h2>
                         </div>
                         <div className="text-base text-slate-600 leading-7 space-y-4 pl-1">
                           <p>To access the Services, you must:</p>
-                          <ul className="list-disc pl-5 space-y-2 marker:text-blue-400">
+                          <ul className="list-disc pl-5 space-y-2 marker:text-primary">
                             <li>Be at least 18 years of age or the age of majority in your jurisdiction.</li>
                             <li>Have the legal capacity to enter into a binding contract.</li>
                             <li>Not be prohibited by law from using our Services.</li>
@@ -260,17 +306,17 @@ If you have questions, please contact: support@bondkonnect.com
                       {/* Section 3: Risk Disclosure */}
                       <section id="risk" className="scroll-mt-6">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="p-1.5 rounded-lg bg-orange-50 text-orange-600 no-print">
+                          <div className="p-1.5 rounded-lg bg-slate-50 text-slate-600 no-print">
                             <AlertTriangle className="h-5 w-5" />
                           </div>
                           <h2 className="text-xl font-bold text-slate-900">3. Risk Disclosure</h2>
                         </div>
-                        <div className="bg-orange-50 border border-orange-100 rounded-xl p-6 shadow-sm print:bg-white print:border-slate-200">
-                          <h3 className="text-orange-900 font-bold mb-3 flex items-center gap-2 print:text-slate-900">
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 shadow-sm print:bg-white print:border-slate-200">
+                          <h3 className="text-lg text-slate-900 font-extrabold mb-3 flex items-center gap-2 print:text-slate-900">
                             <AlertTriangle className="h-4 w-4 no-print" />
                             Investment Warning
                           </h3>
-                          <p className="text-orange-900/80 text-sm leading-relaxed mb-4 font-medium print:text-slate-700">
+                          <p className="text-slate-700 text-sm leading-relaxed mb-4 font-medium print:text-slate-700">
                             Trading bonds, fixed-income securities, and other financial instruments involves a significant level of risk and may 
                             not be suitable for all investors. You could lose some or all of your initial investment.
                           </p>
@@ -280,9 +326,9 @@ If you have questions, please contact: support@bondkonnect.com
                               { title: "Credit Risk", desc: "Issuer default potential." },
                               { title: "Liquidity Risk", desc: "Difficulty selling quickly." }
                             ].map((risk, i) => (
-                              <div key={i} className="bg-white/60 p-3 rounded-lg border border-orange-100/50 print:border-slate-100">
-                                <span className="block text-orange-800 font-bold text-xs mb-1 print:text-slate-800">{risk.title}</span>
-                                <span className="block text-orange-700/70 text-xs leading-tight print:text-slate-600">{risk.desc}</span>
+                              <div key={i} className="bg-white/60 p-3 rounded-lg border border-slate-200 print:border-slate-100">
+                                <span className="block text-slate-800 font-bold text-sm mb-1 print:text-slate-800">{risk.title}</span>
+                                <span className="block text-slate-600 text-xs leading-tight print:text-slate-600">{risk.desc}</span>
                               </div>
                             ))}
                           </div>
@@ -294,7 +340,7 @@ If you have questions, please contact: support@bondkonnect.com
                       {/* Section 4: Usage Guidelines */}
                       <section id="usage" className="scroll-mt-6 group">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors no-print">
+                          <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors no-print">
                             <Scale className="h-5 w-5" />
                           </div>
                           <h2 className="text-xl font-bold text-slate-900">4. Platform Usage Guidelines</h2>
@@ -326,7 +372,7 @@ If you have questions, please contact: support@bondkonnect.com
                       {/* Section 5: Intellectual Property */}
                       <section id="ip" className="scroll-mt-6 group">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors no-print">
+                          <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors no-print">
                             <Lock className="h-5 w-5" />
                           </div>
                           <h2 className="text-xl font-bold text-slate-900">5. Intellectual Property</h2>
@@ -346,7 +392,7 @@ If you have questions, please contact: support@bondkonnect.com
                       {/* Section 6: Termination */}
                       <section id="termination" className="scroll-mt-6 group">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors no-print">
+                          <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors no-print">
                             <Shield className="h-5 w-5" />
                           </div>
                           <h2 className="text-xl font-bold text-slate-900">6. Termination</h2>
@@ -368,7 +414,7 @@ If you have questions, please contact: support@bondkonnect.com
                 
                 <CardFooter className="bg-slate-50 border-t border-slate-100 p-6 flex flex-col md:flex-row justify-between items-center gap-6 no-print">
                   <div className="flex items-start gap-3 max-w-md">
-                    <CheckCircle2 className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                     <div className="text-xs text-slate-500">
                       <p className="font-medium text-slate-900 mb-1">Acknowledgement</p>
                       <p>By clicking "I Agree", you confirm that you have read, understood, and accept these Terms of Service.</p>
@@ -376,7 +422,7 @@ If you have questions, please contact: support@bondkonnect.com
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                     <Button 
-                      onClick={() => router.back()} 
+                      onClick={() => router.push('/')} 
                       variant="outline" 
                       className="w-full sm:w-auto bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900"
                     >
@@ -385,7 +431,7 @@ If you have questions, please contact: support@bondkonnect.com
                     </Button>
                     <Button 
                       onClick={handleAgree} 
-                      className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/20"
+                      className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white shadow-md shadow-primary/20"
                     >
                       I Agree & Continue
                     </Button>
@@ -396,9 +442,9 @@ If you have questions, please contact: support@bondkonnect.com
               <div className="mt-8 text-center text-xs text-slate-400 no-print">
                 <p>&copy; {new Date().getFullYear()} BondKonnect Financial Services. All rights reserved.</p>
                 <div className="flex justify-center gap-6 mt-3">
-                  <a href="#" className="hover:text-blue-600 transition-colors">Privacy Policy</a>
-                  <a href="#" className="hover:text-blue-600 transition-colors">Cookie Policy</a>
-                  <a href="#" className="hover:text-blue-600 transition-colors">Legal Disclaimer</a>
+                  <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
+                  <a href="#" className="hover:text-primary transition-colors">Cookie Policy</a>
+                  <a href="#" className="hover:text-primary transition-colors">Legal Disclaimer</a>
                 </div>
               </div>
             </div>

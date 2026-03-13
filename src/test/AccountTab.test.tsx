@@ -19,7 +19,8 @@ vi.mock('@/hooks/use-toast', () => ({
 
 describe('AccountTab', () => {
   const mockUser = {
-    name: 'John Doe',
+    first_name: 'John',
+    other_names: 'Doe',
     email: 'john@example.com',
   }
 
@@ -30,9 +31,9 @@ describe('AccountTab', () => {
   it('renders with user data', () => {
     render(<AccountTab user={mockUser} />)
     
-    // Using id to be absolutely sure
-    const nameInput = document.getElementById('name') as HTMLInputElement
-    const surnameInput = document.getElementById('surname') as HTMLInputElement
+    // Using id to match the component
+    const nameInput = document.getElementById('firstName') as HTMLInputElement
+    const surnameInput = document.getElementById('lastName') as HTMLInputElement
     const emailInput = document.getElementById('email') as HTMLInputElement
 
     expect(nameInput.value).toBe('John')
@@ -44,11 +45,11 @@ describe('AccountTab', () => {
     render(<AccountTab user={mockUser} />)
     
     // Change name
-    const nameInput = document.getElementById('name') as HTMLInputElement
+    const nameInput = document.getElementById('firstName') as HTMLInputElement
     fireEvent.change(nameInput, { target: { value: 'Jane' } })
     
     // Click save
-    const saveButton = screen.getByText('Save changes')
+    const saveButton = screen.getByText(/Save Changes/i)
     fireEvent.click(saveButton)
     
     // Verify loading state
@@ -57,7 +58,8 @@ describe('AccountTab', () => {
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith('/V1/auth/update-profile', {
         first_name: 'Jane',
-        last_name: 'Doe'
+        last_name: 'Doe',
+        phone: ''
       })
     })
   })

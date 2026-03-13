@@ -35,14 +35,14 @@ describe('AuthLogin Error Handling', () => {
 
     render(<AuthLogin title="Log In" />);
 
-    fireEvent.change(screen.getByPlaceholderText('m@gmail.com'), {
+    fireEvent.change(screen.getByPlaceholderText('name@company.com'), {
       target: { value: 'test@example.com' },
     });
-    fireEvent.change(screen.getByPlaceholderText('Enter your password'), {
+    fireEvent.change(screen.getByPlaceholderText('••••••••'), {
       target: { value: 'password123' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /log in/i }));
+    fireEvent.click(screen.getByRole('button', { name: /log in to workstation/i }));
 
     await waitFor(() => {
       expect(screen.getByText('Invalid email or password.')).toBeInTheDocument();
@@ -58,17 +58,17 @@ describe('AuthLogin Error Handling', () => {
 
     render(<AuthLogin title="Log In" />);
 
-    fireEvent.change(screen.getByPlaceholderText('m@gmail.com'), {
+    fireEvent.change(screen.getByPlaceholderText('name@company.com'), {
       target: { value: 'suspended@example.com' },
     });
-    fireEvent.change(screen.getByPlaceholderText('Enter your password'), {
+    fireEvent.change(screen.getByPlaceholderText('••••••••'), {
       target: { value: 'password123' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /log in/i }));
+    fireEvent.click(screen.getByRole('button', { name: /log in to workstation/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Your account is suspended/i)).toBeInTheDocument();
+      expect(screen.getByText(/Account suspended. Contact admin./i)).toBeInTheDocument();
     });
   });
 
@@ -81,17 +81,36 @@ describe('AuthLogin Error Handling', () => {
 
     render(<AuthLogin title="Log In" />);
 
-    fireEvent.change(screen.getByPlaceholderText('m@gmail.com'), {
+    fireEvent.change(screen.getByPlaceholderText('name@company.com'), {
       target: { value: 'test@example.com' },
     });
-    fireEvent.change(screen.getByPlaceholderText('Enter your password'), {
+    fireEvent.change(screen.getByPlaceholderText('••••••••'), {
       target: { value: 'password123' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /log in/i }));
+    fireEvent.click(screen.getByRole('button', { name: /log in to workstation/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Service unavailable. Please ensure your local server is running./i)).toBeInTheDocument();
+      expect(screen.getByText(/Service Unavailable/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should display "Unable to reach the server." when the login call throws', async () => {
+    (login as any).mockRejectedValue(new Error('Network Error'));
+
+    render(<AuthLogin title="Log In" />);
+
+    fireEvent.change(screen.getByPlaceholderText('name@company.com'), {
+      target: { value: 'test@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('••••••••'), {
+      target: { value: 'password123' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /log in to workstation/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Unable to reach the server./i)).toBeInTheDocument();
     });
   });
 });

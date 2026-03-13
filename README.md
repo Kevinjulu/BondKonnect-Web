@@ -1,89 +1,115 @@
-# BondKonnect Frontend
+# BondKonnect Frontend: Next-Gen Trading Interface
 
-This repository contains the **frontend part** of the BondKonnect project. It is a modern, responsive interface for bond trading and portfolio management, built with Next.js and styled with Tailwind CSS and Material UI.
+This directory contains the **Next.js 15** frontend for BondKonnect. Built for the modern Kenyan investor, the application provides a high-density, real-time interface for bond trading and portfolio management.
 
-## Deployment
+## 🎨 UX Philosophy: Data-Driven Performance
+BondKonnect Web is designed with **financial clarity** and **actionability** at its core. Recognizing the unique needs of the Kenyan market—where mobile connectivity meets complex institutional requirements—our UX focuses on:
+- **High Information Density:** Dashboards that display critical market data (Yield Curves, Quote Books) without overwhelming the user.
+- **Visual Analytics:** Interactive charts (using Recharts) for bond performance and real-time yield curves.
+- **Mobile-Responsive Finance:** A seamless transition from a desktop trading desk to a mobile-optimized bond calculator.
+- **Fast Feedback:** Integrated page transitions and skeleton loaders (via `ContentLoader`) for a "live" feel even on slower network connections.
 
-The application is hosted on **Vercel** and can be accessed at: [https://bondkonnect-web.vercel.app/](https://bondkonnect-web.vercel.app/) (or your specific Vercel URL).
+---
 
-## Architecture
+## 🌍 Infrastructure & Production Stack
 
-BondKonnect follows a decoupled architecture:
-- **Frontend (This Repo):** Next.js application deployed on Vercel.
-- **Backend:** Hosted in a separate repository, providing the RESTful API and WebSocket services.
+BondKonnect is built on a resilient, high-performance cloud architecture:
 
-## Getting Started
+- **Frontend:** [Vercel](https://vercel.com/) (Next.js 15) for high-availability and edge-optimized delivery.
+- **Backend:** [Render](https://render.com/) (Laravel API) for a scalable and reliable server-side experience.
+- **Database:** [Neon PostgreSQL](https://neon.tech/) for serverless, autoscaling relational data management.
+- **Cache & Queue:** [Upstash Redis](https://upstash.com/) for serverless, low-latency caching and background job processing.
+- **Real-time:** [Pusher](https://pusher.com/) for instant WebSockets-based notifications and live market updates.
+- **Payments:** Seamless integration with [M-Pesa](https://www.safaricom.co.ke/personal/m-pesa) and [PayPal](https://www.paypal.com/).
+- **AI Layer:** **AiService** utilizing [Google Gemini](https://deepmind.google/technologies/gemini/) and `pgvector` for semantic search and contextual financial analysis.
 
-### Prerequisites
+---
 
-- Node.js 18.17 or higher
+## 🛠 Frontend Technical Stack
+
+The frontend is a decoupled SPA (Single Page Application) built with:
+- **Framework:** [Next.js 15](https://nextjs.org/) (App Router) for SEO, performance, and modern routing.
+- **Language:** TypeScript for enterprise-grade type safety in financial logic.
+- **Styling:**
+    - **Tailwind CSS:** For rapid, utility-first layout and responsive design.
+    - **Shadcn UI (Radix UI):** For accessible, consistent core components.
+    - **Material UI (MUI):** For complex data components and thematic consistency in legacy views.
+- **State Management:**
+    - **Redux Toolkit:** Managing global application state (UI themes, session info).
+    - **TanStack Query (React Query):** Synchronizing server state, providing caching and auto-refetching for market data.
+
+---
+
+## 🔐 Advanced Role-Based Access Control (RBAC)
+
+BondKonnect implements a sophisticated, multi-tier RBAC system to cater to the diverse players in the Kenyan bond market:
+
+| Role | Target User | Capabilities |
+| :--- | :--- | :--- |
+| **Individual** | Retail Investor | Portfolio tracking, bond calculator, secondary market buying. |
+| **Agent** | Financial Advisor | Manage client portfolios, view aggregated stats. |
+| **Broker** | Certified Broker | Execute trades on behalf of clients, manage order books. |
+| **Dealer** | Institutional Dealer | Market making, direct CBK data access. |
+| **Corporate** | Institutional Entity | High-volume portfolio management and corporate reporting. |
+| **Admin** | System Operator | User management, security audits, and system configuration. |
+
+### Security & Redirection Flow:
+1.  **Authentication:** Secure login with 2FA/OTP (via Laravel backend).
+2.  **Role Selection:** Authenticated users select their active role (`/auth/role`), persisted via a secure `userRole` cookie.
+3.  **Middleware Guard:** `middleware.ts` enforces role-specific permissions, ensuring users only see modules they are authorized to access.
+
+---
+
+## 🤖 AI Concierge & Market Assistant
+BondKonnect Web includes an integrated AI Assistant designed to help you navigate the platform and understand complex bond data.
+
+- **Site-Aware:** Understands every feature of BondKonnect, from M-Pesa deposits to IFB bond rules.
+- **Terminal Aesthetic:** Matches our high-performance design system with a monochrome, professional interface.
+- **Actionable:** Provides direct internal links to dashboards, calculators, and billing sections.
+- **Interactive:** Features "Quick Suggestions" for common workflows like "How do I pay?" or "Where is my portfolio?".
+
+---
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
+- Node.js 18.17+
 - npm
 
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/Kevinjulu/BondKonnect-Web.git
-cd BondKonnect-Web
-```
-
-2. Install dependencies:
+### 2. Installation
 ```bash
 npm install
 ```
 
-3. Environment Setup:
-   The project uses a `.env` file for configuration. Ensure the `NEXT_PUBLIC_BK_*_API_URL` variables point to the correct backend environment.
+### 3. Environment Configuration
+Create a `.env.local` file based on `.env.example`:
+```bash
+NEXT_PUBLIC_API_URL=http://your-backend-url/api
+NEXT_PUBLIC_PUSHER_KEY=your-pusher-key
+NEXT_PUBLIC_PUSHER_CLUSTER=mt1
+```
 
-### Development
-
-Start the development server:
+### 4. Development
 ```bash
 npm run dev
 ```
 
-## Role-Based Access Control (RBAC)
+---
 
-BondKonnect implements a robust RBAC system with 6 logical roles:
+## 🧪 Testing & Quality Assurance
 
-1.  **Individual**: Standard personal investor workstation.
-2.  **Agent**: Represents and manages other investors.
-3.  **Broker**: Certified broker with advanced trading and client management tools.
-4.  **Authorized Dealer**: Institutional dealer with direct market access.
-5.  **Corporate**: Company or institutional legal entity.
-6.  **Admin**: System administrator with full access to user management, security logs, and system configuration.
+We maintain 100% confidence in our financial calculations through rigorous testing:
+- **Unit & Integration:** [Vitest](https://vitest.dev/) and React Testing Library for component and logic validation.
+- **E2E:** [Playwright](https://playwright.dev/) for critical flows like trading and payments.
+- **Linting:** ESLint with strict financial data formatting rules.
 
-### Routing & Redirection Flow
+```bash
+# Run unit tests
+npm run test
 
-The application uses a secure multi-step authentication and role-selection flow:
+# Run E2E tests
+npx playwright test
+```
 
-1.  **Authentication**: Users log in via `/auth/login` (User) or `/admin/login` (Admin).
-2.  **Verification**: After successful credentials, users are redirected to `/auth/otp` or `/admin/otp` for secondary verification.
-3.  **Role Selection**: Upon OTP verification, users must select an active role at `/auth/role` or `/admin/role`. This selection is persisted via a `userRole` secure cookie.
-4.  **Authorized Access**: The `middleware.ts` ensures that:
-    *   Unauthenticated users are redirected to login.
-    *   Authenticated users without a selected role are forced to the role selection page.
-    *   Authenticated users are prevented from accessing public login/signup pages.
-    *   Access to specific modules is governed by permissions tied to the selected role.
-
-### Dashboard Modules
-
-Access to the following modules is dynamically controlled based on the active role's permissions:
-- **Market Dashboard**: Real-time yield curves and screens.
-- **Bond Stats**: Advanced bond market indicators.
-- **Portfolio Assistant**: Real-time valuation and P&L tracking.
-- **Quote Book**: Secondary market buy/sell quote management.
-- **My Transactions**: Execution and trade history.
-- **Admin Tools**: User management and security audit logs.
-
-## Deployment to Vercel
-
-This repository is optimized for Vercel deployment:
-1. Connect this GitHub repo to your Vercel account.
-2. Vercel will automatically detect the Next.js framework.
-3. Configure the environment variables from your `.env` file in the Vercel Dashboard.
-4. The application will automatically deploy on every push to the `master` or `development` branches.
-
-## License
-
-This project is licensed under the MIT License.
+## 📄 License
+Proprietary software. Part of the BondKonnect Ecosystem.
