@@ -144,5 +144,4 @@ bondkonnect_db/BondKonnect.Blazor.Server/obj/project.assets.json
 
 bondkonnect_web/yarn.lock
 .fake
-bondkonnect_api/.env
 bondkonnect_db/BondKonnect.Blazor.Server/appsettings.json
