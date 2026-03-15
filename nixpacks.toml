@@ -1,8 +1,16 @@
+# nixpacks.toml for BondKonnect Frontend (Next.js)
+
 [phases.setup]
-nixPkgs = ["php83", "php83Packages.composer", "nodejs"]
+nixPkgs = ["nodejs"]
 
 [phases.install]
-cmds = ["composer install --no-dev --optimize-autoloader"]
+cmds = ["npm install"]
 
 [phases.build]
-cmds = ["php artisan optimize"]
+cmds = ["next build"]
+
+[start]
+command = "npm run start"
+
+[variables]
+NODE_ENV = "production"

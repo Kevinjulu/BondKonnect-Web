@@ -7,6 +7,11 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/apps/bond-stats',
 }))
 
+// Mock user check
+vi.mock('@/lib/actions/user.check', () => ({
+  getCurrentUserDetails: vi.fn(() => Promise.resolve({ email: 'test@example.com' })),
+}))
+
 // Mock fetch
 const mockFetch = vi.fn()
 global.fetch = mockFetch
@@ -14,16 +19,18 @@ global.fetch = mockFetch
 describe('ChatWindow', () => {
   beforeEach(() => {
     mockFetch.mockClear()
+    vi.clearAllMocks()
   })
 
   it('renders initial assistant message', () => {
     render(<ChatWindow onClose={() => {}} />)
-    expect(screen.getByText(/I'm your BondKonnect AI/i)).toBeInTheDocument()
+    expect(screen.getByText(/I'm your/i)).toBeInTheDocument()
+    expect(screen.getByText(/BondKonnect AI Concierge/i)).toBeInTheDocument()
   })
 
   it('updates input field when typing', () => {
     render(<ChatWindow onClose={() => {}} />)
-    const input = screen.getByPlaceholderText(/Ask about Kenyan Bonds/i) as HTMLInputElement
+    const input = screen.getByPlaceholderText(/Search platform features/i) as HTMLInputElement
     fireEvent.change(input, { target: { value: 'What is YTM?' } })
     expect(input.value).toBe('What is YTM?')
   })
@@ -38,11 +45,11 @@ describe('ChatWindow', () => {
     })
 
     render(<ChatWindow onClose={() => {}} />)
-    const input = screen.getByPlaceholderText(/Ask about Kenyan Bonds/i)
-    const sendButton = screen.getByLabelText(/Send message/i)
+    const input = screen.getByPlaceholderText(/Search platform features/i)
+    const form = input.closest('form')!
 
     fireEvent.change(input, { target: { value: 'What is YTM?' } })
-    fireEvent.click(sendButton)
+    fireEvent.submit(form)
 
     // Check if user message is in the document
     expect(screen.getByText('What is YTM?')).toBeInTheDocument()
@@ -65,11 +72,11 @@ describe('ChatWindow', () => {
     mockFetch.mockRejectedValueOnce(new Error('API Down'))
 
     render(<ChatWindow onClose={() => {}} />)
-    const input = screen.getByPlaceholderText(/Ask about Kenyan Bonds/i)
-    const sendButton = screen.getByLabelText(/Send message/i)
+    const input = screen.getByPlaceholderText(/Search platform features/i)
+    const form = input.closest('form')!
 
     fireEvent.change(input, { target: { value: 'Error test' } })
-    fireEvent.click(sendButton)
+    fireEvent.submit(form)
 
     await waitFor(() => {
       expect(screen.getByText(/Connection error/i)).toBeInTheDocument()

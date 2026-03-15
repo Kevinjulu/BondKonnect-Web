@@ -19,7 +19,6 @@ const getHeaders = async () => {
   return {
     "Content-Type": "application/json",
     "Accept": "application/json",
-    "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
     "Cookie": token ? `k-o-t=${token.value}` : "",
   };
 };
@@ -70,7 +69,6 @@ export const submitMessage = async (data: FormData) => {
     const response = await fetch(`${BASE_URL}/V1/communication/send-message`, {
       method: "POST",
       headers: {
-        "Ocp-Apim-Subscription-Key": headers["Ocp-Apim-Subscription-Key"],
         "Cookie": headers["Cookie"],
       },
       body: data

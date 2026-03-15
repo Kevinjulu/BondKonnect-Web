@@ -1,12 +1,12 @@
 "use client";
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Box } from "@mui/material";
 import PageContainer from '../../(dashboard)/components/container/PageContainer';
 import AuthForgot from '../authForms/AuthForgot';
-import { GoQuestion } from "react-icons/go";
+import { HelpCircle, ArrowLeft } from "lucide-react";
 import { getCurrentUserDetails } from '@/lib/actions/user.check';
 import { AuthLogo } from '@/components/AuthLogo';
+import Link from 'next/link';
 
 const ForgotPasword = () => {
   const router = useRouter();
@@ -22,38 +22,45 @@ const ForgotPasword = () => {
   }, [router]);
 
   return (
-  <PageContainer title="Forgot Password " description="this is Forgot Password page">
-    <section className=" py-6">
-      <div className="container">
-        <div className="flex flex-col gap-4">
-          <AuthLogo className="mb-4" />
-         
-          <AuthForgot
-            icon={
-              <GoQuestion className="size-10 rounded-full bg-accent p-2.5 text-muted-foreground" />
-            }
-            title="Forgot Password"
-            subtitle="Enter email and check for link to reset your password."
-            // subtext={
-            //   <div className="mx-auto flex gap-1 text-sm">
-            //   <p>Don&apos;t have an account yet?</p>
-            //   <a href="/auth/sign-up" className="underline">
-            //     Sign Up
-            //   </a>
-            // </div>
-            // }
-            // socialauths={
-            //   <Button variant="outline" className="w-full">
-            //     <Globe className="mr-2 size-4" />
-            //     Sign up with Google
-            //   </Button>
+    <PageContainer title="Forgot Password | BondKonnect" description="Reset your account password">
+      <section className="min-h-screen flex items-center justify-center bg-white py-12 px-4 relative overflow-hidden transition-colors duration-500">
+        {/* Uniform Top Gradient */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-black/10 to-transparent" />
+        
+        <div className="w-full max-w-[420px] relative z-10">
+          <div className="flex flex-col items-center gap-8">
+            <AuthLogo className="mb-2 transition-transform hover:scale-105 duration-300" />
+            
+            <div className="w-full bg-white rounded-[32px] border border-black shadow-[0_8px_30px_rgb(0,0,0,0.08)] p-2">
+              <div className="mb-2 ml-4 mt-4">
+                <Link href="/auth/login" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-black/60 hover:text-black transition-colors">
+                  <ArrowLeft className="size-3" />
+                  Back to Login
+                </Link>
+              </div>
 
-            // }
-          />
+              <AuthForgot
+                icon={
+                  <div className="size-14 rounded-2xl bg-black/5 flex items-center justify-center mb-4 transition-colors">
+                    <HelpCircle className="size-7 text-black" />
+                  </div>
+                }
+                title="Forgot Password"
+                subtitle="Enter your email to receive a reset link"
+                subtext={
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-black opacity-60">Remembered?</span>
+                    <Link href="/auth/login" className="font-black text-black underline underline-offset-4 hover:bg-black hover:text-white px-1 transition-all">
+                      Sign In
+                    </Link>
+                  </div>
+                }
+              />
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
-  </PageContainer>
+      </section>
+    </PageContainer>
   );
 };
 

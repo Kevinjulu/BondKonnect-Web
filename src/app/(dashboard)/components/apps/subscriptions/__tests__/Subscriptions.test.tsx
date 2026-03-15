@@ -10,6 +10,7 @@ vi.mock('@/lib/actions/api.actions', () => ({
   getAllFeatureCategories: vi.fn(),
   initiateMpesaStkPush: vi.fn(),
   checkMpesaStatus: vi.fn(),
+  getUserSubscriptions: vi.fn(),
 }))
 
 // Mock the Toast hook
@@ -30,8 +31,9 @@ describe('SubscriptionsListing Component', () => {
     data: [
       {
         Id: 1,
-        Name: 'Basic Plan',
+        Name: 'Analyst',
         Description: 'Basic subscription',
+        Level: 1,
         billingDetails: [
           { Id: 1, Name: 'Daily', Days: 1, UnitPrice: 1 },
           { Id: 2, Name: 'Weekly', Days: 7, UnitPrice: 5 },
@@ -47,16 +49,17 @@ describe('SubscriptionsListing Component', () => {
     ;(apiActions.getAllSubscriptionPlans as any).mockResolvedValue(mockPlans)
     ;(apiActions.getAllFeatures as any).mockResolvedValue({ success: true, data: [] })
     ;(apiActions.getAllFeatureCategories as any).mockResolvedValue({ success: true, data: [] })
+    ;(apiActions.getUserSubscriptions as any).mockResolvedValue({ success: true, data: [] })
   })
 
   it('renders subscription plans after loading', async () => {
     render(<SubscriptionsListing userDetails={mockUserDetails} />)
     
-    expect(screen.getByText(/Loading subscription plans.../i)).toBeInTheDocument()
+    expect(screen.getByText(/Compiling Models.../i)).toBeInTheDocument()
     
     await waitFor(() => {
       // Use getAllByText and check for existence
-      const elements = screen.getAllByText('Basic Plan')
+      const elements = screen.getAllByText(/Analyst/i)
       expect(elements.length).toBeGreaterThan(0)
     })
   })
@@ -65,12 +68,12 @@ describe('SubscriptionsListing Component', () => {
     render(<SubscriptionsListing userDetails={mockUserDetails} />)
     
     await waitFor(() => {
-      const subscribeBtn = screen.getAllByText(/Subscribe Now/i)[0]
+      const subscribeBtn = screen.getByText(/Authorize Analyst/i)
       fireEvent.click(subscribeBtn)
     })
 
-    expect(screen.getByText(/Complete your subscription/i)).toBeInTheDocument()
-    expect(screen.getByText(/M-Pesa Phone Number/i)).toBeInTheDocument()
+    expect(screen.getByText(/Initialize Access/i)).toBeInTheDocument()
+    expect(screen.getByText(/Mobile Node Number/i)).toBeInTheDocument()
   })
 
   it('polls for M-Pesa status and succeeds when status is completed', async () => {

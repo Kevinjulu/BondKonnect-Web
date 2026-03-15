@@ -122,6 +122,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     "/apps/portfolio-assistant",
     "/apps/financials",
     "/apps/transactions",
+    "/apps/portfolio-analytics",
+    "/apps/hub",
+    "/apps/billing",
+    "/apps/messages",
+    "/apps/account",
+    "/apps/notifications",
+    "/apps/faq",
+    "/apps/help",
   ].some(path => pathname?.includes(path));
 
   if (isLoading) {

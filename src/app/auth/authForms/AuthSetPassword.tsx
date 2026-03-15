@@ -32,7 +32,8 @@ const AuthSetPassword = ({ icon, title,email, subtitle, socialauths,subtext,csrf
     const queryParams = useSearchParams();
     const emailFromLink = queryParams.get("e");
     const is_res = queryParams.get("is_res") === "1";
-    const s = queryParams.get("s") || "string";
+    const s = queryParams.get("s") || "";
+    const t = queryParams.get("t") || "";
     const [isRes, setIsRes] = useState(is_res);
 
   // State to manage password visibility
@@ -124,6 +125,7 @@ const AuthSetPassword = ({ icon, title,email, subtitle, socialauths,subtext,csrf
           password: password,
           is_res: isRes ? "1" : "0",
           s: s,
+          t: t,
           csrf_token: csrfToken.token,
           csrf_timestamp: csrfToken.timestamp.toString(),
         }).toString();
