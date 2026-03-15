@@ -1,44 +1,27 @@
 "use client";
-import { useRef, useState, useEffect } from "react";
 
-// import { Button } from '@/components/ui/button';
-import { Grid, Box, Stack, Typography } from "@mui/material";
-import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/components/ui/card';
-// import { Input } from '@/components/ui/input';
-// import { Label } from '@/components/ui/label';
-import PageContainer from '../../(dashboard)/components/container/PageContainer';
-// import AuthLogin from '../authForms/AuthLogin';
-import AuthRole from '../authForms/AuthRole';
-import { FaUsersCog } from "react-icons/fa";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-// import { setActiveRole } from "@/lib/actions/api.actions";
+import PageContainer from '../../(dashboard)/components/container/PageContainer';
+import AuthRole from '../authForms/AuthRole';
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
-// import Logo from '../../(dashboard)/layouts/shared/logo/Logo';
 import { Icons } from "@/components/icons"
 import { AuthLogo } from '@/components/AuthLogo';
+import { Users2 } from "lucide-react";
+import CustomSnackbar from "../../(dashboard)/layouts/shared/snackbar/CustomSnackbar";
 
-// Types
 type Mode = "signin" | "signup";
 
-
 const Role = () => {
-
   const [isLoading, setIsLoading] = useState(true);
   const [isSignup, setIsSignup] = useState(false);
   const [mode, setMode] = useState<Mode>("signup");
-  const searchParams = useSearchParams();
   const [user_details, setUserDetails] = useState<any>({});
-  const [error, setError] = useState<any>(null);
-
-    // Snackbar state
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarTitle, setSnackbarTitle] = useState("");
-    const [snackbarMessage, setSnackbarMessage] = useState("");
-    const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
-    const handleSnackbarClose = () => {
-      setSnackbarOpen(false);
-    };
   
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
@@ -47,11 +30,9 @@ const Role = () => {
         setIsSignup(!user);
         setMode(!user ? "signup" : "signin");
       } catch (error) {
-       setSnackbarMessage("Error fetching user details");
-       setSnackbarSeverity("error");
+        setSnackbarMessage("Error fetching profile session");
+        setSnackbarSeverity("error");
         setSnackbarOpen(true);
-
-        console.error(error);
       } finally {
         setIsLoading(false);
       }
@@ -61,35 +42,49 @@ const Role = () => {
 
   if (isLoading) {
     return (
-      <PageContainer title="Roles Page" description="This is the Roles page">
-        <div className="flex items-center justify-center h-screen">
-         <Icons.spinner className="h-6 w-6 animate-spin" />
+      <PageContainer title="Loading..." description="Preparing workstation">
+        <div className="flex items-center justify-center h-screen bg-background">
+          <Icons.spinner className="h-8 w-8 animate-spin text-foreground" />
         </div>
       </PageContainer>
     );
   }
   
   return (
-  <PageContainer title="Roles Page" description={isSignup ? "Create your account" : "This is the Roles page"}>
-    <section className=" py-6">
-      <div className="container">
-        <div className="flex flex-col gap-4">
-          <AuthLogo className="mb-4" />
-          <AuthRole
-            mode={mode}
-            user_details={user_details}
-            icon={
-              <FaUsersCog className="size-10 rounded-full bg-accent p-2.5 text-muted-foreground" />
-            }
-            title={isSignup ? "Select Sign Up Role" : "Select Sign in Role"}
-            // title="Select Role"
-            subtitle={isSignup ? "Pick Role to register" : "You have multiple roles assigned. Pick a role to proceed"}
+    <PageContainer title="Role Selection | BondKonnect" description={isSignup ? "Create your account" : "Switch Workstation Mode"}>
+      <section className="min-h-screen flex items-center justify-center bg-white py-10 px-4 relative overflow-hidden transition-colors duration-500">
+        {/* Uniform Top Gradient */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
+        
+        <div className="w-full max-w-[460px] relative z-10">
+          <div className="flex flex-col items-center gap-6">
+            <AuthLogo className="mb-1 transition-transform hover:scale-105 duration-300 dark:brightness-200" />
             
-          />
+            <div className="w-full bg-card rounded-[24px] border border-border shadow-[0_4px_20px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] p-1.5 transition-all">
+              <AuthRole
+                mode={mode}
+                user_details={user_details}
+                icon={
+                  <div className="size-12 rounded-xl bg-foreground/5 flex items-center justify-center mb-2 transition-colors">
+                    <Users2 className="size-6 text-foreground" />
+                  </div>
+                }
+                title={isSignup ? "Create Account" : "Welcome Back"}
+                subtitle={isSignup ? "Select your primary role to begin" : "Switch your workstation mode"}
+              />
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
-  </PageContainer>
+      </section>
+
+      <CustomSnackbar
+        open={snackbarOpen}
+        onClose={() => setSnackbarOpen(false)}
+        title="Session Update"
+        message={snackbarMessage}
+        severity={snackbarSeverity}
+      />
+    </PageContainer>
   );
 };
 

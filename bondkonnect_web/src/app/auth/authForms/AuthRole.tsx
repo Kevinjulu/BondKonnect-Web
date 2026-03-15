@@ -1,7 +1,25 @@
 import { useState, useEffect, useCallback } from "react";
-
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { loginType } from "../../(dashboard)/types/auth/auth";
+import CustomSnackbar from "../../(dashboard)/layouts/shared/snackbar/CustomSnackbar";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Icons } from "@/components/icons"
+import { BsBuildings } from "react-icons/bs";
+import { IoPersonOutline } from "react-icons/io5";
+import { SiBookstack } from "react-icons/si";
+import { ShieldCheck, Sparkles, ArrowRight } from "lucide-react";
+import { setActiveRole } from "@/lib/actions/api.actions";
+import { cn } from "@/lib/utils";
+
+type Role = "individual" | "agent" | "corporate" | "broker" | "authorizeddealer" | "admin";
+
+interface UserRole {
+  role_name: string;
+  permissions?: string[];
+}
 
 interface UserData {
   roles: UserRole[];
@@ -9,31 +27,6 @@ interface UserData {
   cookie?: string;
   leave_assignments?: any;
 }
-import CustomSnackbar from "../../(dashboard)/layouts/shared/snackbar/CustomSnackbar";
-
-import { Button } from '@/components/ui/button';
-import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/components/ui/card';
-// import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Icons } from "@/components/icons"
-// import { CiUser } from "react-icons/ci";
-import { BsBuildings } from "react-icons/bs";
-import { IoPersonOutline } from "react-icons/io5";
-// import { BsJournalBookmark } from "react-icons/bs";
-import { SiBookstack } from "react-icons/si";
-import { ShieldCheck } from "lucide-react";
-// import { RiStockLine } from "react-icons/ri";
-import { setActiveRole } from "@/lib/actions/api.actions";
-// import { getCurrentUserDetails } from "@/lib/actions/user.check";
-// const axios = require('@/utils/axios');
-
-  // const user = await getCurrentUserDetails();
-  // if (user) {
-  //   redirect("/");
-  // }
-
-type Role = "individual" | "agent" | "corporate" | "broker" | "authorizeddealer" | "admin";
 
 const SIGNUP_ROLES: UserRole[] = [
   { role_name: "individual" },
@@ -43,86 +36,51 @@ const SIGNUP_ROLES: UserRole[] = [
   { role_name: "authorizeddealer" },
 ];
 
-// New interfaces for better type safety
-interface UserRole {
-  role_name: string;
-  permissions?: string[];
-}
+const ROLE_DISPLAY_NAMES: Record<string, string> = {
+  individual: "Individual",
+  agent: "Agent",
+  corporate: "Corporate",
+  broker: "Broker",
+  authorizeddealer: "Authorized Dealer",
+  admin: "Admin"
+};
 
 type CenteredCardsProps = {
   mode: "signup" | "signin";
   user_details: UserData;
 };
 
-
-
 const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, mode }: CenteredCardsProps & loginType) => {
-
-  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [userDetails, setUserDetails] = useState<UserData | null>(user_details);
 
-  // Snackbar state
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarTitle, setSnackbarTitle] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
-  // loading
+  
   const [loading, setLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role>("individual");
 
-  // useEffect(() => {
-  //   // setIsClient(true);
-  //   const checkUser = async () => {
-  //     const user = await getCurrentUserDetails();
-  //     if (user) {
-  //       redirect("/");
-  //     }
-  //   };
-
-  //   checkUser();
-  // }, []);
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
-  // Enhanced persistRole with validation
-  const persistRole = useCallback(async (
-    role: string,
-    systemId: number,
-    cookie: string
-  ) => {
-    if (!cookie) {
-      throw new Error("Authentication token missing");
-    }
-
+  const persistRole = useCallback(async (role: string, systemId: number, cookie: string) => {
+    if (!cookie) throw new Error("Authentication token missing");
     try {
       localStorage.setItem("userRole", role);
       localStorage.setItem("lastActiveTime", Date.now().toString());
-      console.log("Stored role:", localStorage.getItem("userRole"));
-      console.log("Stored time:", localStorage.getItem("lastActiveTime"));
       const formData = new FormData();
       formData.append("role", systemId.toString());
-
       const response = await setActiveRole(formData, cookie);
-
-      if (!response?.success) {
-        throw new Error(response?.message || "Role activation failed");
-      }
-
+      if (!response?.success) throw new Error(response?.message || "Role activation failed");
       return response;
     } catch (error) {
       console.error("Role persistence error:", error);
       throw error;
     }
   }, []);
+
   const handleClick = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
-    setLoading(true);
     e.preventDefault();
+    setLoading(true);
 
     if (!selectedRole) {
       setSnackbarMessage("Please select a role");
@@ -132,168 +90,94 @@ const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, m
       return;
     }
 
-    const role = selectedRole;
-  
-
     try {
       if (mode === "signup") {
-        router.push(`/auth/sign-up?role=${role}`);
+        router.push(`/auth/sign-up?role=${selectedRole}`);
         return;
       }
 
-      if (!userDetails?.cookie) {
-        throw new Error("Session expired. Please login again.");
-      }
+      if (!user_details?.cookie) throw new Error("Session expired. Please login again.");
 
-      // Map roles to system IDs
       const roleMapping = {
-        admin: 1,
-        individual: 2,
-        agent: 3,
-        corporate: 4,
-        broker: 5,
-        authorizeddealer: 6,
-  
+        admin: 1, individual: 2, agent: 3, corporate: 4, broker: 5, authorizeddealer: 6
       };
 
-      const systemId = roleMapping[role as keyof typeof roleMapping];
-      const displayName = role; // Using the role name as display name
-
-      const result = await persistRole(
-        role,
-        systemId,
-        userDetails.cookie
-      );
+      const systemId = roleMapping[selectedRole as keyof typeof roleMapping];
+      const result = await persistRole(selectedRole, systemId, user_details.cookie);
 
       if (result?.success) {
-        // Store role info in cookies
-        document.cookie = `userRole=${role}; path=/`;
+        document.cookie = `userRole=${selectedRole}; path=/`;
         document.cookie = `roleSystemId=${systemId}; path=/`;
-        document.cookie = `roleDisplayName=${displayName}; path=/`;
-
-        setSnackbarMessage(`Successfully logged in as ${role}`);
+        setSnackbarMessage(`Entering workstation as ${selectedRole}`);
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
-
-        // Redirect after a short delay
-        setTimeout(() => {
-          router.push("/");
-        }, 1500);
+        setTimeout(() => router.push("/"), 1500);
       }
     } catch (error: any) {
-      setSnackbarMessage("Failed to process role selection. Please try again.");
+      setSnackbarMessage("Failed to process selection. Try again.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
-      console.error("Role selection error:", error);
     } finally {
       setLoading(false);
     }
-  }, [selectedRole, mode, router, userDetails, persistRole]);
+  }, [selectedRole, mode, router, user_details, persistRole]);
+
   useEffect(() => {
-    const fetchUserRoles = async () => {
+    const initRoles = async () => {
       if (mode !== "signin") {
         setIsLoading(false);
         return;
       }
-
-      try {
-        setIsLoading(true);
-        const roles = user_details?.roles.map(
-          (role: UserRole) => role.role_name
-        );
-        setUserRoles(roles);
-        
-        // Set initial selected role if available
-        if (roles && roles.length > 0) {
-          setSelectedRole(roles[0] as Role);
-        }
-
-        //If user has exactly one role, treat it as their role
-        if (roles.length === 1) {
-          console.log("Single role detected:", roles[0]);
-          const roleCard = selectedRole === roles[0];
-          if (roleCard) {
-            // // If the single role is RM, load sponsors first
-            // if (roles[0] === "relationshipmanager") {
-            //   await loadRmSponsors(user_details.email, user_details.leave_assignments);
-            // }
-            setSnackbarMessage(
-              `Redirecting to dashboard with ${roles[0]} role...`
-            );
-            setSnackbarSeverity("success");
-            setSnackbarOpen(true);
-            setTimeout(() => handleClick({ preventDefault: () => {} } as React.MouseEvent<HTMLButtonElement>), 1500);
-          }
-        }
-      } catch (err) {
-        setSnackbarMessage(
-          "Failed to fetch user roles. Please try again later."
-        );
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-
-        // setError("Failed to fetch user roles. Please try again later.");
-        console.error("Role fetch error:", err);
-      } finally {
-        setIsLoading(false);
-      }
+      const roles = user_details?.roles.map(r => r.role_name);
+      setUserRoles(roles || []);
+      if (roles?.length > 0) setSelectedRole(roles[0] as Role);
+      setIsLoading(false);
     };
-
-    fetchUserRoles();
-  }, [mode, user_details, handleClick, selectedRole]);
-
-  
- 
-
-  if (error) {
-    return (
-      <div className="m-2 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-destructive">
-        {error}
-      </div>
-    );
-  }
-
+    initRoles();
+  }, [mode, user_details]);
 
   return (
-    <>
-      <Card className="mx-auto w-full max-w-sm">
-        <CardHeader className="items-center">
-          {icon}
-          {title ? (
-            <CardTitle className="text-xl">{title}</CardTitle>
-          ) : null}
-          {subtitle ? (
-            <CardDescription>{subtitle}</CardDescription>
-          ) : null}
-        </CardHeader>
-        <CardContent>
-        {mode === "signin" && userRoles.length === 1 ? (
-          <div className="flex flex-col items-center p-6 space-y-4">
-            <Icons.spinner className="h-8 w-8 animate-spin" />
-            <h3 className="text-lg font-semibold">
-            Redirecting to dashboard...
-            </h3>
-            <p className="text-sm text-muted-foreground">
-            You will be redirected to the main dashboard automatically
-            </p>
+    <Card className="border-none shadow-none bg-transparent overflow-hidden">
+      <CardHeader className="items-center pb-0 px-6 pt-6">
+        <div className="flex flex-col items-center gap-1 group">
+          <div className="relative">
+            {icon}
+            <div className="absolute -top-1 -right-1 size-4 bg-foreground rounded-full border-2 border-background flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <Sparkles className="size-2 text-background" />
+            </div>
           </div>
-      ) : (    
-          <div className="grid gap-4">
-           <h3 className="text-lg font-semibold text-center">
-            {mode === "signup" ? "Select registration role" : "Select your active role"}
-            </h3>
-            {socialauths}
-            {socialauths ? (
-              <div className="flex items-center gap-4">
-                <span className="h-px w-full bg-input"></span>
-                <span className="text-xs text-muted-foreground">OR</span>
-                <span className="h-px w-full bg-input"></span>
-              </div>
-            ) : null}
+          <CardTitle className="text-2xl font-black tracking-tighter text-foreground leading-none mt-1 transition-colors">
+            {title}
+          </CardTitle>
+          <CardDescription className="text-[13px] font-bold text-foreground opacity-60 tracking-tight text-center max-w-[280px]">
+            {subtitle}
+          </CardDescription>
+        </div>
+      </CardHeader>
+
+      <CardContent className="px-6 pb-6 pt-6">
+        {mode === "signin" && userRoles.length === 1 && !loading ? (
+          <div className="flex flex-col items-center p-4 space-y-3 animate-in fade-in duration-500">
+            <Icons.spinner className="size-6 animate-spin text-foreground" />
+            <h3 className="text-sm font-black tracking-tighter uppercase text-center">Automated Handshake...</h3>
+            <p className="text-[10px] font-bold text-foreground opacity-60">Entering workstation</p>
+          </div>
+        ) : (    
+          <div className="grid gap-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            {socialauths && (            
+              <>
+                {socialauths}
+                <div className="flex items-center gap-3">
+                  <span className="h-px w-full bg-border"></span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-foreground/40">OR</span>
+                  <span className="h-px w-full bg-border"></span>
+                </div>
+              </>
+            )}
         
             <RadioGroup 
-              defaultValue={mode === "signup" ? SIGNUP_ROLES[0].role_name : (user_details.roles?.[0]?.role_name)} 
-              className="grid grid-cols-3 gap-4 py-4" 
+              defaultValue={selectedRole} 
+              className="grid grid-cols-3 gap-3" 
               onValueChange={(value) => setSelectedRole(value as Role)}
             >
               {(mode === "signup" ? SIGNUP_ROLES : (user_details.roles || [])).map((roleObj) => {
@@ -301,50 +185,73 @@ const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, m
                 const Icon = role === 'individual' ? IoPersonOutline : 
                              role === 'agent' ? BsBuildings : 
                              role === 'corporate' ? SiBookstack : 
-                             role === 'broker' ? BsBuildings : // Using same for now
-                             role === 'authorizeddealer' ? SiBookstack : // Using same for now
-                             role === 'admin' ? ShieldCheck : 
-                             IoPersonOutline;
+                             role === 'broker' ? BsBuildings : 
+                             role === 'authorizeddealer' ? SiBookstack : 
+                             role === 'admin' ? ShieldCheck : IoPersonOutline;
                 
+                const isSelected = selectedRole === role;
+
                 return (
-                  <div key={role}>
+                  <div key={role} className="relative">
                     <RadioGroupItem value={role} id={role} className="peer sr-only" />
                     <Label
                       htmlFor={role}
-                      className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                      className={cn(
+                        "flex flex-col items-center justify-center rounded-2xl border-2 p-2.5 min-h-[90px] cursor-pointer transition-all duration-300",
+                        isSelected 
+                          ? "border-foreground bg-foreground text-background shadow-md scale-[1.03] z-10" 
+                          : "border-border bg-background text-foreground hover:border-foreground/20"
+                      )}
                     >
-                      <Icon className="mb-3 h-6 w-6" />
-                      <span className="capitalize">{role}</span>
+                      <Icon className={cn("mb-2 size-5 transition-transform", isSelected && "scale-110")} />
+                      <span className="text-[9px] font-black uppercase tracking-tighter text-center leading-tight">
+                        {ROLE_DISPLAY_NAMES[role] || role}
+                      </span>
                     </Label>
                   </div>
                 );
               })}
             </RadioGroup>
-            {loading ? (
-              <Button type="submit" className="w-full" color="primary" disabled>
-              Loading...
-              </Button>
-            ) : (
-              <Button type="submit" className="w-full" color="primary" onClick={handleClick}>
-              Proceed
-              </Button>
-            )}
+
+            <Button 
+              onClick={handleClick}
+              disabled={loading}
+              className="w-full h-11 mt-1 rounded-xl bg-foreground text-background hover:bg-foreground/90 shadow-md transition-all font-bold tracking-tight text-sm"
+            >
+              {loading ? (
+                <>
+                  <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  {mode === "signup" ? "Proceed" : "Access Workstation"}
+                  <ArrowRight className="ml-2 size-4" />
+                </>
+              )}
+            </Button>
      
           </div>
         )}
-        </CardContent>
-      </Card>
-      {subtext}
+
+        {subtext && (
+            <div className="mt-6 pt-5 border-t border-border flex justify-center text-[13px] animate-in fade-in duration-1000">
+              <div className="text-foreground font-bold">
+                {subtext}
+              </div>
+            </div>
+        )}
+      </CardContent>
+
       <CustomSnackbar
         open={snackbarOpen}
-        onClose={handleSnackbarClose}
-        title={snackbarTitle}
+        onClose={() => setSnackbarOpen(false)}
+        title="Access Control"
         message={snackbarMessage}
         severity={snackbarSeverity}
       />
-    </>
+    </Card>
   );
 };
   
-  export default AuthRole;
-  
+export default AuthRole;

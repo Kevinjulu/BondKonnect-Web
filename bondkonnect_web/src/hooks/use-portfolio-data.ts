@@ -3,7 +3,8 @@ import {
   getUserPortfolios, 
   addNewPortfolio, 
   updatePortfolio,
-  exportPortfolioToExcel
+  exportPortfolioToExcel,
+  getPortfolioAnalytics
 } from "@/lib/actions/portfolio.actions";
 import { getStatsTable } from "@/lib/actions/market.actions";
 import { useToast } from "@/hooks/use-toast";
@@ -61,9 +62,23 @@ export const usePortfolioMutations = (email: string) => {
   });
 
   return {
-    createPortfolio: createMutation.mutateAsync,
-    isCreating: createMutation.isPending,
-    updatePortfolio: updateMutation.mutateAsync,
-    isUpdating: updateMutation.isPending,
+  createPortfolio: createMutation.mutateAsync,
+  isCreating: createMutation.isPending,
+  updatePortfolio: updateMutation.mutateAsync,
+  isUpdating: updateMutation.isPending,
   };
-};
+  };
+
+  export const usePortfolioAnalytics = (portfolioId: number | null) => {
+  return useQuery({
+  queryKey: ["portfolio-analytics", portfolioId],
+  queryFn: async () => {
+    if (!portfolioId) return null;
+    const response = await getPortfolioAnalytics(portfolioId);
+    return response?.success ? response.data : null;
+  },
+  enabled: !!portfolioId,
+  staleTime: 60 * 1000,
+  });
+  };
+

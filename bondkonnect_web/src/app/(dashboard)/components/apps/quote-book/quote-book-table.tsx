@@ -1,8 +1,12 @@
 'use client'
 
-import { MoreHorizontal, Eye, Trash2,Power, PowerOff, Download,ChevronDown,ChevronUp, Plus, User, FileText, Loader2, Settings, Search, Filter, RefreshCw, Calendar, Clock, DollarSign, TrendingUp, ArrowUpDown, CheckCircle2, ExternalLink, BarChart3, PieChart, Info, AlertTriangle, Calculator, Briefcase, Target, ArrowRight } from "lucide-react"
+import { MoreHorizontal, Eye, Trash2,Power, PowerOff, Download,ChevronDown,ChevronUp, Plus, User, FileText, Loader2, Settings, Search, Filter, RefreshCw, Calendar, Clock, DollarSign, TrendingUp, ArrowUpDown, CheckCircle2, ExternalLink, BarChart3, PieChart, Info, AlertTriangle, Calculator, Briefcase, Target, ArrowRight, Star } from "lucide-react"
 import { useState, useEffect, useCallback } from "react"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from '@/hooks/use-auth'
+import { RatingModal } from '@/components/ratings/RatingModal'
+import { DisputeModal } from '@/components/ratings/DisputeModal'
+import { CredibilityBadge } from '@/components/ratings/CredibilityBadge'
 import {
   Table,
   TableBody,
@@ -98,6 +102,8 @@ interface Transaction {
   is_rejected: boolean;
   is_delegated: boolean;
   created_on: string;
+  counterparty_id?: number;
+  counterparty_name?: string;
 }
 
 interface EditableQuoteData extends QuoteData {
@@ -1157,6 +1163,7 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
               bonds={bonds}
               calculateIndicativeRange={calculateIndicativeRange}
               userEmail={userDetails.email}
+              onFetchQuotes={fetchQuotes}
             />
           </TabsContent>
 
@@ -1199,6 +1206,7 @@ export default function QuoteBookTable({ userDetails }: { userDetails: UserData 
               bonds={bonds}
               calculateIndicativeRange={calculateIndicativeRange}
               userEmail={userDetails.email}
+              onFetchQuotes={fetchQuotes}
             />
           </TabsContent>
         </Tabs>
@@ -1721,7 +1729,8 @@ function QuoteTable({
   onCounterBid,
   bonds,
   calculateIndicativeRange,
-  userEmail
+  userEmail,
+  onFetchQuotes
 }: {
   quotes: EditableQuoteData[];
   isLoading: boolean;
@@ -1746,10 +1755,16 @@ function QuoteTable({
   bonds: Bond[];
   calculateIndicativeRange: (bond: Bond | undefined) => string;
   userEmail: string;
+  onFetchQuotes: () => void;
 }) {
+  const { user } = useAuth();
   const [openRows, setOpenRows] = useState<number[]>([]);
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
   const [selectedQuoteForEdit, setSelectedQuoteForEdit] = useState<EditableQuoteData | null>(null);
+  const [ratingModalOpen, setRatingModalOpen] = useState(false);
+  const [selectedTransactionForRating, setSelectedTransactionForRating] = useState<Transaction | null>(null);
+  const [disputeModalOpen, setDisputeModalOpen] = useState(false);
+  const [selectedRatingForDispute, setSelectedRatingForDispute] = useState<number | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     type: 'suspend' | 'activate' | 'place' | null;
@@ -1963,6 +1978,24 @@ function QuoteTable({
                           <Power className="h-4 w-4" />
                         </Button>
                       )}
+
+                      {/* Rate User Button - Show for accepted transactions */}
+                      {quote.transactions?.some(t => t.is_accepted) && (
+                        <Button 
+                          size="sm" 
+                          onClick={() => {
+                            const acceptedTransaction = quote.transactions?.find(t => t.is_accepted)
+                            if (acceptedTransaction) {
+                              setSelectedTransactionForRating(acceptedTransaction)
+                              setRatingModalOpen(true)
+                            }
+                          }}
+                          className="h-8 bg-green-600 text-white hover:bg-green-700 font-black text-[10px] uppercase tracking-widest rounded-lg shadow-lg transition-all active:scale-90"
+                        >
+                          <Star className="h-3 w-3 mr-1" />
+                          Rate User
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -2101,6 +2134,32 @@ function QuoteTable({
           </SheetFooter>
         </SheetContent>
       </Sheet>
+
+      {/* Rating Modal */}
+      {selectedTransactionForRating && (
+        <RatingModal
+          open={ratingModalOpen}
+          onOpenChange={setRatingModalOpen}
+          transactionId={selectedTransactionForRating.id}
+          raterId={Number(user?.account_id || 0)}
+          rateeId={selectedTransactionForRating.counterparty_id || 0}
+          rateeName={selectedTransactionForRating.counterparty_name || 'User'}
+          onSuccess={() => {
+            setSelectedTransactionForRating(null)
+            onFetchQuotes()
+          }}
+        />
+      )}
+
+      {/* Dispute Modal */}
+      <DisputeModal
+        open={disputeModalOpen}
+        onOpenChange={setDisputeModalOpen}
+        ratingId={selectedRatingForDispute || 0}
+        onSuccess={() => {
+          setSelectedRatingForDispute(null)
+        }}
+      />
     </>
   );
 }

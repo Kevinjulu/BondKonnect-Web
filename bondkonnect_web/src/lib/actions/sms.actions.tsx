@@ -17,7 +17,6 @@ export const sendSms = async (data: {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
       body: JSON.stringify(data),
     });

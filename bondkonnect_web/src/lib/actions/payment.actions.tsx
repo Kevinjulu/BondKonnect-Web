@@ -32,7 +32,6 @@ export const initiateMpesaStkPush = async (data: MpesaPaymentData) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
       body: JSON.stringify(data),
     });
@@ -63,7 +62,6 @@ export const checkMpesaStatus = async (checkoutId: string) => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
         },
       }
     );
@@ -90,7 +88,6 @@ export const getAllSubscriptionPlans = async () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
     });
     return await response.json();
@@ -108,7 +105,6 @@ export const getUserSubscriptions = async (email: string) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
       body: JSON.stringify(payload),
     });
@@ -126,7 +122,6 @@ export const getAllFeatures = async () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
     });
     return await response.json();
@@ -143,7 +138,6 @@ export const getAllFeatureCategories = async () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
     });
     return await response.json();
@@ -165,7 +159,6 @@ export const createTransaction = async (data: any) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
       body: JSON.stringify(payload),
     });
@@ -184,7 +177,6 @@ export const getUserTransactions = async (email: string) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
       body: JSON.stringify(payload),
     });
@@ -211,7 +203,6 @@ export const markTransactionStatus = async (data: any) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
       body: JSON.stringify(payload),
     });
@@ -232,7 +223,6 @@ export const createPaypalOrder = async (data: PaypalOrderData) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
       body: JSON.stringify(data),
     });
@@ -259,7 +249,6 @@ export const capturePaypalOrder = async (data: PaypalCaptureData) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
       },
       body: JSON.stringify(data),
     });

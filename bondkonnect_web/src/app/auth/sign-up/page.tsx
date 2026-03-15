@@ -1,57 +1,50 @@
 "use client";
 
-import { UserRound } from 'lucide-react';
-import { Box } from "@mui/material";
 import { useSearchParams } from "next/navigation";
-import Image from "next/image";
 import Link from 'next/link';
 import PageContainer from '../../(dashboard)/components/container/PageContainer';
-// import AuthLogin from '../authForms/AuthLogin';
 import AuthSignUp from '../authForms/AuthSignUp';
 import { AuthLogo } from '@/components/AuthLogo';
-
+import { UserRound } from 'lucide-react';
 
 const SignUp = () => {
   const searchParams = useSearchParams();
-  const role = searchParams.get("role");
-  console.log(role);
+  const role = searchParams.get("role") || "individual";
 
   return (
-  <PageContainer title="Sign Up Page" description="this is Sign Up page">
-    <section className=" py-6">
-      <div className="container">
-        <div className="flex flex-col gap-4">
-          <AuthLogo className="mb-4" />
-          <AuthSignUp
-          
-            icon={
-              <UserRound className="size-10 rounded-full bg-accent p-2.5 text-muted-foreground" />
-            }
-
-            title="Sign Up"
-            subtitle="Enter your information to sign up"
-            subtext={
-              <div className="mx-auto flex gap-1 text-sm">
-              <p>Already Registered?</p>
-              <Link href="/auth/login" className="underline">
-                Sign In
-              </Link>
+    <PageContainer title="Sign Up | BondKonnect" description="Create your BondKonnect account">
+      <section className="min-h-screen flex items-center justify-center bg-white py-12 px-4 relative overflow-hidden transition-colors duration-500">
+        {/* Background Decorative Element */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
+        
+        <div className="w-full max-w-[480px] relative z-10">
+          <div className="flex flex-col items-center gap-8">
+            <AuthLogo className="mb-2 transition-transform hover:scale-105 duration-300 dark:brightness-200" />
+            
+            <div className="w-full bg-card rounded-[32px] border border-border shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] p-2 transition-all">
+              <AuthSignUp
+                icon={
+                  <div className="size-14 rounded-2xl bg-foreground/5 flex items-center justify-center mb-4 transition-colors">
+                    <UserRound className="size-7 text-foreground" />
+                  </div>
+                }
+                title="Sign Up"
+                subtitle={`Join BondKonnect as an ${role}`}
+                subtext={
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-foreground opacity-60">Already Registered?</span>
+                    <Link href="/auth/login" className="font-black text-foreground underline underline-offset-4 hover:bg-foreground hover:text-background px-1 transition-all">
+                      Sign In
+                    </Link>
+                  </div>
+                }
+                role={role}
+              />
             </div>
-            }
-
-            role={role ?? undefined}
-            // socialauths={
-            //   <Button variant="outline" className="w-full">
-            //     <Globe className="mr-2 size-4" />
-            //     Sign up with Google
-            //   </Button>
-
-            // }
-          />
+          </div>
         </div>
-      </div>
-    </section>
-  </PageContainer>
+      </section>
+    </PageContainer>
   );
 };
 

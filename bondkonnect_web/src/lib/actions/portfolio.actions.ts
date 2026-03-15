@@ -19,7 +19,6 @@ const getHeaders = async () => {
   return {
     "Content-Type": "application/json",
     "Accept": "application/json",
-    "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
     "Cookie": token ? `k-o-t=${token.value}` : "",
   };
 };
@@ -72,7 +71,6 @@ export const exportPortfolioToExcel = async (portfolioId: number) => {
     const response = await fetch(`${BASE_URL}/V1/services/export-portfolio-excel?portfolio_id=${portfolioId}`, {
       method: "GET",
       headers: {
-        "Ocp-Apim-Subscription-Key": headers["Ocp-Apim-Subscription-Key"],
         "Cookie": headers["Cookie"],
       },
     });
@@ -106,6 +104,19 @@ export const getUserIntermediaries = async (email: string) => {
   } catch (error) {
     console.error('Error fetching user intermediaries:', error);
     return { success: false, data: [] };
+  }
+};
+
+export const getPortfolioAnalytics = async (portfolioId: number) => {
+  try {
+    const response = await fetch(`${BASE_URL}/V1/bonds/portfolio-summary/${portfolioId}`, {
+      method: "GET",
+      headers: await getHeaders(),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching portfolio analytics:', error);
+    return { success: false, message: "Connection error" };
   }
 };
 

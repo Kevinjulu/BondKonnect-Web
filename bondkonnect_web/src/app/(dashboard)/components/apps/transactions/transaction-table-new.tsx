@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { AlertCircle, ArrowUpDown, Eye, Check, X, Loader2, Calendar, FileText, User, DollarSign, Percent, MoreHorizontal } from 'lucide-react'
+import { AlertCircle, ArrowUpDown, Eye, Check, X, Loader2, Calendar, FileText, User, DollarSign, Percent, MoreHorizontal, Star } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,6 +23,10 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { toast } from 'react-hot-toast'
 import { getUserTransactions, markTransactionStatus } from '@/lib/actions/api.actions'
+import { getUserCredibility } from '@/lib/actions/ratings.actions'
+import { RatingModal } from '@/components/ratings/RatingModal'
+import { CredibilityBadge } from '@/components/ratings/CredibilityBadge'
+import type { UserCredibilityScore } from '@/lib/types/ratings'
 import { format } from 'date-fns'
 import { cn } from "@/lib/utils"
 
@@ -42,6 +46,11 @@ interface Transaction {
   IsDelegated: boolean
   CreatedAt: string
   UpdatedAt: string
+  transaction_type: 'Sent' | 'Received' | 'Delegated'
+  PlacementNo: string
+  ratee_id: number | null
+  ratee_name: string | null
+  ratee_email: string | null
   Quote: {
     Id: number
     BondName: string
@@ -53,7 +62,7 @@ interface Transaction {
 }
 
 interface TransactionTableProps {
-  userDetails: Record<string, unknown>
+  userDetails: Record<string, any>
 }
 
 export function TransactionTable({ userDetails }: TransactionTableProps) {
@@ -62,8 +71,13 @@ export function TransactionTable({ userDetails }: TransactionTableProps) {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('received')
+  
+  // Rating state
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false)
+  const [rateeCredibility, setRateeCredibility] = useState<UserCredibilityScore | null>(null)
+  const [isFetchingCredibility, setIsFetchingCredibility] = useState(false)
 
-    const fetchTransactions = useCallback(async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true)
       if (userDetails?.Email) {
@@ -84,6 +98,34 @@ export function TransactionTable({ userDetails }: TransactionTableProps) {
   useEffect(() => {
     fetchTransactions()
   }, [userDetails, fetchTransactions])
+
+  // Fetch credibility when a transaction is selected
+  useEffect(() => {
+    const fetchCredibility = async () => {
+      if (selectedTransaction?.ratee_id) {
+        try {
+          setIsFetchingCredibility(true)
+          const result = await getUserCredibility(selectedTransaction.ratee_id)
+          if (result && result.success) {
+            setRateeCredibility(result.data)
+          } else {
+            setRateeCredibility(null)
+          }
+        } catch (error) {
+          console.error('Error fetching credibility:', error)
+          setRateeCredibility(null)
+        } finally {
+          setIsFetchingCredibility(false)
+        }
+      } else {
+        setRateeCredibility(null)
+      }
+    }
+
+    if (isDetailsOpen && selectedTransaction) {
+      fetchCredibility()
+    }
+  }, [isDetailsOpen, selectedTransaction])
 
   const handleStatusUpdate = async (transactionId: number, statusType: 'accepted' | 'rejected') => {
     try {
@@ -367,16 +409,33 @@ export function TransactionTable({ userDetails }: TransactionTableProps) {
                       <label className="text-xs text-neutral-500">Type</label>
                       <p className="text-sm font-medium text-black">{selectedTransaction.Quote.BondType}</p>
                     </div>
-                    <div>
-                      <label className="text-xs text-neutral-500">Maturity</label>
-                      <p className="text-sm font-medium text-black">{selectedTransaction.Quote.Maturity || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <label className="text-xs text-neutral-500">Coupon</label>
-                      <p className="text-sm font-medium text-black">{selectedTransaction.Quote.Coupon}%</p>
-                    </div>
                   </div>
                 </div>
+
+                {selectedTransaction.ratee_name && (
+                  <div className="pt-4 border-t border-neutral-100">
+                    <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">Counterparty</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm font-semibold text-black">{selectedTransaction.ratee_name}</p>
+                        <p className="text-xs text-neutral-500">{selectedTransaction.ratee_email}</p>
+                      </div>
+                      
+                      {isFetchingCredibility ? (
+                        <div className="flex items-center gap-2 py-2">
+                          <Loader2 className="h-4 w-4 animate-spin text-neutral-400" />
+                          <span className="text-xs text-neutral-500">Fetching reputation...</span>
+                        </div>
+                      ) : (
+                        <CredibilityBadge 
+                          credibilityScore={rateeCredibility} 
+                          size="sm" 
+                          interactive={true}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div className="pt-4 border-t border-neutral-100">
                    <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">Timing</h4>
@@ -438,39 +497,70 @@ export function TransactionTable({ userDetails }: TransactionTableProps) {
           )}
 
           <DialogFooter className="p-6 pt-4 border-t border-neutral-200 bg-white">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsDetailsOpen(false)}
-              className="bg-white text-black border-neutral-300 hover:bg-neutral-100"
-            >
-              Close
-            </Button>
-            {selectedTransaction?.IsPending && (
+            <div className="flex w-full justify-between items-center">
+              <div>
+                {selectedTransaction?.IsAccepted && selectedTransaction.ratee_id && (
+                  <Button 
+                    onClick={() => setIsRatingModalOpen(true)}
+                    variant="outline"
+                    className="bg-neutral-900 text-white hover:bg-black border-none"
+                  >
+                    <Star className="h-4 w-4 mr-2 text-amber-400 fill-amber-400" />
+                    Rate Trader
+                  </Button>
+                )}
+              </div>
               <div className="flex gap-2">
                 <Button 
-                  onClick={() => {
-                    handleStatusUpdate(selectedTransaction.Id, 'accepted')
-                    setIsDetailsOpen(false)
-                  }}
-                  className="bg-black text-white hover:bg-neutral-800 shadow-sm"
-                >
-                  Accept Deal
-                </Button>
-                <Button 
-                  onClick={() => {
-                    handleStatusUpdate(selectedTransaction.Id, 'rejected')
-                    setIsDetailsOpen(false)
-                  }}
-                  variant="outline"
+                  variant="outline" 
+                  onClick={() => setIsDetailsOpen(false)}
                   className="bg-white text-black border-neutral-300 hover:bg-neutral-100"
                 >
-                  Reject Deal
+                  Close
                 </Button>
+                {selectedTransaction?.IsPending && (
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => {
+                        handleStatusUpdate(selectedTransaction.Id, 'accepted')
+                        setIsDetailsOpen(false)
+                      }}
+                      className="bg-black text-white hover:bg-neutral-800 shadow-sm"
+                    >
+                      Accept Deal
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        handleStatusUpdate(selectedTransaction.Id, 'rejected')
+                        setIsDetailsOpen(false)
+                      }}
+                      variant="outline"
+                      className="bg-white text-black border-neutral-300 hover:bg-neutral-100"
+                    >
+                      Reject Deal
+                    </Button>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Rating Modal */}
+      {selectedTransaction && selectedTransaction.ratee_id && (
+        <RatingModal
+          open={isRatingModalOpen}
+          onOpenChange={setIsRatingModalOpen}
+          transactionId={selectedTransaction.Id}
+          raterId={Number(userDetails.id)}
+          rateeId={selectedTransaction.ratee_id}
+          rateeName={selectedTransaction.ratee_name || 'Trader'}
+          onSuccess={() => {
+            fetchTransactions()
+          }}
+        />
+      )}
     </div>
   )
 }
