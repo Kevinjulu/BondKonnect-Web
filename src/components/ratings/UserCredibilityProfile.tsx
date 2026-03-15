@@ -40,7 +40,8 @@ export function UserCredibilityProfile({
     const fetchCredibility = async () => {
       try {
         setLoading(true)
-        const data = await getUserCredibility(userId)
+        const numericUserId = typeof userId === 'string' ? parseInt(userId, 10) : userId
+        const data = await getUserCredibility(numericUserId)
         setCredibility(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load credibility data')

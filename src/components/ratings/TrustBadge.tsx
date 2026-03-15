@@ -6,7 +6,7 @@ import {
   Minus,
   CheckCircle,
   AlertCircle,
-  WarningCircle,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface TrustBadgeProps {
@@ -108,7 +108,7 @@ export const TrustBadge: React.FC<TrustBadgeProps> = ({
       },
       watch: {
         color: 'text-red-600',
-        icon: <WarningCircle className="w-4 h-4" />,
+        icon: <AlertTriangle className="w-4 h-4" />,
         label: 'Watch',
       },
     };

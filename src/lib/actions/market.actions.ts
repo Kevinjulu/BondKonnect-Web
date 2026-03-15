@@ -19,7 +19,6 @@ const getHeaders = async () => {
   return {
     "Content-Type": "application/json",
     "Accept": "application/json",
-    "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
     "Cookie": token ? `k-o-t=${token.value}` : "",
   };
 };

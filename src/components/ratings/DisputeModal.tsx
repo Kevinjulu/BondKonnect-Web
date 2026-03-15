@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
+import { useAuth } from '@/hooks/use-auth'
 import { disputeRating } from '@/lib/actions/ratings.actions'
 import { AlertCircle, Loader2, CheckCircle2, Flag } from 'lucide-react'
 
@@ -30,8 +31,18 @@ export function DisputeModal({
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const { toast } = useToast()
+  const { user } = useAuth()
 
   const handleSubmit = async () => {
+    if (!user) {
+      toast({
+        title: 'Authentication Required',
+        description: 'You must be logged in to dispute a rating',
+        variant: 'destructive'
+      })
+      return
+    }
+
     if (!reason.trim()) {
       toast({
         title: 'Validation Error',
@@ -52,7 +63,10 @@ export function DisputeModal({
 
     try {
       setLoading(true)
-      await disputeRating(ratingId, reason)
+      await disputeRating(ratingId, {
+        disputed_by: user.id,
+        reason: reason
+      })
       setSubmitted(true)
       
       toast({

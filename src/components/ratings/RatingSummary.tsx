@@ -6,36 +6,37 @@ import { getUserRatingStats } from '@/lib/actions/ratings.actions';
 import type { RatingStatistics } from '@/lib/types/ratings';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-interface RatingsSummaryProps {
-  userId: number;
+interface RatingSummaryProps {
+  userId: number | string;
   isLoading?: boolean;
 }
 
-export function RatingsSummary({ userId, isLoading: externalIsLoading }: RatingsSummaryProps) {
+export function RatingSummary({ userId, isLoading: externalIsLoading }: RatingSummaryProps) {
   const [stats, setStats] = useState<RatingStatistics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setIsLoading(true);
+        const numericUserId = typeof userId === 'string' ? parseInt(userId, 10) : userId;
+        const result = await getUserRatingStats(numericUserId);
+        if (result.success) {
+          setStats(result.data);
+        } else {
+          setError('Failed to load rating statistics');
+        }
+      } catch (err) {
+        setError('An error occurred');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchStats();
   }, [userId]);
-
-  const fetchStats = async () => {
-    try {
-      setIsLoading(true);
-      const result = await getUserRatingStats(userId);
-      if (result.success) {
-        setStats(result.data);
-      } else {
-        setError('Failed to load rating statistics');
-      }
-    } catch (err) {
-      setError('An error occurred');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (isLoading || externalIsLoading) {
     return (

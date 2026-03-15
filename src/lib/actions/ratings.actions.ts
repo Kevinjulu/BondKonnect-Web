@@ -128,7 +128,7 @@ export async function getUserRatingStats(userId: number) {
 /**
  * File a dispute on a rating
  */
-export async function fileRatingDispute(ratingId: number, data: FileDisputeRequest) {
+export async function disputeRating(ratingId: number, data: FileDisputeRequest) {
   try {
     const response = await fetch(`${BASE_URL}/V1/ratings/${ratingId}/dispute`, {
       method: 'POST',

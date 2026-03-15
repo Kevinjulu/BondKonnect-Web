@@ -13,11 +13,10 @@ if (APP_ENVIRONMENT === "production") {
   BASE_URL = process.env.NEXT_PUBLIC_BK_DEV_API_URL ?? "";
 }
 
-const getHeaders = async (cookie?: string) => {
+export const getHeaders = async (cookie?: string) => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "Accept": "application/json",
-    "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
   };
   if (cookie) headers["Cookie"] = cookie;
   return headers;

@@ -7,7 +7,10 @@ nixPkgs = ["nodejs"]
 cmds = ["npm install"]
 
 [phases.build]
-cmds = ["npm run build"]
+cmds = ["next build"]
+
+[start]
+command = "npm run start"
 
 [variables]
 NODE_ENV = "production"

@@ -27,9 +27,11 @@ export interface UserCredibilityScore {
   user_id: number;
   credibility_index: number;
   credibility_badge: 'platinum' | 'gold' | 'silver' | 'bronze' | 'unrated';
+  badge: 'Platinum' | 'Gold' | 'Silver' | 'Bronze' | 'Unrated';
   badge_color?: string;
   is_trusted: boolean;
   is_new_user: boolean;
+  total_ratings: number;
   total_ratings_count: number;
   average_overall_rating: number;
   rating_score: number;
@@ -46,8 +48,19 @@ export interface UserCredibilityScore {
   total_transaction_volume: number;
   total_disputes: number;
   resolved_disputes: number;
+  disputes_count: number;
+  settlement_rate: number;
+  is_kyc_verified: boolean;
+  account_age_days: number;
   last_transaction_date?: string;
   recent_ratings?: UserRating[];
+  component_scores?: {
+    rating_score: number;
+    activity_score: number;
+    verification_score: number;
+    settlement_score: number;
+    response_time_score: number;
+  };
 }
 
 export interface RatingDispute {

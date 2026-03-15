@@ -19,7 +19,6 @@ const getHeaders = async () => {
   return {
     "Content-Type": "application/json",
     "Accept": "application/json",
-    "Ocp-Apim-Subscription-Key": process.env.NEXT_PUBLIC_Ocp_Apim_Subscription_Key || "",
     "Cookie": token ? `k-o-t=${token.value}` : "",
   };
 };
@@ -72,7 +71,6 @@ export const exportPortfolioToExcel = async (portfolioId: number) => {
     const response = await fetch(`${BASE_URL}/V1/services/export-portfolio-excel?portfolio_id=${portfolioId}`, {
       method: "GET",
       headers: {
-        "Ocp-Apim-Subscription-Key": headers["Ocp-Apim-Subscription-Key"],
         "Cookie": headers["Cookie"],
       },
     });
