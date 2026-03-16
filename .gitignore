@@ -145,3 +145,8 @@ bondkonnect_db/BondKonnect.Blazor.Server/obj/project.assets.json
 bondkonnect_web/yarn.lock
 .fake
 bondkonnect_db/BondKonnect.Blazor.Server/appsettings.json
+
+# Environment files
+.env*
+.env.local
+.env.production
