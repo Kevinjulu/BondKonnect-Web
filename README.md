@@ -25,7 +25,7 @@ The `bondkonnect_web` directory contains our cutting-edge user interface.
 
 ### [Backend: Laravel Core](./bondkonnect_api/README.md)
 The `bondkonnect_api` directory houses our robust financial engine.
-- **Tech:** Laravel 11, PHP 8.2, Neon PostgreSQL, Redis, Pusher.
+- **Tech:** Laravel 11, PHP 8.2, Railway PostgreSQL, Railway Redis, Pusher.
 - **Focus:** Secure transaction processing, RBAC, M-Pesa/PayPal integrations, and real-time WebSocket broadcasting.
 - [**Explore Backend Documentation →**](./bondkonnect_api/README.md)
 
@@ -38,7 +38,7 @@ To get the entire ecosystem running locally:
 ### 1. Prerequisites
 - PHP 8.2+ & Composer
 - Node.js 18+ & npm
-- PostgreSQL (or access to a Neon DB instance)
+- PostgreSQL (or access to a Railway DB instance)
 
 ### 2. Backend Setup
 ```bash

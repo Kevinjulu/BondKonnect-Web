@@ -15,10 +15,9 @@ BondKonnect Web is designed with **financial clarity** and **actionability** at 
 
 BondKonnect is built on a resilient, high-performance cloud architecture:
 
-- **Frontend:** [Vercel](https://vercel.com/) (Next.js 15) for high-availability and edge-optimized delivery.
-- **Backend:** [Render](https://render.com/) (Laravel API) for a scalable and reliable server-side experience.
-- **Database:** [Neon PostgreSQL](https://neon.tech/) for serverless, autoscaling relational data management.
-- **Cache & Queue:** [Upstash Redis](https://upstash.com/) for serverless, low-latency caching and background job processing.
+- **Frontend & Backend:** [Railway](https://railway.app/) for a unified, scalable deployment experience.
+- **Database:** [Railway PostgreSQL](https://railway.app/) for managed, high-performance relational data.
+- **Cache & Queue:** [Railway Redis](https://railway.app/) for low-latency caching and background job processing.
 - **Real-time:** [Pusher](https://pusher.com/) for instant WebSockets-based notifications and live market updates.
 - **Payments:** Seamless integration with [M-Pesa](https://www.safaricom.co.ke/personal/m-pesa) and [PayPal](https://www.paypal.com/).
 - **AI Layer:** **AiService** utilizing [Google Gemini](https://deepmind.google/technologies/gemini/) and `pgvector` for semantic search and contextual financial analysis.
