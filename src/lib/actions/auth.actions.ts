@@ -2,16 +2,7 @@
 import { cookies } from "next/headers";
 import { ModulePermissions, ActionPermissions } from "@/app/config/permissions";
 
-const APP_ENVIRONMENT = process.env.APP_ENV;
-let BASE_URL = "";
-
-if (APP_ENVIRONMENT === "production") {
-  BASE_URL = process.env.NEXT_PUBLIC_BK_PROD_API_URL ?? "";
-} else if (APP_ENVIRONMENT === "uat") {
-  BASE_URL = process.env.NEXT_PUBLIC_BK_UAT_API_URL ?? "";
-} else {
-  BASE_URL = process.env.NEXT_PUBLIC_BK_DEV_API_URL ?? "";
-}
+const BASE_URL = process.env.NEXT_PUBLIC_BK_RENDER_API_URL;
 
 export const getHeaders = async (cookie?: string) => {
   const headers: Record<string, string> = {

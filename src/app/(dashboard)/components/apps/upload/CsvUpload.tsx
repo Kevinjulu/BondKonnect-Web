@@ -277,7 +277,7 @@ export default function UploadCsv() {
       }
 
       // Send data to API
-      const response = await axios.post('http://localhost:8000/api/v1/auth/upload-data', {
+      const response = await axios.post('/v1/auth/upload-data', {
         table: tableMapping[documentType as keyof typeof tableMapping],
         data: mappedData
       })
