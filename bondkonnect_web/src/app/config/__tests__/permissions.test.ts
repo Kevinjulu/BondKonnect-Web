@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { hasRequiredPermissions, ModulePermissions, ActionPermissions, MenuitemsType } from './permissions';
+import { hasRequiredPermissions, ModulePermissions, ActionPermissions, MenuitemsType } from '../permissions';
 
 describe('hasRequiredPermissions', () => {
   it('should grant access to admin regardless of permissions', () => {

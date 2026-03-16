@@ -17,16 +17,24 @@ In the Kenyan financial landscape, bond trading has traditionally been perceived
 
 BondKonnect is built on a high-performance, decoupled architecture designed for 99.9% uptime and low-latency data delivery.
 
+### 🌍 Unified Infrastructure (Railway)
+The entire ecosystem is now hosted on **Railway**, providing a seamless, auto-scaling environment for:
+- **Web Frontend:** Next.js 15 (App Router).
+- **API Backend:** Laravel 11.
+- **Database:** Managed PostgreSQL (with `pgvector` for AI).
+- **Cache/Queue:** Managed Redis.
+- **SSL/Networking:** Automatic managed certificates and private networking between services.
+
+---
+
 ### [Frontend: Next.js Powerhouse](./bondkonnect_web/README.md)
 The `bondkonnect_web` directory contains our cutting-edge user interface.
-- **Tech:** Next.js 15 (App Router), TypeScript, Tailwind CSS, Redux Toolkit, TanStack Query.
-- **Focus:** High data density, mobile-responsive trading dashboards, and interactive financial visualizations.
+- **Tech:** Next.js 15, TypeScript, Tailwind CSS, Redux Toolkit, TanStack Query.
 - [**Explore Frontend Documentation →**](./bondkonnect_web/README.md)
 
 ### [Backend: Laravel Core](./bondkonnect_api/README.md)
 The `bondkonnect_api` directory houses our robust financial engine.
-- **Tech:** Laravel 11, PHP 8.2, Railway PostgreSQL, Railway Redis, Pusher.
-- **Focus:** Secure transaction processing, RBAC, M-Pesa/PayPal integrations, and real-time WebSocket broadcasting.
+- **Tech:** Laravel 11, PHP 8.2, PostgreSQL, Redis, Pusher.
 - [**Explore Backend Documentation →**](./bondkonnect_api/README.md)
 
 ---
@@ -37,24 +45,28 @@ To get the entire ecosystem running locally:
 
 ### 1. Prerequisites
 - PHP 8.2+ & Composer
-- Node.js 18+ & npm
-- PostgreSQL (or access to a Railway DB instance)
+- Node.js 20+ & npm
+- PostgreSQL & Redis (local or Railway-hosted)
 
-### 2. Backend Setup
+### 2. Environment Setup
+**CRITICAL:** Environment files (`.env`, `.env.local`) are excluded from Git for security.
+1.  Copy `.env.example` in both `bondkonnect_api` and `bondkonnect_web`.
+2.  Fill in your credentials (Pusher, M-Pesa, etc.).
+3.  For production, these variables are managed directly in the **Railway Dashboard**.
+
+### 3. Backend Setup
 ```bash
 cd bondkonnect_api
 composer install
-cp .env.example .env # Configure your DB and M-Pesa keys
 php artisan key:generate
 php artisan migrate --seed
 php artisan serve --port=8000
 ```
 
-### 3. Frontend Setup
+### 4. Frontend Setup
 ```bash
 cd bondkonnect_web
 npm install
-cp .env.example .env.local # Point NEXT_PUBLIC_API_URL to http://localhost:8000/api
 npm run dev
 ```
 

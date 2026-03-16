@@ -1,10 +1,10 @@
 import { render, screen, renderHook } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { WebSocketProvider, useWebSocketContext } from './WebSocketProvider';
-import { useWebSocket } from '../../hooks/use-websocket';
+import { WebSocketProvider, useWebSocketContext } from '../WebSocketProvider';
+import { useWebSocket } from '../../../hooks/use-websocket';
 import React from 'react';
 
-vi.mock('../../hooks/use-websocket', () => ({
+vi.mock('../../../hooks/use-websocket', () => ({
   useWebSocket: vi.fn(),
 }));
 

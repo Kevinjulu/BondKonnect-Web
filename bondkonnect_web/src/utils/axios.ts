@@ -1,6 +1,9 @@
 import axios from 'axios';
+import { getBaseApiUrl } from '@/lib/utils/url-resolver';
 
-const axiosServices = axios.create();
+const axiosServices = axios.create({
+  baseURL: getBaseApiUrl(),
+});
 
 // Request Interceptor to add Auth Token
 axiosServices.interceptors.request.use(

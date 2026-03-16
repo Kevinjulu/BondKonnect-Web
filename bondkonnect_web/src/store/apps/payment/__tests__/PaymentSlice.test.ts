@@ -4,7 +4,7 @@ import paymentReducer, {
   paymentSuccess, 
   paymentFailure, 
   resetPaymentState 
-} from './PaymentSlice';
+} from '../PaymentSlice';
 
 describe('PaymentSlice Reducer', () => {
   const initialState = {

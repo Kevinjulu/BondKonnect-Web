@@ -6,7 +6,7 @@ import {
   addDays,
   calculateFinancialValues,
   FinancialRates
-} from './bond-math';
+} from '../bond-math';
 
 describe('Bond Math Utilities', () => {
   
