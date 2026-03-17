@@ -64,7 +64,7 @@ class WebSocketService {
     }
 
     this.userId = userId;
-    let websocketBaseUrl = getWebSocketBaseUrl();
+    const websocketBaseUrl = getWebSocketBaseUrl();
 
     // Check for valid Pusher key
     const pusherKey = process.env.NEXT_PUBLIC_PUSHER_APP_KEY;
