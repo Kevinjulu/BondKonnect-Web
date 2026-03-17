@@ -147,6 +147,4 @@ bondkonnect_web/yarn.lock
 bondkonnect_db/BondKonnect.Blazor.Server/appsettings.json
 
 # Environment files
-.env*
-.env.local
-.env.production
+# .env patterns removed for Git tracking as requested.
