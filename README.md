@@ -1,80 +1,114 @@
-# BondKonnect: Democratizing the Kenyan Bond Market
+# BondKonnect Frontend: Next-Gen Trading Interface
 
-BondKonnect is a premier financial technology platform designed to transform how Kenyans interact with the bond market. By bridging the gap between complex institutional trading and individual investors, BondKonnect provides a sophisticated yet accessible ecosystem for bond trading, portfolio analytics, and real-time market insights.
+This directory contains the **Next.js 15** frontend for BondKonnect. Built for the modern Kenyan investor, the application provides a high-density, real-time interface for bond trading and portfolio management.
 
-## Our Mission
-In the Kenyan financial landscape, bond trading has traditionally been perceived as a high-barrier, opaque sector. **BondKonnect's mission is to democratize access to fixed-income securities (IFB, FXD, and Infrastructure Bonds)**, empowering everyday Kenyan investors and financial professionals with the tools previously reserved for elite institutional desks.
-
-## How BondKonnect Helps Kenyan Users
-*   **Financial Inclusion:** Seamlessly invest in government and corporate bonds using locally preferred payment methods like **M-Pesa (STK Push & C2B)** alongside international options like PayPal.
-*   **Real-time Transparency:** Access live Central Bank of Kenya (CBK) bond yield curves and secondary market prices, eliminating the "information asymmetry" that often handicaps retail investors.
-*   **Professional Analytics:** Utilize institutional-grade bond calculators (YTM, Duration, Convexity) to make data-driven investment decisions tailored to the Kenyan tax environment.
-*   **Portfolio Empowerment:** Track realized and unrealized P&L in real-time, allowing users to manage their wealth with the same precision as a Tier-1 bank treasurer.
+## 🎨 UX Philosophy: Data-Driven Performance
+BondKonnect Web is designed with **financial clarity** and **actionability** at its core. Recognizing the unique needs of the Kenyan market—where mobile connectivity meets complex institutional requirements—our UX focuses on:
+- **High Information Density:** Dashboards that display critical market data (Yield Curves, Quote Books) without overwhelming the user.
+- **Visual Analytics:** Interactive charts (using Recharts) for bond performance and real-time yield curves.
+- **Mobile-Responsive Finance:** A seamless transition from a desktop trading desk to a mobile-optimized bond calculator.
+- **Fast Feedback:** Integrated page transitions and skeleton loaders (via `ContentLoader`) for a "live" feel even on slower network connections.
 
 ---
 
-## 🏗 System Architecture
+## 🌍 Infrastructure & Production Stack
 
-BondKonnect is built on a high-performance, decoupled architecture designed for 99.9% uptime and low-latency data delivery.
+BondKonnect is built on a resilient, high-performance cloud architecture:
 
-### 🌍 Unified Infrastructure (Railway)
-The entire ecosystem is now hosted on **Railway**, providing a seamless, auto-scaling environment for:
-- **Web Frontend:** Next.js 15 (App Router).
-- **API Backend:** Laravel 11.
-- **Database:** Managed PostgreSQL (with `pgvector` for AI).
-- **Cache/Queue:** Managed Redis.
-- **SSL/Networking:** Automatic managed certificates and private networking between services.
-
----
-
-### [Frontend: Next.js Powerhouse](./bondkonnect_web/README.md)
-The `bondkonnect_web` directory contains our cutting-edge user interface.
-- **Tech:** Next.js 15, TypeScript, Tailwind CSS, Redux Toolkit, TanStack Query.
-- [**Explore Frontend Documentation →**](./bondkonnect_web/README.md)
-
-### [Backend: Laravel Core](./bondkonnect_api/README.md)
-The `bondkonnect_api` directory houses our robust financial engine.
-- **Tech:** Laravel 11, PHP 8.2, PostgreSQL, Redis, Pusher.
-- [**Explore Backend Documentation →**](./bondkonnect_api/README.md)
+- **Frontend & Backend:** [Railway](https://railway.app/) for a unified, scalable deployment experience.
+- **Database:** [Railway PostgreSQL](https://railway.app/) for managed, high-performance relational data.
+- **Cache & Queue:** [Railway Redis](https://railway.app/) for low-latency caching and background job processing.
+- **Real-time:** [Pusher](https://pusher.com/) for instant WebSockets-based notifications and live market updates.
+- **Payments:** Seamless integration with [M-Pesa](https://www.safaricom.co.ke/personal/m-pesa) and [PayPal](https://www.paypal.com/).
+- **AI Layer:** **AiService** utilizing [Google Gemini](https://deepmind.google/technologies/gemini/) and `pgvector` for semantic search and contextual financial analysis.
 
 ---
 
-## 🚀 Quick Start (Full Stack)
+## 🛠 Frontend Technical Stack
 
-To get the entire ecosystem running locally:
+The frontend is a decoupled SPA (Single Page Application) built with:
+- **Framework:** [Next.js 15](https://nextjs.org/) (App Router) for SEO, performance, and modern routing.
+- **Language:** TypeScript for enterprise-grade type safety in financial logic.
+- **Styling:**
+    - **Tailwind CSS:** For rapid, utility-first layout and responsive design.
+    - **Shadcn UI (Radix UI):** For accessible, consistent core components.
+    - **Material UI (MUI):** For complex data components and thematic consistency in legacy views.
+- **State Management:**
+    - **Redux Toolkit:** Managing global application state (UI themes, session info).
+    - **TanStack Query (React Query):** Synchronizing server state, providing caching and auto-refetching for market data.
+
+---
+
+## 🔐 Advanced Role-Based Access Control (RBAC)
+
+BondKonnect implements a sophisticated, multi-tier RBAC system to cater to the diverse players in the Kenyan bond market:
+
+| Role | Target User | Capabilities |
+| :--- | :--- | :--- |
+| **Individual** | Retail Investor | Portfolio tracking, bond calculator, secondary market buying. |
+| **Agent** | Financial Advisor | Manage client portfolios, view aggregated stats. |
+| **Broker** | Certified Broker | Execute trades on behalf of clients, manage order books. |
+| **Dealer** | Institutional Dealer | Market making, direct CBK data access. |
+| **Corporate** | Institutional Entity | High-volume portfolio management and corporate reporting. |
+| **Admin** | System Operator | User management, security audits, and system configuration. |
+
+### Security & Redirection Flow:
+1.  **Authentication:** Secure login with 2FA/OTP (via Laravel backend).
+2.  **Role Selection:** Authenticated users select their active role (`/auth/role`), persisted via a secure `userRole` cookie.
+3.  **Middleware Guard:** `middleware.ts` enforces role-specific permissions, ensuring users only see modules they are authorized to access.
+
+---
+
+## 🤖 AI Concierge & Market Assistant
+BondKonnect Web includes an integrated AI Assistant designed to help you navigate the platform and understand complex bond data.
+
+- **Site-Aware:** Understands every feature of BondKonnect, from M-Pesa deposits to IFB bond rules.
+- **Terminal Aesthetic:** Matches our high-performance design system with a monochrome, professional interface.
+- **Actionable:** Provides direct internal links to dashboards, calculators, and billing sections.
+- **Interactive:** Features "Quick Suggestions" for common workflows like "How do I pay?" or "Where is my portfolio?".
+
+---
+
+## 🚀 Getting Started
 
 ### 1. Prerequisites
-- PHP 8.2+ & Composer
-- Node.js 20+ & npm
-- PostgreSQL & Redis (local or Railway-hosted)
+- Node.js 18.17+
+- npm
 
-### 2. Environment Setup
-**CRITICAL:** Environment files (`.env`, `.env.local`) are excluded from Git for security.
-1.  Copy `.env.example` in both `bondkonnect_api` and `bondkonnect_web`.
-2.  Fill in your credentials (Pusher, M-Pesa, etc.).
-3.  For production, these variables are managed directly in the **Railway Dashboard**.
-
-### 3. Backend Setup
+### 2. Installation
 ```bash
-cd bondkonnect_api
-composer install
-php artisan key:generate
-php artisan migrate --seed
-php artisan serve --port=8000
+npm install
 ```
 
-### 4. Frontend Setup
+### 3. Environment Configuration
+Create a `.env.local` file based on `.env.example`:
 ```bash
-cd bondkonnect_web
-npm install
+NEXT_PUBLIC_API_URL=http://your-backend-url/api
+NEXT_PUBLIC_PUSHER_KEY=your-pusher-key
+NEXT_PUBLIC_PUSHER_CLUSTER=mt1
+```
+
+### 4. Development
+```bash
 npm run dev
 ```
 
-## 🛡 Security & Stability
-BondKonnect implements enterprise-grade security, including:
-- **Multi-Session Management:** Monitor and revoke active login sessions from any device.
-- **RBAC:** Granular permissions for Individuals, Agents, Brokers, and Dealers.
-- **Audit Trails:** Comprehensive logging of all financial transactions and sensitive system changes.
+---
+
+## 🧪 Testing & Quality Assurance
+
+We maintain 100% confidence in our financial calculations through rigorous testing:
+- **Unit & Integration:** [Vitest](https://vitest.dev/) and React Testing Library for component and logic validation.
+- **E2E:** [Playwright](https://playwright.dev/) for critical flows like trading and payments.
+- **Linting:** ESLint with strict financial data formatting rules.
+
+```bash
+# Run unit tests
+npm run test
+
+# Run E2E tests
+npx playwright test
+```
 
 ## 📄 License
-Proprietary software. © 2026 BondKonnect. All rights reserved.
+Proprietary software. Part of the BondKonnect Ecosystem.

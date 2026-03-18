@@ -2,6 +2,7 @@
  * Rating API Actions
  */
 
+import { getBaseApiUrl } from '../utils/url-resolver';
 import { getHeaders } from './auth.actions';
 import {
   UserRating,
@@ -14,16 +15,7 @@ import {
   PaginatedResponse,
 } from '@/lib/types/ratings';
 
-const APP_ENVIRONMENT = process.env.APP_ENV;
-let BASE_URL = "";
-
-if (APP_ENVIRONMENT === "production") {
-  BASE_URL = process.env.NEXT_PUBLIC_BK_PROD_API_URL ?? "";
-} else if (APP_ENVIRONMENT === "uat") {
-  BASE_URL = process.env.NEXT_PUBLIC_BK_UAT_API_URL ?? "";
-} else {
-  BASE_URL = process.env.NEXT_PUBLIC_BK_DEV_API_URL ?? "";
-}
+const BASE_URL = getBaseApiUrl();
 
 /**
  * Submit a new rating
