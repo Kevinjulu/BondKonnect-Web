@@ -192,7 +192,7 @@ export const resendOtp = async (queryParams: string) => {
 
 export const forgotPassword = async (queryParams: string) => {
   try {
-    const url = `${BASE_URL}/V1/auth/forgot-password?${queryParams}`;
+    const url = `${BASE_URL}/V1/auth/user-reset-password?${queryParams}`;
     const response = await fetch(url, {
       method: "POST",
       headers: await getHeaders(),
