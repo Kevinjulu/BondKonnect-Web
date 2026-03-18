@@ -1,10 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
-import { AccountTab } from '../app/(dashboard)/components/apps/account/AccountTab'
-import axios from '../utils/axios'
+import { AccountTab } from '../AccountTab'
+import axios from '@/utils/axios'
 
 // Mock axios
-vi.mock('../utils/axios', () => ({
+vi.mock('@/utils/axios', () => ({
   default: {
     post: vi.fn(),
   },

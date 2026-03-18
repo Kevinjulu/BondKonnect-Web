@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import AuthLogin from './AuthLogin';
+import AuthLogin from '../AuthLogin';
 import { login } from '@/lib/actions/api.actions';
 import React from 'react';
 

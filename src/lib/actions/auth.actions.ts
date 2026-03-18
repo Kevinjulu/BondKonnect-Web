@@ -2,7 +2,9 @@
 import { cookies } from "next/headers";
 import { ModulePermissions, ActionPermissions } from "@/app/config/permissions";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BK_RENDER_API_URL;
+import { getBaseApiUrl } from '../utils/url-resolver';
+
+const BASE_URL = getBaseApiUrl();
 
 export const getHeaders = async (cookie?: string) => {
   const headers: Record<string, string> = {

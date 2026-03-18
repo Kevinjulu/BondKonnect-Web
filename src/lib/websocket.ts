@@ -1,6 +1,8 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
+import { getWebSocketBaseUrl } from './utils/url-resolver';
+
 declare global {
   interface Window {
     Pusher: typeof Pusher;
@@ -62,16 +64,7 @@ class WebSocketService {
     }
 
     this.userId = userId;
-    let websocketBaseUrl = "";
-
-    const appEnv = process.env.APP_ENV ;
-    if (appEnv === "production") {
-      websocketBaseUrl = process.env.NEXT_PUBLIC_BK_PROD_WEBSOCKET_API_URL || "";
-    } else if (appEnv === "uat") {
-      websocketBaseUrl = process.env.NEXT_PUBLIC_BK_UAT_WEBSOCKET_API_URL || "";
-    } else {
-      websocketBaseUrl = process.env.NEXT_PUBLIC_BK_DEV_WEBSOCKET_API_URL || "";
-    }
+    const websocketBaseUrl = getWebSocketBaseUrl();
 
     // Check for valid Pusher key
     const pusherKey = process.env.NEXT_PUBLIC_PUSHER_APP_KEY;

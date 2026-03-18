@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { getBaseApiUrl } from '@/lib/utils/url-resolver';
 
 const axiosServices = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: getBaseApiUrl(),
 });
 
 // Request Interceptor to add Auth Token
