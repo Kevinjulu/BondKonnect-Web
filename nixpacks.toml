@@ -14,3 +14,4 @@ command = "npm run start"
 
 [variables]
 NODE_ENV = "production"
+HOSTNAME = "0.0.0.0"
