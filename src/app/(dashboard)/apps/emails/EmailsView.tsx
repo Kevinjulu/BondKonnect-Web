@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { toast } from "react-hot-toast"
 import { PiImage } from "react-icons/pi"
 import { cn } from "@/lib/utils"
+import axios from "@/utils/axios";
 
 interface EmailViewProps {
   email: {
@@ -64,24 +65,23 @@ export default function EmailView({ userDetails, email, onClose }: UserDataProps
         formData.append("attachments[]", file);
       });
 
-      const response = await fetch("/api/emails/reply", {
-        method: "POST",
-        body: formData,
+      const response = await axios.post("/api/emails/reply", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.data.success) {
         toast.success("Reply sent successfully");
         setIsReplying(false);
         setReplyContent("");
         setAttachments([]);
       } else {
-        toast.error(data.message || "Failed to send reply");
+        toast.error(response.data.message || "Failed to send reply");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending reply:", error);
-      toast.error("Failed to send reply");
+      toast.error(error.message || "Failed to send reply");
     }
   };
 
@@ -94,9 +94,10 @@ export default function EmailView({ userDetails, email, onClose }: UserDataProps
   const handleDownloadAttachment = async (attachment: AttachmentData) => {
     try {
       if (typeof window === 'undefined' || typeof document === 'undefined') return;
-      const response = await fetch(`/api/emails/attachments/${attachment.id}`);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const response = await axios.get(`/api/emails/attachments/${attachment.id}`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
       const a = document.createElement("a");
       a.href = url;
       a.download = attachment.name;

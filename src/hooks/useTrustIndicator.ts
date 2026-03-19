@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import axios from '@/utils/axios';
 
 interface TrendData {
   trend_direction: 'improving' | 'stable' | 'declining';
@@ -60,24 +61,10 @@ export const useTrustIndicator = (
       if (!userId) return null;
 
       try {
-        const response = await fetch(
-          `/api/v1/users/${userId}/trust-metrics`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch trust metrics: ${response.statusText}`);
-        }
-
-        return (await response.json()).data as TrustMetrics;
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : 'Failed to fetch trust metrics';
+        const response = await axios.get(`/V1/users/${userId}/trust-metrics`);
+        return response.data.data as TrustMetrics;
+      } catch (err: any) {
+        const message = err.message || 'Failed to fetch trust metrics';
         setError(message);
         throw err;
       }
@@ -94,24 +81,10 @@ export const useTrustIndicator = (
       if (!userId) return [];
 
       try {
-        const response = await fetch(
-          `/api/v1/users/${userId}/ratings?limit=10`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch ratings: ${response.statusText}`);
-        }
-
-        return (await response.json()).data as RatingRecord[];
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : 'Failed to fetch ratings';
+        const response = await axios.get(`/V1/users/${userId}/ratings?limit=10`);
+        return response.data.data as RatingRecord[];
+      } catch (err: any) {
+        const message = err.message || 'Failed to fetch ratings';
         setError(message);
         return [];
       }
