@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
+import axios from "@/utils/axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Link from "next/link";
@@ -61,25 +62,16 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
       const pageName = pathname.split('/').pop() || 'Dashboard';
       const user = await getCurrentUserDetails();
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/V1/ai/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        body: JSON.stringify({
-          prompt: promptToSend,
-          user_email: user?.email,
-          context: {
-            page: pageName
-          }
-        }),
+      const response = await axios.post('/V1/ai/chat', {
+        prompt: promptToSend,
+        user_email: user?.email,
+        context: {
+          page: pageName
+        }
       });
 
-      const data = await response.json();
-
-      if (data.success) {
-        setMessages((prev) => [...prev, { role: "assistant", content: data.data }]);
+      if (response.data.success) {
+        setMessages((prev) => [...prev, { role: "assistant", content: response.data.data }]);
       } else {
         setMessages((prev) => [
           ...prev, 

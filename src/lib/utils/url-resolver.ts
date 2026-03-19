@@ -7,43 +7,27 @@ export const getBaseApiUrl = () => {
     return process.env.NEXT_PUBLIC_API_URL;
   }
 
-  // Then prioritize Railway or Render if we are in a deployed environment
-  if (process.env.NEXT_PUBLIC_BK_RAILWAY_API_URL && process.env.NODE_ENV === 'production') {
-    return process.env.NEXT_PUBLIC_BK_RAILWAY_API_URL;
-  }
-  
-  if (process.env.NEXT_PUBLIC_BK_RENDER_API_URL && process.env.NODE_ENV === 'production') {
-    return process.env.NEXT_PUBLIC_BK_RENDER_API_URL;
+  // Fallback for local development if nothing else is provided
+  if (process.env.NODE_ENV === 'development') {
+    return "http://localhost:8000/api";
   }
 
-  const appEnv = process.env.APP_ENV || process.env.NEXT_PUBLIC_APP_ENV;
-
-  if (appEnv === "production") {
-    return process.env.NEXT_PUBLIC_BK_PROD_API_URL || "https://api.bondkonnect.com/api";
-  } else if (appEnv === "uat") {
-    return process.env.NEXT_PUBLIC_BK_UAT_API_URL || "https://api-uat.bondkonnect.com/api";
-  }
-
-  // Default to local development
-  return process.env.NEXT_PUBLIC_BK_DEV_API_URL || "http://localhost:8000/api";
+  // Production fallback (last resort)
+  return "https://api.bondkonnect.com/api";
 };
 
 export const getWebSocketBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_BK_RAILWAY_WEBSOCKET_API_URL && process.env.NODE_ENV === 'production') {
-    return process.env.NEXT_PUBLIC_BK_RAILWAY_WEBSOCKET_API_URL;
+  // Prioritize explicit WebSocket URL or extract from API URL
+  if (process.env.NEXT_PUBLIC_WEBSOCKET_URL) {
+    return process.env.NEXT_PUBLIC_WEBSOCKET_URL;
   }
 
-  if (process.env.NEXT_PUBLIC_BK_RENDER_WEBSOCKET_API_URL && process.env.NODE_ENV === 'production') {
-    return process.env.NEXT_PUBLIC_BK_RENDER_WEBSOCKET_API_URL;
+  const apiUrl = getBaseApiUrl();
+  try {
+    const url = new URL(apiUrl);
+    // Remove /api from the end for WebSocket base
+    return `${url.protocol}//${url.host}`;
+  } catch (e) {
+    return apiUrl.replace('/api', '');
   }
-
-  const appEnv = process.env.APP_ENV || process.env.NEXT_PUBLIC_APP_ENV;
-
-  if (appEnv === "production") {
-    return process.env.NEXT_PUBLIC_BK_PROD_WEBSOCKET_API_URL || "https://api.bondkonnect.com";
-  } else if (appEnv === "uat") {
-    return process.env.NEXT_PUBLIC_BK_UAT_WEBSOCKET_API_URL || "https://api-uat.bondkonnect.com";
-  }
-
-  return process.env.NEXT_PUBLIC_BK_DEV_WEBSOCKET_API_URL || "http://localhost:8000";
 };

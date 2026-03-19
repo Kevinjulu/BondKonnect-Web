@@ -2,7 +2,7 @@
 import * as React from 'react'
 import { Check, FileIcon, Upload, X, FileText, MousePointer2, CloudUpload, AlertCircle } from 'lucide-react'
 import Papa from 'papaparse'
-import axios from 'axios'
+import axios from '@/utils/axios'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
