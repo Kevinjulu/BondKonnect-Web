@@ -6,6 +6,13 @@ import { getBaseApiUrl } from '../utils/url-resolver';
 
 const BASE_URL = getBaseApiUrl();
 
+// Debugging: Log BASE_URL on server start
+console.log("Server Actions initialized with BASE_URL:", BASE_URL);
+
+if (!BASE_URL) {
+  console.error("CRITICAL ERROR: BASE_URL is not defined in Server Actions!");
+}
+
 export const getHeaders = async (cookie?: string) => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -15,58 +22,78 @@ export const getHeaders = async (cookie?: string) => {
   return headers;
 };
 
-export const login = async (queryParams: string) => {
-  try {
-    const url = `${BASE_URL}/V1/auth/user-login?${queryParams}`;
-    console.log("Server Action: Attempting login at URL:", url);
-    console.log("Using BASE_URL:", BASE_URL);
+/**
+ * Helper to handle fetch responses and log errors
+ */
+async function handleResponse(response: Response, url: string) {
+  const contentType = response.headers.get("content-type");
+  
+  if (contentType && contentType.includes("text/html")) {
+    console.error(`CRITICAL: Received HTML instead of JSON from ${url}. This usually means a redirect (404/middleware) or wrong API URL.`);
+    const htmlText = await response.text();
+    console.error("Response Preview (first 200 chars):", htmlText.substring(0, 200));
+    return {
+      success: false,
+      message: "Server returned an invalid HTML response. Check API configuration.",
+      status: response.status,
+      isHtml: true
+    };
+  }
 
+  try {
+    const result = await response.json();
+    if (!response.ok) {
+      console.warn(`API Error [${response.status}] for ${url}:`, result.message || "No message");
+      return {
+        success: false,
+        message: result.message || "Action failed",
+        errors: result.errors || null,
+        status: response.status,
+        data: result
+      };
+    }
+    return { success: true, data: result, message: result.message };
+  } catch (e) {
+    console.error(`Failed to parse JSON response from ${url}:`, e);
+    return {
+      success: false,
+      message: "Failed to parse server response",
+      status: response.status
+    };
+  }
+}
+
+export const login = async (queryParams: string) => {
+  const url = `${BASE_URL}/V1/auth/user-login?${queryParams}`;
+  console.log(`[Server Action] login -> POST ${url}`);
+  
+  try {
     const response = await fetch(url, {
       method: "POST",
       headers: await getHeaders(),
       credentials: "include",
     });
     
-    console.log("Server Action: Login response status:", response.status);
-    const result = await response.json();
-    console.log("Server Action: Login result:", JSON.stringify(result).substring(0, 100));
-    
-    if (!response.ok) {
-      return {
-        success: false,
-        message: result.message || "Login failed",
-        errors: result.errors || null,
-        status: response.status
-      };
-    }
-    
-    return {
-      success: true,
-      data: result,
-      message: result.message || "Login successful"
-    };
+    return await handleResponse(response, url);
   } catch (error: any) {
-    console.error("CRITICAL: Server Action Login error:", error);
+    console.error(`[Server Action] login CRITICAL ERROR:`, error.message);
     return {
       success: false,
-      message: `API Connectivity Error: ${error.message || 'Unknown error'}. URL: ${BASE_URL}`,
+      message: `API Connection Failed: ${error.message}. Target: ${url}`,
       status: 503
     };
   }
 };
 
 export const logout = async (cookie: string) => {
+  const url = `${BASE_URL}/V1/auth/user-logout`;
   try {
-    const response = await fetch(`${BASE_URL}/V1/auth/user-logout`, {
+    const response = await fetch(url, {
       method: "POST",
       headers: await getHeaders(cookie),
       credentials: "include",
     });
-    const result = await response.json();
-    return {
-      success: response.ok,
-      message: result.message || (response.ok ? "Logged out" : "Logout failed")
-    };
+    return await handleResponse(response, url);
   } catch (error) {
     console.error("Logout error:", error);
     return { success: false, message: "Network error during logout" };
@@ -74,23 +101,15 @@ export const logout = async (cookie: string) => {
 };
 
 export const register = async (data: any) => {
+  const url = `${BASE_URL}/V1/auth/user-register`;
   try {
-    const response = await fetch(`${BASE_URL}/V1/auth/user-register`, {
+    const response = await fetch(url, {
       method: "POST",
       headers: await getHeaders(),
       body: JSON.stringify(data),
       credentials: "include",
     });
-    const result = await response.json();
-    if (!response.ok) {
-      return {
-        success: false,
-        message: result.message || "Registration failed",
-        errors: result.errors || null,
-        status: response.status
-      };
-    }
-    return { success: true, data: result, message: result.message || "Registration successful" };
+    return await handleResponse(response, url);
   } catch (error) {
     console.error("Registration error:", error);
     return { success: false, message: "Could not connect to server", status: 503 };
@@ -98,21 +117,14 @@ export const register = async (data: any) => {
 };
 
 export const getCurrentUser = async (queryParams: string) => {
+  const url = `${BASE_URL}/V1/auth/get-user-details`;
   try {
-    const response = await fetch(`${BASE_URL}/V1/auth/get-user-details`, {
+    const response = await fetch(url, {
       method: "POST",
       headers: await getHeaders(queryParams),
       credentials: "include",
     });
-    const result = await response.json();
-    if (!response.ok) {
-      return {
-        success: false,
-        message: "Session expired or invalid",
-        status: response.status
-      };
-    }
-    return { success: true, data: result };
+    return await handleResponse(response, url);
   } catch (error) {
     console.error("Get user details error:", error);
     return { success: false, message: "Server unreachable", status: 503 };

@@ -9,51 +9,40 @@ import { Button } from '@/components/ui/button';
 import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-// const axios = require('@/utils/axios');
-import axios from 'axios';
+import axios from '@/utils/axios';
 import { login } from "@/lib/actions/api.actions";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
-// import { Icons } from "@/components/icons";
-// import PageContainer from "../../(dashboard)/components/container/PageContainer";
+import { getBaseApiUrl } from "@/lib/utils/url-resolver";
 
-
-  
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => {
     const emailRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
-    const [isClient, setIsClient] = useState(false);
     const router = useRouter();
   
-      // Snackbar state
-      const [snackbarOpen, setSnackbarOpen] = useState(false);
-      const [snackbarTitle, setSnackbarTitle] = useState("");
-      const [snackbarMessage, setSnackbarMessage] = useState("");
-      const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
-    // loading
+    // Snackbar state
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarTitle, setSnackbarTitle] = useState("");
+    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+    
     const [loading, setLoading] = useState(false);
-    const [load, setLoad] = useState(false);
+
     useEffect(() => {
-      // setIsClient(true);
       const checkUser = async () => {
         const user = await getCurrentUserDetails();
         if (user) {
-          redirect("/");
+          router.push("/");
         }
       };
   
       checkUser();
-    }, []);
+    }, [router]);
   
-  
-    const handleSnackbarClose = () => {
-      setSnackbarOpen(false);
-    };
-  
-    const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
-      setLoading(true);
+    const handleLogin = async (e: React.FormEvent) => {
       e.preventDefault();
+      setLoading(true);
   
       const email = emailRef.current?.value || "";
       const password = passwordRef.current?.value || "";
@@ -76,21 +65,31 @@ const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) =
       }
   
       try {
-        const queryParams = new URLSearchParams({
-          email: email,
-          password: password,
-        }).toString();
-  
-        const result = await login(queryParams);
-        console.log("Login Result:", result);
+        const API = getBaseApiUrl();
+        console.log("Admin Login: Connecting to API:", API);
+
+        if (!API) {
+          throw new Error("API URL is not configured.");
+        }
+
+        // Step 1: CSRF
+        const baseUrl = API.split('/api')[0];
+        await fetch(`${baseUrl}/sanctum/csrf-cookie`, {
+          credentials: 'include'
+        });
+
+        // Step 2: Login
+        const result = await login(new URLSearchParams({ email, password }).toString());
+        
+        console.log("Admin Login Result:", result);
+        
         if (result && result.success) {
           setSnackbarMessage(result.message || "Login Successful, OTP sent.");
           setSnackbarSeverity("success");
           setSnackbarOpen(true);
   
-          // Redirect to the dashboard or another page
+          // Redirect to the OTP page
           router.push(`/admin/otp?email=${encodeURIComponent(email)}`);
-         // setLoad(true);
         } else {
           setSnackbarMessage(
             result?.message || "An error occurred during login. Please try again."
@@ -98,9 +97,9 @@ const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) =
           setSnackbarSeverity("error");
           setSnackbarOpen(true);
         }
-      } catch (error) {
-        console.error("Login Error:", error);
-        setSnackbarMessage("An error occurred during login. Please try again.");
+      } catch (error: any) {
+        console.error("Admin Login Error:", error);
+        setSnackbarMessage(error.message || "An error occurred during login.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       } finally {

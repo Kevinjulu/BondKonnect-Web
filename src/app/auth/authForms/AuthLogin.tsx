@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { login } from "@/lib/actions/api.actions";
 import axios from "@/utils/axios";
+import { getBaseApiUrl } from "@/lib/utils/url-resolver";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { Loader2, Sparkles, ArrowRight } from "lucide-react";
 
