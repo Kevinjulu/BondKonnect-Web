@@ -69,11 +69,18 @@ const AuthLogin = ({ icon, title, subtitle, socialauths, subtext }: loginType) =
       setLoading(true);
 
       try {
-        const API = process.env.NEXT_PUBLIC_API_URL;
-        console.log("API URL:", API);
+        const API = getBaseApiUrl();
+        console.log("Attempting to connect to API:", API);
+
+        if (!API) {
+          throw new Error("API URL is not configured. Check your environment variables.");
+        }
 
         // Step 1: Initialize CSRF protection (Sanctum requirement)
-        await fetch(`${API.replace('/api', '')}/sanctum/csrf-cookie`, {
+        const baseUrl = API.split('/api')[0];
+        console.log("Initializing CSRF at:", `${baseUrl}/sanctum/csrf-cookie`);
+        
+        await fetch(`${baseUrl}/sanctum/csrf-cookie`, {
           credentials: 'include'
         });
 
