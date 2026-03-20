@@ -21,6 +21,7 @@ export const login = async (queryParams: string) => {
     const response = await fetch(url, {
       method: "POST",
       headers: await getHeaders(),
+      credentials: "include",
     });
     
     const result = await response.json();
@@ -54,6 +55,7 @@ export const logout = async (cookie: string) => {
     const response = await fetch(`${BASE_URL}/V1/auth/user-logout`, {
       method: "POST",
       headers: await getHeaders(cookie),
+      credentials: "include",
     });
     const result = await response.json();
     return {
@@ -72,6 +74,7 @@ export const register = async (data: any) => {
       method: "POST",
       headers: await getHeaders(),
       body: JSON.stringify(data),
+      credentials: "include",
     });
     const result = await response.json();
     if (!response.ok) {
@@ -94,6 +97,7 @@ export const getCurrentUser = async (queryParams: string) => {
     const response = await fetch(`${BASE_URL}/V1/auth/get-user-details`, {
       method: "POST",
       headers: await getHeaders(queryParams),
+      credentials: "include",
     });
     const result = await response.json();
     if (!response.ok) {
@@ -115,6 +119,7 @@ export const getAllUsers = async () => {
     const response = await fetch(`${BASE_URL}/V1/auth/get-all-users`, {
       method: "POST",
       headers: await getHeaders(),
+      credentials: "include",
     });
     return await response.json();
   } catch (error) {
@@ -160,6 +165,7 @@ export async function otpVerify(queryParams: string) {
     const response = await fetch(url, {
       method: "POST",
       headers: await getHeaders(),
+      credentials: "include",
     });
     const result = await response.json();
     if (!response.ok) {
@@ -178,6 +184,7 @@ export const resendOtp = async (queryParams: string) => {
     const response = await fetch(url, {
       method: "POST",
       headers: await getHeaders(),
+      credentials: "include",
     });
     const result = await response.json();
     if (!response.ok) {
@@ -196,6 +203,7 @@ export const forgotPassword = async (queryParams: string) => {
     const response = await fetch(url, {
       method: "POST",
       headers: await getHeaders(),
+      credentials: "include",
     });
     return await response.json();
   } catch (error) {
@@ -223,6 +231,7 @@ export const generateCsrfToken = async () => {
     const response = await fetch(`${BASE_URL}/V1/auth/generate-csrf-token`, {
       method: "GET",
       headers: await getHeaders(),
+      credentials: "include",
     });
     return await response.json();
   } catch (error) {
@@ -237,6 +246,7 @@ export const getRoles = async () => {
     const response = await fetch(`${BASE_URL}/V1/auth/get-roles`, {
       method: "GET",
       headers: await getHeaders(),
+      credentials: "include",
     });
     return await response.json();
   } catch (error) {
@@ -250,6 +260,7 @@ export const getUsersByRole = async (data: { role_id: number }) => {
     const response = await fetch(`${BASE_URL}/V1/auth/get-users-by-role?role_id=${data.role_id}`, {
       method: "GET",
       headers: await getHeaders(),
+      credentials: "include",
     });
     return await response.json();
   } catch (error) {
@@ -263,6 +274,7 @@ export const getRolePermissions = async (data: { role_id: number }) => {
     const response = await fetch(`${BASE_URL}/V1/auth/get-role-permissions?role_id=${data.role_id}`, {
       method: "GET",
       headers: await getHeaders(),
+      credentials: "include",
     });
     return await response.json();
   } catch (error) {
@@ -276,6 +288,7 @@ export const getUserPermissions = async (data: { role_id: number, user_email: st
     const response = await fetch(`${BASE_URL}/V1/auth/get-user-permissions?role_id=${data.role_id}&email=${encodeURIComponent(data.user_email)}`, {
       method: "GET",
       headers: await getHeaders(),
+      credentials: "include",
     });
     return await response.json();
   } catch (error) {
@@ -289,6 +302,7 @@ export const getAllRolesForUser = async (email: string) => {
     const response = await fetch(`${BASE_URL}/V1/auth/get-all-roles-for-user?email=${encodeURIComponent(email)}`, {
       method: "GET",
       headers: await getHeaders(),
+      credentials: "include",
     });
     return await response.json();
   } catch (error) {
@@ -358,6 +372,7 @@ export const getAllBrokersAndDealers = async () => {
     const response = await fetch(`${BASE_URL}/V1/auth/get-all-brokers-and-dealers`, {
       method: "GET",
       headers: await getHeaders(),
+      credentials: "include",
     });
     return await response.json();
   } catch (error) {

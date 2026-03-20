@@ -68,6 +68,11 @@ const AuthLogin = ({ icon, title, subtitle, socialauths, subtext }: loginType) =
       setLoading(true);
 
       try {
+        // Step 1: Initialize CSRF protection
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL.replace('/api', '')}/sanctum/csrf-cookie`, {
+          credentials: 'include'
+        });
+
         const queryParams = `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
         const result = await login(queryParams);
 
