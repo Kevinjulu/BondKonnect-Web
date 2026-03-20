@@ -1,20 +1,18 @@
 import { useRef, useState, useEffect } from "react";
-
-import { redirect, useRouter,useSearchParams, } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { loginType } from "../../(dashboard)/types/auth/auth";
 import CustomSnackbar from "../../(dashboard)/layouts/shared/snackbar/CustomSnackbar";
-
 import { Button } from '@/components/ui/button';
-import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-// const axios = require('@/utils/axios');
-import { setPassword } from "@/lib/actions/api.actions";
+import axios from "@/utils/axios";
+import { getBaseApiUrl } from "@/lib/utils/url-resolver";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
+import { Loader2 } from "lucide-react";
 
 interface AuthRegisterProps extends loginType {
   csrfToken?: { token: string; timestamp: number } | null;
-
 }
 
 // Password validation regex
@@ -23,11 +21,9 @@ const hasUppercase = /[A-Z]/;
 const hasDigit = /\d/;
 const hasSymbol = /[@$!%*?&]/;
 
-const AuthSetPassword = ({ icon, title,email, subtitle, socialauths,subtext,csrfToken, }: AuthRegisterProps) => {
-
+const AuthSetPassword = ({ icon, title, subtitle, socialauths, subtext, csrfToken }: AuthRegisterProps) => {
     const passwordRef = useRef<HTMLInputElement>(null);
     const repasswordRef = useRef<HTMLInputElement>(null);
-    const [isClient, setIsClient] = useState(false);
     const router = useRouter();
     const queryParams = useSearchParams();
     const emailFromLink = queryParams.get("e");
@@ -36,53 +32,41 @@ const AuthSetPassword = ({ icon, title,email, subtitle, socialauths,subtext,csrf
     const t = queryParams.get("t") || "";
     const [isRes, setIsRes] = useState(is_res);
 
-  // State to manage password visibility
-  const [showPassword, setShowPassword] = useState(false);
-  const [showReenterPassword, setShowReenterPassword] = useState(false);
-
-
-      // Snackbar state
+    // Snackbar state
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarTitle, setSnackbarTitle] = useState("");
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
-    // loading
+    
     const [loading, setLoading] = useState(false);
   
     useEffect(() => {
-      // setIsClient(true);
       const checkUser = async () => {
         const user = await getCurrentUserDetails();
         if (user) {
           redirect("/");
         }
       };
-  
       checkUser();
     }, []);
-  
   
     const handleSnackbarClose = () => {
       setSnackbarOpen(false);
     };
+
     const validatePassword = (password: string, reenteredPassword: string) => {
       const errors: string[] = [];
-  
-      if (!minLength.test(password))
-        errors.push("Password must be at least 8 characters long.");
-      if (!hasUppercase.test(password))
-        errors.push("Password must include at least one uppercase letter.");
-      if (!hasDigit.test(password))
-        errors.push("Password must include at least one number.");
-      if (!hasSymbol.test(password))
-        errors.push("Password must include at least one symbol (e.g., @$!%*?&).");
+      if (!minLength.test(password)) errors.push("Password must be at least 8 characters long.");
+      if (!hasUppercase.test(password)) errors.push("Password must include at least one uppercase letter.");
+      if (!hasDigit.test(password)) errors.push("Password must include at least one number.");
+      if (!hasSymbol.test(password)) errors.push("Password must include at least one symbol (e.g., @$!%*?&).");
       if (password !== reenteredPassword) errors.push("Passwords do not match.");
-  
       return errors;
     };
   
-    const handleSetPassword = async () => {
-      // Validate CSRF token first
+    const handleSetPassword = async (e: React.FormEvent) => {
+      e.preventDefault();
+
       if (!csrfToken?.token) {
         setSnackbarMessage("Invalid session. Please refresh the page.");
         setSnackbarSeverity("error");
@@ -90,8 +74,8 @@ const AuthSetPassword = ({ icon, title,email, subtitle, socialauths,subtext,csrf
         return;
       }
   
-    const password = passwordRef.current?.value || "";
-    const reenteredPassword = repasswordRef.current?.value || "";
+      const password = passwordRef.current?.value || "";
+      const reenteredPassword = repasswordRef.current?.value || "";
   
       const validationErrors = validatePassword(password, reenteredPassword);
       if (validationErrors.length > 0) {
@@ -99,15 +83,6 @@ const AuthSetPassword = ({ icon, title,email, subtitle, socialauths,subtext,csrf
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
         return;
-      }
-  
-      if (emailFromLink) {
-        const formData = new FormData();
-        formData.append("e", emailFromLink);
-        formData.append("is_res", is_res ? "1" : "0");
-        formData.append("s", s);
-        formData.append("csrf_token", csrfToken.token);
-        formData.append("csrf_timestamp", csrfToken.timestamp.toString());
       }
   
       if (!emailFromLink) {
@@ -120,7 +95,13 @@ const AuthSetPassword = ({ icon, title,email, subtitle, socialauths,subtext,csrf
       setLoading(true);
   
       try {
-        const queryParams = new URLSearchParams({
+        const API = getBaseApiUrl();
+        if (!API) throw new Error("API URL is not configured.");
+
+        const baseUrl = API.split('/api')[0];
+        await fetch(`${baseUrl}/sanctum/csrf-cookie`, { credentials: 'include' });
+
+        const response = await axios.post('/V1/auth/set-password', {
           email: emailFromLink,
           password: password,
           is_res: isRes ? "1" : "0",
@@ -128,122 +109,87 @@ const AuthSetPassword = ({ icon, title,email, subtitle, socialauths,subtext,csrf
           t: t,
           csrf_token: csrfToken.token,
           csrf_timestamp: csrfToken.timestamp.toString(),
-        }).toString();
-  
-        const result = await setPassword(queryParams);
+        });
+
+        const result = response.data;
   
         if (result?.success) {
-          setTimeout(() => {
-            setSnackbarMessage(
-              "Password set successfully! You can now log in with your new password."
-            );
-            setSnackbarSeverity("success");
-            setSnackbarOpen(true);
-          }, 300);
-          router.push("/auth/login");
+          setSnackbarMessage("Password set successfully! Redirecting to login...");
+          setSnackbarSeverity("success");
+          setSnackbarOpen(true);
+          setTimeout(() => router.push("/auth/login"), 2000);
         } else {
           setSnackbarMessage(result.message || "An error occurred.");
           setSnackbarSeverity("error");
           setSnackbarOpen(true);
         }
       } catch (error: any) {
-        setSnackbarMessage(error.message);
+        setSnackbarMessage(error.message || "An unexpected error occurred.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
+      } finally {
+        setLoading(false);
       }
-  
-      setLoading(false);
     };
   
-    useEffect(() => {
-      if (!emailFromLink) {
-        console.log("weuh");
-      }
-    }, [emailFromLink]);
-
     return (
       <>
-      {/* Add hidden input for CSRF token */}
-      <input type="hidden" name="csrf_token" value={csrfToken?.token || ""} />
-
         <Card className="mx-auto w-full max-w-sm">     
-        <CardHeader className="items-center">
-          {icon}
+          <CardHeader className="items-center">
+            {icon}
+            {title && <CardTitle className="text-xl">{title}</CardTitle>}
+            {subtitle && <CardDescription>{subtitle}</CardDescription>}
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSetPassword} className="grid gap-4">
+              <input type="hidden" name="csrf_token" value={csrfToken?.token || ""} />
 
-          {title ? (
-            <CardTitle className="text-xl">{title}</CardTitle>   
-          ) : null}
-          
-          {subtitle ? (
-            <CardDescription>{subtitle}</CardDescription>  
-          ) : null}
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
-              {socialauths}
-
-              {socialauths ? (            
-                <div className="flex items-center gap-4">
-                <span className="h-px w-full bg-input"></span>
-                <span className="text-xs text-muted-foreground">OR</span>
-                <span className="h-px w-full bg-input"></span>
-               </div>
-              
-              ) : null}
-  
-
-                <div className="grid gap-2">
-                  <div className="flex justify-between">
-                    <Label htmlFor="password">Enter Password</Label>
-                  </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    name=""
-                    placeholder="Enter your password"
-                    ref={passwordRef}
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <div className="flex justify-between">
-                    <Label htmlFor="password">Re-enter Password</Label>
-                  </div>
-                  <Input
-                    id="repassword"
-                    type="password"
-                    name=""
-                    placeholder="Re-enter your password"
-                    ref={repasswordRef}
-                    required
-                  />
-                </div>
-              {loading ? (
-                <Button type="submit" className="w-full" color="primary" onClick={handleSetPassword}   disabled>
-                    Loading...
-                </Button>
-              ) : (
-                <Button type="submit" className="w-full"  color="primary" onClick={handleSetPassword}  >
-                  Set Password
-                </Button>
-
-              )}
+              <div className="grid gap-2">
+                <Label htmlFor="password">Enter Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  ref={passwordRef}
+                  required
+                  disabled={loading}
+                />
               </div>
-            </CardContent>
-          </Card>
-
-         {subtext}
-  
+              <div className="grid gap-2">
+                <Label htmlFor="repassword">Re-enter Password</Label>
+                <Input
+                  id="repassword"
+                  type="password"
+                  placeholder="Re-enter your password"
+                  ref={repasswordRef}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Setting Password...
+                  </>
+                ) : (
+                  "Set Password"
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+        {subtext}
         <CustomSnackbar
-        open={snackbarOpen}
-        onClose={handleSnackbarClose}
-        title={snackbarTitle}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-      />
+          open={snackbarOpen}
+          onClose={handleSnackbarClose}
+          title={snackbarTitle}
+          message={snackbarMessage}
+          severity={snackbarSeverity}
+        />
       </>
     );
-  };
+};
   
-  export default AuthSetPassword;
+export default AuthSetPassword;
   

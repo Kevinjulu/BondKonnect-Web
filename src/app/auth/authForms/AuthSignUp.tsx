@@ -23,7 +23,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from "@/components/ui/checkbox";
-import { register } from "@/lib/actions/auth.actions";
+import axios from "@/utils/axios";
+import { getBaseApiUrl } from "@/lib/utils/url-resolver";
 import { getAllBrokersAndDealers } from "@/lib/actions/api.actions";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { Badge } from "@/components/ui/badge";
@@ -104,7 +105,13 @@ const AuthSignUp = ({ icon, title, subtitle, role = "individual", subtext }: log
     setLoading(true);
 
     try {
-      const response = await register({
+      const API = getBaseApiUrl();
+      if (!API) throw new Error("API URL is not configured.");
+
+      const baseUrl = API.split('/api')[0];
+      await fetch(`${baseUrl}/sanctum/csrf-cookie`, { credentials: 'include' });
+
+      const response = await axios.post('/V1/auth/user-register', {
         is_individual: role === "individual",
         is_agent: role === "agent",
         is_corporate: role === "corporate",
@@ -123,23 +130,27 @@ const AuthSignUp = ({ icon, title, subtitle, role = "individual", subtext }: log
         new_dealer_emails: newDealerInputs.filter(e => e.trim() !== ""),
       });
 
-      if (response.success) {
+      const result = response.data;
+
+      if (result.success) {
         setSnackbarTitle("Success");
         setSnackbarMessage("Account created successfully!");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
         setTimeout(() => router.push("/auth/success"), 1500);
       } else {
-        setErrors(response.errors || {});
-        setSnackbarMessage(response.message || "Registration failed");
+        setErrors(result.errors || {});
+        setSnackbarMessage(result.message || "Registration failed");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
-        if (response.errors?.first_name || response.errors?.email || response.errors?.phone) {
+        if (result.errors?.first_name || result.errors?.email || result.errors?.phone) {
             setStep(1);
         }
       }
-    } catch (error) {
-      setSnackbarMessage("An unexpected error occurred");
+    } catch (error: any) {
+      const errorMessage = error?.data?.message || "An unexpected error occurred";
+      setErrors(error?.data?.errors || {});
+      setSnackbarMessage(errorMessage);
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     } finally {

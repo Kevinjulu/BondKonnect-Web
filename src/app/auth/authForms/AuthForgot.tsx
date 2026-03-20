@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { forgotPassword } from "@/lib/actions/api.actions";
+import axios from "@/utils/axios";
+import { getBaseApiUrl } from "@/lib/utils/url-resolver";
 import { cn } from "@/lib/utils";
 import { Loader2, Sparkles, SendHorizontal } from "lucide-react";
 
@@ -44,25 +45,43 @@ const AuthForgot = ({ icon, title, subtitle, socialauths, subtext }: loginType) 
       setLoading(true);
   
       try {
-        const params = new URLSearchParams();
-        params.append("email", email);
-        const response = await forgotPassword(params.toString());
+        const API = getBaseApiUrl();
+        console.log("Attempting to connect to API for password reset:", API);
+
+        if (!API) {
+          throw new Error("API URL is not configured.");
+        }
+
+        // Step 1: Initialize CSRF protection (Sanctum requirement)
+        const baseUrl = API.split('/api')[0];
+        await fetch(`${baseUrl}/sanctum/csrf-cookie`, {
+          credentials: 'include'
+        });
+
+        // Step 2: Direct API call via Axios (Client-side)
+        const response = await axios.post('/V1/auth/user-reset-password', {
+          email
+        });
   
-        if (response?.success) {
+        const result = response.data;
+
+        if (result?.success) {
           setSnackbarTitle("Verification Sent");
-          setSnackbarMessage("An email reset link has been dispatched.");
+          setSnackbarMessage(result.message || "An email reset link has been dispatched.");
           setSnackbarSeverity("success");
           setSnackbarOpen(true);
           setTimeout(() => router.push("/auth/success"), 2000);
         } else {
           setSnackbarTitle("Error");
-          setSnackbarMessage(response?.message || "Failed to send verification link.");
+          setSnackbarMessage(result?.message || "Failed to send verification link.");
           setSnackbarSeverity("error");
           setSnackbarOpen(true);
         }
-      } catch (error) {
+      } catch (error: any) {
+        console.error("Forgot Password Error:", error);
+        const errorMessage = error.message || "An error occurred. Please try again.";
         setSnackbarTitle("Connection Failed");
-        setSnackbarMessage("An error occurred. Please try again.");
+        setSnackbarMessage(errorMessage);
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       } finally {
