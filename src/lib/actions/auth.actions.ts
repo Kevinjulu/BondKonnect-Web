@@ -18,13 +18,18 @@ export const getHeaders = async (cookie?: string) => {
 export const login = async (queryParams: string) => {
   try {
     const url = `${BASE_URL}/V1/auth/user-login?${queryParams}`;
+    console.log("Server Action: Attempting login at URL:", url);
+    console.log("Using BASE_URL:", BASE_URL);
+
     const response = await fetch(url, {
       method: "POST",
       headers: await getHeaders(),
       credentials: "include",
     });
     
+    console.log("Server Action: Login response status:", response.status);
     const result = await response.json();
+    console.log("Server Action: Login result:", JSON.stringify(result).substring(0, 100));
     
     if (!response.ok) {
       return {
@@ -40,11 +45,11 @@ export const login = async (queryParams: string) => {
       data: result,
       message: result.message || "Login successful"
     };
-  } catch (error) {
-    console.error("Login error:", error);
+  } catch (error: any) {
+    console.error("CRITICAL: Server Action Login error:", error);
     return {
       success: false,
-      message: "Connection refused. Please ensure the local server is running.",
+      message: `API Connectivity Error: ${error.message || 'Unknown error'}. URL: ${BASE_URL}`,
       status: 503
     };
   }
