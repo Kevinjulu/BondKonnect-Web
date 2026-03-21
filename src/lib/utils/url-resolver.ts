@@ -5,6 +5,14 @@
  * In production, it MUST be the Railway backend URL.
  */
 export function getBaseApiUrl(): string {
+  // Priority 1: Internal API URL for server-side fetches (faster, more secure)
+  // This is typically http://bondkonnect-api.railway.internal:8000/api
+  if (typeof window === 'undefined') {
+    const internalUrl = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL;
+    if (internalUrl) return internalUrl.trim();
+  }
+
+  // Priority 2: Standard Public API URL
   const apiUrl = (
     process.env.NEXT_PUBLIC_API_URL
   )?.trim();

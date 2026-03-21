@@ -39,22 +39,38 @@ The `.env` file in the `bondkonnect-web` repository serves as a template and is 
 
 ### Critical Frontend Variables
 
-These variables MUST be set in the Railway dashboard for the `bondkonnect-web` service to connect to the backend correctly.
+These variables MUST be set in the Railway dashboard for the `bondkonnect-web` service. For maximum reliability and to ensure the frontend always stays in sync with the backend, we use **Railway Service Variable Interpolation**.
+
+Instead of hardcoding the URL, use the following syntax in the Railway Dashboard:
 
 ```env
-# The full URL to the backend API service
-NEXT_PUBLIC_API_URL=https://bondkonnect-backend-production.up.railway.app/api
+# The full URL to the backend API service (dynamically resolved)
+NEXT_PUBLIC_API_URL=https://${{bondkonnect-api.RAILWAY_PUBLIC_DOMAIN}}/api
 
-# The base URL of this frontend application
-NEXT_PUBLIC_APP_URL=https://bondkonnect.up.railway.app
+# The base URL of this frontend application (dynamically resolved)
+NEXT_PUBLIC_APP_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}
 
-# The base URL for the backend service, used for WebSocket authentication
-NEXT_PUBLIC_WEBSOCKET_URL=https://bondkonnect-backend-production.up.railway.app
+# The base URL for the backend service, used for WebSocket authentication (dynamically resolved)
+NEXT_PUBLIC_WEBSOCKET_URL=https://${{bondkonnect-api.RAILWAY_PUBLIC_DOMAIN}}
+```
 
-# Pusher credentials
+**Note:** If your backend service is named differently in the Railway Canvas (e.g., `api` or `backend`), replace `bondkonnect-api` with the actual service name.
+
+#### Why this is better:
+1. **Zero Manual Edits:** If you rename the backend or clone the environment, the frontend automatically picks up the new URL.
+2. **Environment Parity:** The same configuration works for Production, Staging, and Preview environments without changes.
+3. **Railpack Optimized:** Our Railpack builder automatically triggers a rebuild of the frontend when these dependent service variables change, ensuring the client-side bundle is always up-to-date.
+
+### External Service Credentials
+
+In addition to API URLs, ensure these external service variables are configured in the dashboard:
+
+```env
+# Pusher credentials for real-time features
 NEXT_PUBLIC_PUSHER_APP_KEY=...
 NEXT_PUBLIC_PUSHER_APP_CLUSTER=...
 ```
+
 
 ## 4. Development & Deployment Workflow
 
