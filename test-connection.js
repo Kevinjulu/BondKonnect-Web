@@ -7,10 +7,11 @@ async function testConnection() {
     console.log("--- STARTING CONNECTION TEST ---");
     
     try {
-        // Test 1: Health Check (Using POST as required by your API)
-        console.log(`1. Testing Backend Health (${BACKEND_URL}/api/V1/auth/get-all-users)...`);
-        const health = await axios.post(`${BACKEND_URL}/api/V1/auth/get-all-users`);
-        console.log("✅ Backend is REACHABLE (POST Success)");
+        // Test 1: Health Check (Using GET as confirmed in api.php)
+        console.log(`1. Testing Backend Health (${BACKEND_URL}/api/health)...`);
+        const health = await axios.get(`${BACKEND_URL}/api/health`);
+        console.log("✅ Backend is REACHABLE (GET Success)");
+        console.log("Health Status:", health.data);
 
         // Test 2: CSRF Handshake
         console.log("2. Testing Sanctum CSRF Handshake...");
@@ -27,8 +28,6 @@ async function testConnection() {
         if (error.response) {
             console.error("Status:", error.response.status);
             console.error("Data:", error.response.data);
-        } else {
-            console.error("Cause: Is your 'php artisan serve' running at http://localhost:8000?");
         }
     }
 }
