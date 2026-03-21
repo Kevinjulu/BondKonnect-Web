@@ -67,7 +67,6 @@ const ContentLoader = () => {
           width={140}
           height={48}
           className="relative h-12 w-auto object-contain animate-pulse"
-          priority
         />
       </div>
       

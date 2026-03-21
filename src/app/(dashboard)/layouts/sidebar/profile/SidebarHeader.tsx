@@ -30,7 +30,6 @@ export function Header({ userDetails }: { userDetails: UserData }) {
               className="h-16 w-auto object-contain transition-all duration-500 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:mx-auto"
               width={200}
               height={64}
-              priority
             />
           </div>
       </SidebarMenuItem>

@@ -27,7 +27,6 @@ export default function Loading() {
             width={240}
             height={80}
             className="h-20 w-auto object-contain"
-            priority
           />
         </div>
       </div>
