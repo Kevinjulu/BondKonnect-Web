@@ -1,19 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Allowed origins for CORS
+// Allowed origins for CORS - Strictly Railway and Pusher
 const ALLOWED_ORIGINS = [
-    'http://localhost:4000',
-    'http://localhost:8000',
-    process.env.NEXT_PUBLIC_BRITAM_PROD_API_URL,
-    process.env.NEXT_PUBLIC_BRITAM_UAT_API_URL,
-    process.env.NEXT_PUBLIC_SOFTCLANS_PROD_API_URL,
-    process.env.NEXT_PUBLIC_SOFTCLANS_UAT_API_URL,
-    process.env.NEXT_PUBLIC_SOFTCLANS_DEV_API_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.NEXT_PUBLIC_API_URL,
     process.env.NEXT_PUBLIC_LOGIN_URL,
-    'https://bondlytic.vps.webdock.cloud',
-    'https://bondlytic.vps.webdock.cloud:8080',
-    'https://*.bondlytic.com',
 ].filter(Boolean);
 
 export function middleware(request: NextRequest) {
@@ -39,7 +31,6 @@ export function middleware(request: NextRequest) {
 
     // Redirect to role selection if logged in but no role selected (and not already on role/otp pages)
     if (authToken && !userRole && !isRoleSelectionPage && !isOtpPage && !pathname.startsWith('/api') && !pathname.includes('.')) {
-        // Default to /auth/role, unless they are in the admin flow
         const roleUrl = new URL(pathname.startsWith('/admin') ? '/admin/role' : '/auth/role', request.url);
         return NextResponse.redirect(roleUrl);
     }
@@ -79,99 +70,49 @@ export function middleware(request: NextRequest) {
         response.headers.set('Access-Control-Allow-Credentials', 'true');
     }
 
-    // allowed domains with development URLs
+    // Allowed domains for CSP
     const allowedDomains = [
-        'http://localhost:4000',
-        'http://localhost:8000',
-        'http://localhost:8080',
-        'https://bondlytic.vps.webdock.cloud',
-        'https://bondlytic.vps.webdock.cloud:8080',
         'https://cdnjs.cloudflare.com',
-        // Pusher domains for WebSocket connections
         'https://sockjs-ap2.pusher.com',
         'wss://ws-ap2.pusher.com',
         'https://*.pusher.com',
         'wss://*.pusher.com',
-        process.env.NEXT_PUBLIC_BK_DEV_API_URL,
-        process.env.NEXT_PUBLIC_BK_UAT_API_URL,
-        process.env.NEXT_PUBLIC_BK_PROD_API_URL,
-        process.env.NEXT_PUBLIC_BK_RAILWAY_API_URL,
-        process.env.NEXT_PUBLIC_BK_RENDER_API_URL,
+        process.env.NEXT_PUBLIC_API_URL,
+        process.env.NEXT_PUBLIC_WEBSOCKET_URL,
         process.env.NEXT_PUBLIC_LOGIN_URL,
-        process.env.NEXT_PUBLIC_BK_DEV_WEBSOCKET_API_URL,
-        process.env.NEXT_PUBLIC_BK_UAT_WEBSOCKET_API_URL,
-        process.env.NEXT_PUBLIC_BK_PROD_WEBSOCKET_API_URL,
-        process.env.NEXT_PUBLIC_BK_RAILWAY_WEBSOCKET_API_URL,
-        process.env.NEXT_PUBLIC_BK_RENDER_WEBSOCKET_API_URL,
-        'https://api.bondlytic.com',
-        'https://*.bondlytic.com',
-        'https://p.bondlytic.com',
-        'https://hub.bondlytic.com',
-        'wss://*.bondlytic.com',
+        process.env.NEXT_PUBLIC_APP_URL,
     ].filter(Boolean).join(' ');
 
-    // CSP headers with more permissive settings for development
+    // CSP headers
     const cspDirectives = {
-        // set up a worker-src directive to allow the use of web workers
         'worker-src': ["'self'", 'blob:'],
-        'default-src': ["'self'", 'http://localhost:*', 'https://bw.bondlytic.com', 'https://*.bondlytic.com', 'https://bondlytic.vps.webdock.cloud', 'https://bondlytic.vps.webdock.cloud:8080'],
-        'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'cdnjs.cloudflare.com', 'http://localhost:*'],
+        'default-src': ["'self'", process.env.NEXT_PUBLIC_APP_URL || ''],
+        'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'cdnjs.cloudflare.com'],
         'style-src': ["'self'", "'unsafe-inline'"],
         'img-src': ["'self'", 'data:', 'https:', 'http:'],
         'font-src': ["'self'", 'data:', 'https:', 'http:'],
-        'connect-src': ["'self'", 'blob:', allowedDomains, 'http://localhost:*', 'https://*.bondlytic.com', 'https://bondlytic.vps.webdock.cloud', 'https://bondlytic.vps.webdock.cloud:8080', 'cdnjs.cloudflare.com', 'https://sockjs-ap2.pusher.com', 'wss://ws-ap2.pusher.com', 'https://*.pusher.com', 'wss://*.pusher.com'],
-        'frame-ancestors': ["'self'"],  // Changed from 'none' to allow frames in development
-        //'base-uri': ["'self'"],
+        'connect-src': ["'self'", 'blob:', allowedDomains, 'cdnjs.cloudflare.com', 'https://*.pusher.com', 'wss://*.pusher.com'],
+        'frame-ancestors': ["'self'"],
         'form-action': ["'self'"],
         'object-src': ["'none'"],
     };
 
-    // Convert CSP directives to string
     const cspString = Object.entries(cspDirectives)
-        .map(([key, values]) => `${key} ${values.join(' ')}`)
+        .map(([key, values]) => `${key} ${values.filter(Boolean).join(' ')}`)
         .join('; ');
 
-    // Apply security headers
-    const securityHeaders = {
-        'Content-Security-Policy': cspString,
-        'X-Frame-Options': 'DENY',
-        'X-Content-Type-Options': 'nosniff',
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
-        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-        'X-XSS-Protection': '1; mode=block',
-        'X-DNS-Prefetch-Control': 'on',
-        'X-Download-Options': 'noopen',
-        'X-Permitted-Cross-Domain-Policies': 'none',
-        'Server': '',
-        'X-Powered-By': '',
-        // These headers can cause ChunkLoadError in development
-        // 'Cross-Origin-Resource-Policy': 'same-origin',
-        // 'Cross-Origin-Opener-Policy': 'same-origin',
-        // 'Cross-Origin-Embedder-Policy': 'require-corp',
-         
-    };
-
-    /*
-    // Apply all security headers
-    Object.entries(securityHeaders).forEach(([key, value]) => {
-        response.headers.set(key, value);
-    });
-    */
+    // Security headers
+    response.headers.set('Content-Security-Policy', cspString);
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 
     return response;
 }
 
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - api (API routes)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon)
-         * - public folder
-         */
         {
             source: '/((?!api|_next/static|_next/image|favicon.ico|public/).*)',
             missing: [
@@ -179,6 +120,6 @@ export const config = {
                 { type: 'header', key: 'purpose', value: 'prefetch' },
             ],
         },
-        '/api/:path*', // Include API 
+        '/api/:path*',
     ],
 };

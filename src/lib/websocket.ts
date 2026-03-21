@@ -1,7 +1,7 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
-import { getWebSocketBaseUrl } from './utils/url-resolver';
+import { getWebSocketUrl } from './utils/url-resolver';
 
 declare global {
   interface Window {
@@ -64,7 +64,7 @@ class WebSocketService {
     }
 
     this.userId = userId;
-    const websocketBaseUrl = getWebSocketBaseUrl();
+        const websocketBaseUrl = getWebSocketUrl();
 
     // Check for valid Pusher key
     const pusherKey = process.env.NEXT_PUBLIC_PUSHER_APP_KEY;

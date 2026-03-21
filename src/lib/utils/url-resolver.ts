@@ -1,47 +1,49 @@
-/**
- * Centralized API URL resolver
- */
-export const getBaseApiUrl = () => {
-  let apiUrl = "";
+// src/lib/utils/url-resolver.ts
 
-  // Always prioritize the explicit API URL if set (usually for consistency)
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  } else if (process.env.NODE_ENV === 'development') {
-    // Fallback for local development
-    apiUrl = "http://localhost:8000/api";
-  } else {
-    // Production fallback (last resort)
-    apiUrl = "https://api.bondkonnect.com/api";
+/**
+ * Retrieves the base API URL from environment variables.
+ * In production, it MUST be the Railway backend URL.
+ */
+export function getBaseApiUrl(): string {
+  const apiUrl = (
+    process.env.NEXT_PUBLIC_API_URL
+  )?.trim();
+
+  // Log configuration to help debugging (only in browser)
+  if (typeof window !== 'undefined') {
+    if (!apiUrl) {
+      console.warn("CRITICAL: NEXT_PUBLIC_API_URL is UNDEFINED!");
+    } else {
+      console.log("Connecting to API at:", apiUrl);
+      
+      // Safety check: warn if it points to the frontend origin instead of backend
+      if (apiUrl.includes(window.location.host)) {
+        console.warn("WARNING: API URL is pointing to the FRONTEND origin. Ensure NEXT_PUBLIC_API_URL is set in your Railway dashboard.");
+      }
+    }
   }
 
-  // Ensure it doesn't have a trailing slash, but ends with /api if not already present
-  // This helps prevent double slashes or missing /api prefix
-  apiUrl = apiUrl.replace(/\/$/, "");
-  
-  // If the URL doesn't end with /api, and it's not a root domain, we might want to add it
-  // But let's follow the provided pattern: ${process.env.NEXT_PUBLIC_API_URL}/api
-  // Actually, the user says the BASE_URL should be ${process.env.NEXT_PUBLIC_API_URL}/api
-  
-  if (typeof window !== 'undefined') {
-    // console.log("Frontend API URL Resolved to:", apiUrl);
+  // Strictly enforce an API URL in all environments to prevent accidental self-connection
+  if (!apiUrl) {
+     // Return the expected Railway URL as a hard default if the variable is missing
+     return 'https://bondkonnect-backend-production.up.railway.app/api';
   }
 
   return apiUrl;
-};
+}
 
-export const getWebSocketBaseUrl = () => {
-  // Prioritize explicit WebSocket URL or extract from API URL
-  if (process.env.NEXT_PUBLIC_WEBSOCKET_URL) {
-    return process.env.NEXT_PUBLIC_WEBSOCKET_URL;
+/**
+ * Retrieves the WebSocket URL for Pusher authentication.
+ */
+export function getWebSocketUrl(): string {
+  const wsUrl = (
+    process.env.NEXT_PUBLIC_WEBSOCKET_URL
+  )?.trim();
+
+  if (typeof window !== 'undefined') {
+    console.log("WebSocket auth endpoint set to:", wsUrl || 'https://bondkonnect-backend-production.up.railway.app');
   }
 
-  const apiUrl = getBaseApiUrl();
-  try {
-    const url = new URL(apiUrl);
-    // WebSocket usually connects to the root, not /api
-    return `${url.protocol}//${url.host}`;
-  } catch (e) {
-    return apiUrl.replace('/api', '');
-  }
-};
+  // Strictly enforce the WebSocket URL
+  return wsUrl || 'https://bondkonnect-backend-production.up.railway.app';
+}

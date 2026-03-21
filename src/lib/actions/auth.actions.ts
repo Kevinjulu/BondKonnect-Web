@@ -215,17 +215,21 @@ export const resendOtp = async (queryParams: string) => {
 };
 
 export const forgotPassword = async (queryParams: string) => {
+  const url = `${BASE_URL}/V1/auth/user-reset-password?${queryParams}`;
   try {
-    const url = `${BASE_URL}/V1/auth/user-reset-password?${queryParams}`;
     const response = await fetch(url, {
       method: "POST",
       headers: await getHeaders(),
       credentials: "include",
     });
     return await response.json();
-  } catch (error) {
-    console.error("Forgot password error:", error);
-    return { success: false, message: "Server unreachable" };
+  } catch (error: any) {
+    console.error(`Forgot password error connecting to ${url}:`, error.message);
+    return { 
+      success: false, 
+      message: `Server unreachable: ${error.message}`,
+      debug_url: url 
+    };
   }
 };
 
