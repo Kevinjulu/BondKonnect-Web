@@ -23,8 +23,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from "@/components/ui/checkbox";
-import axios from "@/utils/axios";
-import { getBaseApiUrl } from "@/lib/utils/url-resolver";
+import api from "@/lib/api";
 import { getAllBrokersAndDealers } from "@/lib/actions/api.actions";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { Badge } from "@/components/ui/badge";
@@ -105,13 +104,9 @@ const AuthSignUp = ({ icon, title, subtitle, role = "individual", subtext }: log
     setLoading(true);
 
     try {
-      const API = getBaseApiUrl();
-      if (!API) throw new Error("API URL is not configured.");
+      await api.get('/sanctum/csrf-cookie');
 
-      const baseUrl = API.split('/api')[0];
-      await fetch(`${baseUrl}/sanctum/csrf-cookie`, { credentials: 'include' });
-
-      const response = await axios.post('/V1/auth/user-register', {
+      const response = await api.post('/V1/auth/user-register', {
         is_individual: role === "individual",
         is_agent: role === "agent",
         is_corporate: role === "corporate",

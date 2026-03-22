@@ -77,6 +77,7 @@ export function middleware(request: NextRequest) {
         'wss://ws-ap2.pusher.com',
         'https://*.pusher.com',
         'wss://*.pusher.com',
+        'https://*.up.railway.app', // Broadly allow Railway subdomains
         process.env.NEXT_PUBLIC_API_URL,
         process.env.NEXT_PUBLIC_WEBSOCKET_URL,
         process.env.NEXT_PUBLIC_LOGIN_URL,
@@ -86,8 +87,8 @@ export function middleware(request: NextRequest) {
     // CSP headers
     const cspDirectives = {
         'worker-src': ["'self'", 'blob:'],
-        'default-src': ["'self'", process.env.NEXT_PUBLIC_APP_URL || ''],
-        'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'cdnjs.cloudflare.com'],
+        'default-src': ["'self'", 'https://*.pusher.com', process.env.NEXT_PUBLIC_APP_URL || ''],
+        'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'cdnjs.cloudflare.com', 'https://*.pusher.com'],
         'style-src': ["'self'", "'unsafe-inline'"],
         'img-src': ["'self'", 'data:', 'https:', 'http:'],
         'font-src': ["'self'", 'data:', 'https:', 'http:'],

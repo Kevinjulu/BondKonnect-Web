@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from '@/utils/axios';
+import api from '@/lib/api';
 
 interface TrendData {
   trend_direction: 'improving' | 'stable' | 'declining';
@@ -61,7 +61,7 @@ export const useTrustIndicator = (
       if (!userId) return null;
 
       try {
-        const response = await axios.get(`/V1/users/${userId}/trust-metrics`);
+        const response = await api.get(`/V1/users/${userId}/trust-metrics`);
         return response.data.data as TrustMetrics;
       } catch (err: any) {
         const message = err.message || 'Failed to fetch trust metrics';
@@ -81,7 +81,7 @@ export const useTrustIndicator = (
       if (!userId) return [];
 
       try {
-        const response = await axios.get(`/V1/users/${userId}/ratings?limit=10`);
+        const response = await api.get(`/V1/users/${userId}/ratings?limit=10`);
         return response.data.data as RatingRecord[];
       } catch (err: any) {
         const message = err.message || 'Failed to fetch ratings';

@@ -13,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { toast } from "react-hot-toast"
 import { PiImage } from "react-icons/pi"
 import { cn } from "@/lib/utils"
-import axios from "@/utils/axios";
+import api from "@/lib/api";
 
 interface EmailViewProps {
   email: {
@@ -65,7 +65,7 @@ export default function EmailView({ userDetails, email, onClose }: UserDataProps
         formData.append("attachments[]", file);
       });
 
-      const response = await axios.post("/api/emails/reply", formData, {
+      const response = await api.post("/V1/emails/reply", formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -94,7 +94,7 @@ export default function EmailView({ userDetails, email, onClose }: UserDataProps
   const handleDownloadAttachment = async (attachment: AttachmentData) => {
     try {
       if (typeof window === 'undefined' || typeof document === 'undefined') return;
-      const response = await axios.get(`/api/emails/attachments/${attachment.id}`, {
+      const response = await api.get(`/V1/emails/attachments/${attachment.id}`, {
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));

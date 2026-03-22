@@ -1,9 +1,6 @@
 "use server";
 import { cookies } from "next/headers";
-
-import { getBaseApiUrl } from '../utils/url-resolver';
-
-const BASE_URL = getBaseApiUrl();
+import api from '@/lib/api';
 
 const getHeaders = async () => {
   const cookieStore = await cookies();
@@ -18,11 +15,10 @@ const getHeaders = async () => {
 
 export const getUnreadNotifications = async (email: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/get-unread-notifications?email=${encodeURIComponent(email)}`, {
-      method: "GET",
+    const response = await api.get(`/V1/communication/get-unread-notifications?email=${encodeURIComponent(email)}`, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching unread notifications:', error);
     return null;
@@ -31,11 +27,10 @@ export const getUnreadNotifications = async (email: string) => {
 
 export const getAllNotifications = async (email: string) => {
     try {
-      const response = await fetch(`${BASE_URL}/V1/communication/get-all-notifications?email=${encodeURIComponent(email)}`, {
-        method: "GET",
+      const response = await api.get(`/V1/communication/get-all-notifications?email=${encodeURIComponent(email)}`, {
         headers: await getHeaders(),
       });
-      return await response.json();
+      return response.data;
     } catch (error) {
       console.error('Error fetching all notifications:', error);
       return null;
@@ -44,12 +39,10 @@ export const getAllNotifications = async (email: string) => {
 
 export const markAllNotificationsAsRead = async (email: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/mark-all-as-read`, {
-      method: "POST",
+    const response = await api.post('/V1/communication/mark-all-as-read', { email }, {
       headers: await getHeaders(),
-      body: JSON.stringify({ email })
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error marking notifications as read:', error);
     return null;
@@ -59,14 +52,12 @@ export const markAllNotificationsAsRead = async (email: string) => {
 export const submitMessage = async (data: FormData) => {
   try {
     const headers = await getHeaders();
-    const response = await fetch(`${BASE_URL}/V1/communication/send-message`, {
-      method: "POST",
+    const response = await api.post('/V1/communication/send-message', data, {
       headers: {
         "Cookie": headers["Cookie"],
-      },
-      body: data
+      }
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error submitting message:', error);
     return null;
@@ -75,11 +66,10 @@ export const submitMessage = async (data: FormData) => {
 
 export const getEmails = async (email: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/get-emails?email=${encodeURIComponent(email)}`, {
-      method: "GET",
+    const response = await api.get(`/V1/communication/get-emails?email=${encodeURIComponent(email)}`, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching emails:', error);
     return { success: false, data: [] };
@@ -88,11 +78,10 @@ export const getEmails = async (email: string) => {
 
 export const getEmailTemplates = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/get-email-templates`, {
-      method: "GET",
+    const response = await api.get('/V1/communication/get-email-templates', {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching email templates:', error);
     return { success: false, data: [] };
@@ -101,12 +90,10 @@ export const getEmailTemplates = async () => {
 
 export const createEmail = async (data: any) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/create-email`, {
-      method: "POST",
+    const response = await api.post('/V1/communication/create-email', data, {
       headers: await getHeaders(),
-      body: JSON.stringify(data),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error creating email:', error);
     return { success: false, message: "Failed to create email" };
@@ -116,11 +103,10 @@ export const createEmail = async (data: any) => {
 // Messaging Actions
 export const getMessageParticipants = async (email?: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/get-message-participants${email ? `?email=${encodeURIComponent(email)}` : ''}`, {
-      method: "GET",
+    const response = await api.get(`/V1/communication/get-message-participants${email ? `?email=${encodeURIComponent(email)}` : ''}`, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching message participants:', error);
     return { success: false, data: [] };
@@ -129,11 +115,10 @@ export const getMessageParticipants = async (email?: string) => {
 
 export const getUserThread = async (threadId: string | number) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/get-user-thread?thread_id=${threadId}`, {
-      method: "GET",
+    const response = await api.get(`/V1/communication/get-user-thread?thread_id=${threadId}`, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching user thread:', error);
     return { success: false, data: null };
@@ -142,12 +127,10 @@ export const getUserThread = async (threadId: string | number) => {
 
 export const replyMessage = async (data: any) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/reply-message`, {
-      method: "POST",
+    const response = await api.post('/V1/communication/reply-message', data, {
       headers: await getHeaders(),
-      body: JSON.stringify(data),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error replying to message:', error);
     return { success: false, message: "Failed to reply to message" };
@@ -156,11 +139,10 @@ export const replyMessage = async (data: any) => {
 
 export const getMessagesByUser = async (email: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/get-messages-by-user?email=${encodeURIComponent(email)}`, {
-      method: "GET",
+    const response = await api.get(`/V1/communication/get-messages-by-user?email=${encodeURIComponent(email)}`, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching messages by user:', error);
     return { success: false, data: [] };
@@ -169,12 +151,10 @@ export const getMessagesByUser = async (email: string) => {
 
 export const markMessageAsRead = async (email: string, messageId: number) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/mark-message-as-read`, {
-      method: "POST",
+    const response = await api.post('/V1/communication/mark-message-as-read', { email, message_id: messageId }, {
       headers: await getHeaders(),
-      body: JSON.stringify({ email, message_id: messageId }),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error marking message as read:', error);
     return { success: false, message: "Failed to mark message as read" };
@@ -183,11 +163,10 @@ export const markMessageAsRead = async (email: string, messageId: number) => {
 
 export const getAllUnreadMessagesForUser = async (email: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/get-all-unread-messages?email=${encodeURIComponent(email)}`, {
-      method: "GET",
+    const response = await api.get(`/V1/communication/get-all-unread-messages?email=${encodeURIComponent(email)}`, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching unread messages:', error);
     return { success: false, data: [] };
@@ -197,12 +176,10 @@ export const getAllUnreadMessagesForUser = async (email: string) => {
 // Notification Actions
 export const markOneNotificationsAsRead = async (email: string, notificationId: number) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/mark-notification-as-read`, {
-      method: "POST",
+    const response = await api.post('/V1/communication/mark-notification-as-read', { email, notification_id: notificationId }, {
       headers: await getHeaders(),
-      body: JSON.stringify({ email, notification_id: notificationId }),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error marking notification as read:', error);
     return { success: false, message: "Failed to mark notification as read" };
@@ -211,12 +188,10 @@ export const markOneNotificationsAsRead = async (email: string, notificationId: 
 
 export const markOneNotificationsAsFavoriteOrArchive = async (email: string, notificationId: number, field: string, value: number) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/mark-notification-status`, {
-      method: "POST",
+    const response = await api.post('/V1/communication/mark-notification-status', { email, notification_id: notificationId, field, value }, {
       headers: await getHeaders(),
-      body: JSON.stringify({ email, notification_id: notificationId, field, value }),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error marking notification status:', error);
     return { success: false, message: "Failed to update notification status" };
@@ -225,15 +200,14 @@ export const markOneNotificationsAsFavoriteOrArchive = async (email: string, not
 
 export const approveIntermediaryClient = async (data: any) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/communication/approve-intermediary-client`, {
-      method: "POST",
+    const response = await api.post('/V1/communication/approve-intermediary-client', data, {
       headers: await getHeaders(),
-      body: JSON.stringify(data),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error approving intermediary client:', error);
     return { success: false, message: "Failed to approve client" };
   }
 };
+
 

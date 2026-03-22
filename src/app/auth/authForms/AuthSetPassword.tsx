@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import axios from "@/utils/axios";
-import { getBaseApiUrl } from "@/lib/utils/url-resolver";
+import api from "@/lib/api";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { Loader2 } from "lucide-react";
 
@@ -95,13 +94,9 @@ const AuthSetPassword = ({ icon, title, subtitle, socialauths, subtext, csrfToke
       setLoading(true);
   
       try {
-        const API = getBaseApiUrl();
-        if (!API) throw new Error("API URL is not configured.");
+        await api.get('/sanctum/csrf-cookie');
 
-        const baseUrl = API.split('/api')[0];
-        await fetch(`${baseUrl}/sanctum/csrf-cookie`, { credentials: 'include' });
-
-        const response = await axios.post('/V1/auth/set-password', {
+        const response = await api.post('/V1/auth/set-password', {
           email: emailFromLink,
           password: password,
           is_res: isRes ? "1" : "0",

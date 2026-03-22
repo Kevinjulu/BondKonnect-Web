@@ -1,6 +1,6 @@
 "use server";
 
-import { getCurrentApiUrl } from "./api.actions";
+import api from "@/lib/api";
 
 export const sendSms = async (data: {
   body: string;
@@ -10,18 +10,8 @@ export const sendSms = async (data: {
   created_by: string;
 }) => {
   try {
-    const BASE_URL = await getCurrentApiUrl();
-    if (!BASE_URL) return null;
-
-    const response = await fetch(`${BASE_URL}/V1/communication/create-sms`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    const result = await response.json();
+    const response = await api.post('/V1/communication/create-sms', data);
+    const result = response.data;
     console.log("SMS sending result:", result);
 
     return result;
@@ -33,3 +23,4 @@ export const sendSms = async (data: {
     };
   }
 };
+

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
-import axios from "@/utils/axios";
+import api from "@/lib/api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Link from "next/link";
@@ -62,7 +62,7 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
       const pageName = pathname.split('/').pop() || 'Dashboard';
       const user = await getCurrentUserDetails();
       
-      const response = await axios.post('/V1/ai/chat', {
+      const response = await api.post('/V1/ai/chat', {
         prompt: promptToSend,
         user_email: user?.email,
         context: {

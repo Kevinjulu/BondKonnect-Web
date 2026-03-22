@@ -2,7 +2,7 @@
  * Rating API Actions
  */
 
-import { getBaseApiUrl } from '../utils/url-resolver';
+import api from '@/lib/api';
 import { getHeaders } from './auth.actions';
 import {
   UserRating,
@@ -15,19 +15,15 @@ import {
   PaginatedResponse,
 } from '@/lib/types/ratings';
 
-const BASE_URL = getBaseApiUrl();
-
 /**
  * Submit a new rating
  */
 export async function submitRating(data: CreateRatingRequest) {
   try {
-    const response = await fetch(`${BASE_URL}/V1/ratings/submit-rating`, {
-      method: 'POST',
+    const response = await api.post('/V1/ratings/submit-rating', data, {
       headers: await getHeaders(),
-      body: JSON.stringify(data),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error submitting rating:', error);
     return { success: false, message: 'Failed to submit rating' };
@@ -39,12 +35,10 @@ export async function submitRating(data: CreateRatingRequest) {
  */
 export async function updateRating(ratingId: number, data: UpdateRatingRequest) {
   try {
-    const response = await fetch(`${BASE_URL}/V1/ratings/${ratingId}/edit`, {
-      method: 'PUT',
+    const response = await api.put(`/V1/ratings/${ratingId}/edit`, data, {
       headers: await getHeaders(),
-      body: JSON.stringify(data),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error updating rating:', error);
     return { success: false, message: 'Failed to update rating' };
@@ -56,12 +50,10 @@ export async function updateRating(ratingId: number, data: UpdateRatingRequest) 
  */
 export async function getUserCredibility(userId: number) {
   try {
-    const response = await fetch(`${BASE_URL}/V1/ratings/user-credibility/${userId}`, {
-      method: 'GET',
+    const response = await api.get(`/V1/ratings/user-credibility/${userId}`, {
       headers: await getHeaders(),
     });
-    const result = await response.json();
-    return result;
+    return response.data;
   } catch (error) {
     console.error('Error fetching user credibility:', error);
     return {
@@ -90,11 +82,10 @@ export async function getUserRatings(
     if (filters?.per_page) params.append('per_page', String(filters.per_page));
 
     const queryString = params.toString() ? `?${params.toString()}` : '';
-    const response = await fetch(`${BASE_URL}/V1/ratings/user-ratings/${userId}${queryString}`, {
-      method: 'GET',
+    const response = await api.get(`/V1/ratings/user-ratings/${userId}${queryString}`, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching user ratings:', error);
     return { success: false, data: [] };
@@ -106,11 +97,10 @@ export async function getUserRatings(
  */
 export async function getUserRatingStats(userId: number) {
   try {
-    const response = await fetch(`${BASE_URL}/V1/ratings/user-stats/${userId}`, {
-      method: 'GET',
+    const response = await api.get(`/V1/ratings/user-stats/${userId}`, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching rating stats:', error);
     return { success: false, data: null };
@@ -122,12 +112,10 @@ export async function getUserRatingStats(userId: number) {
  */
 export async function disputeRating(ratingId: number, data: FileDisputeRequest) {
   try {
-    const response = await fetch(`${BASE_URL}/V1/ratings/${ratingId}/dispute`, {
-      method: 'POST',
+    const response = await api.post(`/V1/ratings/${ratingId}/dispute`, data, {
       headers: await getHeaders(),
-      body: JSON.stringify(data),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error filing dispute:', error);
     return { success: false, message: 'Failed to file dispute' };
@@ -149,11 +137,10 @@ export async function getAllDisputes(filters?: {
     if (filters?.per_page) params.append('per_page', String(filters.per_page));
 
     const queryString = params.toString() ? `?${params.toString()}` : '';
-    const response = await fetch(`${BASE_URL}/V1/ratings/admin/disputes${queryString}`, {
-      method: 'GET',
+    const response = await api.get(`/V1/ratings/admin/disputes${queryString}`, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching disputes:', error);
     return { success: false, data: { data: [], total: 0 } };
@@ -165,11 +152,10 @@ export async function getAllDisputes(filters?: {
  */
 export async function getDisputeDetails(disputeId: number) {
   try {
-    const response = await fetch(`${BASE_URL}/V1/ratings/admin/disputes/${disputeId}`, {
-      method: 'GET',
+    const response = await api.get(`/V1/ratings/admin/disputes/${disputeId}`, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching dispute details:', error);
     return { success: false, data: null };
@@ -181,12 +167,10 @@ export async function getDisputeDetails(disputeId: number) {
  */
 export async function upholdRating(disputeId: number, data: { resolved_by: number; notes?: string }) {
   try {
-    const response = await fetch(`${BASE_URL}/V1/ratings/admin/disputes/${disputeId}/uphold`, {
-      method: 'POST',
+    const response = await api.post(`/V1/ratings/admin/disputes/${disputeId}/uphold`, data, {
       headers: await getHeaders(),
-      body: JSON.stringify(data),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error upholding rating:', error);
     return { success: false, message: 'Failed to uphold rating' };
@@ -198,12 +182,10 @@ export async function upholdRating(disputeId: number, data: { resolved_by: numbe
  */
 export async function reverseRating(disputeId: number, data: { resolved_by: number; notes?: string }) {
   try {
-    const response = await fetch(`${BASE_URL}/V1/ratings/admin/disputes/${disputeId}/reverse`, {
-      method: 'POST',
+    const response = await api.post(`/V1/ratings/admin/disputes/${disputeId}/reverse`, data, {
       headers: await getHeaders(),
-      body: JSON.stringify(data),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error reversing rating:', error);
     return { success: false, message: 'Failed to reverse rating' };
@@ -215,11 +197,10 @@ export async function reverseRating(disputeId: number, data: { resolved_by: numb
  */
 export async function getDisputeStats() {
   try {
-    const response = await fetch(`${BASE_URL}/V1/ratings/admin/dispute-stats`, {
-      method: 'GET',
+    const response = await api.get('/V1/ratings/admin/dispute-stats', {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching dispute stats:', error);
     return { success: false, data: null };
@@ -231,13 +212,13 @@ export async function getDisputeStats() {
  */
 export async function publishPendingRatings() {
   try {
-    const response = await fetch(`${BASE_URL}/V1/ratings/admin/publish-pending`, {
-      method: 'POST',
+    const response = await api.post('/V1/ratings/admin/publish-pending', {}, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error publishing pending ratings:', error);
     return { success: false, message: 'Failed to publish pending ratings' };
   }
 }
+

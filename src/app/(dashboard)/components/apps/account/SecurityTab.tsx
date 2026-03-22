@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import axios from "@/utils/axios";
+import api from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Laptop, Smartphone, ShieldCheck, Key, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,7 @@ export function SecurityTab() {
 
   const fetchSessions = async () => {
     try {
-      const response = await axios.get('/V1/auth/active-sessions');
+      const response = await api.get('/V1/auth/active-sessions');
       if (response.data.success) {
         setSessions(response.data.data);
       }
@@ -42,7 +42,7 @@ export function SecurityTab() {
 
   const handleRevoke = async (sessionId: number) => {
     try {
-      await axios.post('/V1/auth/revoke-session', { session_id: sessionId });
+      await api.post('/V1/auth/revoke-session', { session_id: sessionId });
       toast({
         title: "Session Revoked",
         description: "The device has been signed out successfully.",

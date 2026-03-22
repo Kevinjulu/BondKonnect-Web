@@ -1,9 +1,6 @@
 "use server";
 import { cookies } from "next/headers";
-
-import { getBaseApiUrl } from '../utils/url-resolver';
-
-const BASE_URL = getBaseApiUrl();
+import api from '@/lib/api';
 
 const getHeaders = async () => {
   const cookieStore = await cookies();
@@ -18,11 +15,10 @@ const getHeaders = async () => {
 
 export const getSpotYieldCurve = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/services/get-spot-yield-curve`, {
-      method: "GET",
+    const response = await api.get('/V1/services/get-spot-yield-curve', {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching spot yield curve:', error);
     throw error;
@@ -31,11 +27,10 @@ export const getSpotYieldCurve = async () => {
 
 export const getProjectionBands = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/services/get-projection-bands`, {
-      method: "GET",
+    const response = await api.get('/V1/services/get-projection-bands', {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching projection bands:', error);
     throw error;
@@ -44,11 +39,10 @@ export const getProjectionBands = async () => {
 
 export const getHistoricalBonds = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/services/get-historical-bands`, {
-      method: "GET",
+    const response = await api.get('/V1/services/get-historical-bands', {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching historical bonds:', error);
     throw error;
@@ -57,11 +51,10 @@ export const getHistoricalBonds = async () => {
 
 export const getTableParams = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/services/get-table-params`, {
-      method: "GET",
+    const response = await api.get('/V1/services/get-table-params', {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching table params:', error);
     throw error;
@@ -70,11 +63,10 @@ export const getTableParams = async () => {
 
 export const getTotalReturnScreen = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/services/total-return-screen`, {
-      method: "POST",
+    const response = await api.post('/V1/services/total-return-screen', {}, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching total return screen:', error);
     throw error;
@@ -84,12 +76,10 @@ export const getTotalReturnScreen = async () => {
 export const getTotalDurationScreen = async (targetDuration?: number) => {
   try {
     const requestBody = targetDuration !== undefined ? { targetDuration } : {};
-    const response = await fetch(`${BASE_URL}/V1/services/total-duration-screen`, {
-      method: "POST",
+    const response = await api.post('/V1/services/total-duration-screen', requestBody, {
       headers: await getHeaders(),
-      body: JSON.stringify(requestBody),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching total duration screen:', error);
     throw error;
@@ -98,12 +88,10 @@ export const getTotalDurationScreen = async (targetDuration?: number) => {
 
 export const getSecondaryMarketBonds = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/V1/services/get-secondary-market-bonds`, {
-        method: "GET",
+      const response = await api.get('/V1/services/get-secondary-market-bonds', {
         headers: await getHeaders(),
-        next: { revalidate: 3000 }
       });
-      return await response.json();
+      return response.data;
     } catch (error) {
       console.error('Error fetching secondary market bonds:', error);
       throw error;
@@ -112,12 +100,10 @@ export const getSecondaryMarketBonds = async () => {
   
   export const getPrimaryMarketBonds = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/V1/services/get-primary-market-bonds`, {
-        method: "GET",
+      const response = await api.get('/V1/services/get-primary-market-bonds', {
         headers: await getHeaders(),
-        next: { revalidate: 3000 }
       });
-      return await response.json();
+      return response.data;
     } catch (error) {
       console.error('Error fetching primary market bonds:', error);
       throw error;
@@ -126,12 +112,10 @@ export const getSecondaryMarketBonds = async () => {
 
 export const getBondCalcDetails = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/V1/services/get-bondCalc-Details`, {
-        method: "GET",
+      const response = await api.get('/V1/services/get-bondCalc-Details', {
         headers: await getHeaders(),
-        next: { revalidate: 3000 }
       });
-      return await response.json();
+      return response.data;
     } catch (error) {
       console.error('Error fetching bond calc details:', error);
       throw error;
@@ -140,11 +124,10 @@ export const getBondCalcDetails = async () => {
 
   export const getStatsTable = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/V1/services/stats-table`, {
-        method: "POST",
+      const response = await api.post('/V1/services/stats-table', {}, {
         headers: await getHeaders(),
       });
-      return await response.json();
+      return response.data;
     } catch (error) {
       console.error('Error fetching stats table:', error);
       throw error;
@@ -153,11 +136,10 @@ export const getBondCalcDetails = async () => {
 
 export const getBarbellAndBullet = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/services/get-barbell-and-bullet`, {
-      method: "GET",
+    const response = await api.get('/V1/services/get-barbell-and-bullet', {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching barbell and bullet data:', error);
     return { success: false, data: [] };
@@ -167,11 +149,10 @@ export const getBarbellAndBullet = async () => {
 // Quote Actions
 export const getQuotes = async (email?: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/services/get-quotes${email ? `?email=${encodeURIComponent(email)}` : ''}`, {
-      method: "GET",
+    const response = await api.get(`/V1/services/get-quotes${email ? `?email=${encodeURIComponent(email)}` : ''}`, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching quotes:', error);
     return { success: false, data: [] };
@@ -180,12 +161,10 @@ export const getQuotes = async (email?: string) => {
 
 export const sendToQuoteBook = async (data: any) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/services/send-to-quote-book`, {
-      method: "POST",
+    const response = await api.post('/V1/services/send-to-quote-book', data, {
       headers: await getHeaders(),
-      body: JSON.stringify(data),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error sending to quote book:', error);
     return { success: false, message: "Failed to send to quote book" };
@@ -195,12 +174,10 @@ export const sendToQuoteBook = async (data: any) => {
 export const activateQuote = async (data: { quote_id: number, user_email: string } | number) => {
   try {
     const body = typeof data === 'number' ? { quote_id: data } : data;
-    const response = await fetch(`${BASE_URL}/V1/services/activate-quote`, {
-      method: "POST",
+    const response = await api.post('/V1/services/activate-quote', body, {
       headers: await getHeaders(),
-      body: JSON.stringify(body),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error activating quote:', error);
     return { success: false, message: "Failed to activate quote" };
@@ -210,12 +187,10 @@ export const activateQuote = async (data: { quote_id: number, user_email: string
 export const suspendQuote = async (data: { quote_id: number, user_email: string } | number) => {
   try {
     const body = typeof data === 'number' ? { quote_id: data } : data;
-    const response = await fetch(`${BASE_URL}/V1/services/suspend-quote`, {
-      method: "POST",
+    const response = await api.post('/V1/services/suspend-quote', body, {
       headers: await getHeaders(),
-      body: JSON.stringify(body),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error suspending quote:', error);
     return { success: false, message: "Failed to suspend quote" };
@@ -224,11 +199,10 @@ export const suspendQuote = async (data: { quote_id: number, user_email: string 
 
 export const getBondMarketPerformance = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/services/get-bond-market-performance`, {
-      method: "GET",
+    const response = await api.get('/V1/services/get-bond-market-performance', {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching bond market performance:', error);
     return { success: false, data: [] };
@@ -237,14 +211,14 @@ export const getBondMarketPerformance = async () => {
 
 export const getViewingPartyQuotes = async (email: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/V1/services/get-viewing-party-quotes?email=${encodeURIComponent(email)}`, {
-      method: "GET",
+    const response = await api.get(`/V1/services/get-viewing-party-quotes?email=${encodeURIComponent(email)}`, {
       headers: await getHeaders(),
     });
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error('Error fetching viewing party quotes:', error);
     return { success: false, data: [] };
   }
 };
+
 

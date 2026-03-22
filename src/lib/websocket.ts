@@ -1,5 +1,6 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
+import api from '@/lib/api';
 
 import { getWebSocketUrl } from './utils/url-resolver';
 
@@ -113,42 +114,30 @@ class WebSocketService {
               'Cache-Control': 'no-cache',
             };
 
-            // Send k-o-t token as a custom header instead of relying on cookies
+            // Send k-o-t token as standard Authorization header
             if (kotToken) {
-              headers['X-Auth-Token'] = kotToken;
-              console.log('Sending k-o-t token as header');
+              headers['Authorization'] = `Bearer ${kotToken}`;
+              headers['X-Auth-Token'] = kotToken; // Maintain legacy support
+              console.log('Sending k-o-t token as Authorization header');
             } else {
               console.warn('No k-o-t token found in cookies');
             }
             
-            fetch(`${websocketBaseUrl}/broadcasting/auth`, {
-              method: 'POST',
-              headers,
-              credentials: 'include', // Still include for other cookies if needed
-              body: JSON.stringify({
+            api.post(`${websocketBaseUrl}/broadcasting/auth`, {
                 socket_id: socketId,
                 channel_name: channel.name,
-              }),
-            })
+              }, {
+                headers,
+                withCredentials: true,
+              })
             .then(response => {
-              console.log('Broadcasting auth response:', {
-                status: response.status,
-                statusText: response.statusText,
-                ok: response.ok,
-                headers: Object.fromEntries(response.headers.entries())
-              });
-              if (!response.ok) {
-                throw new Error(`Authentication failed: ${response.status} ${response.statusText}`);
-              }
-              return response.json();
-            })
-            .then(data => {
-              console.log('Broadcasting auth successful:', data);
-              callback(null, data);
+              console.log('Broadcasting auth successful:', response.data);
+              callback(null, response.data);
             })
             .catch(error => {
               console.error('WebSocket authentication failed:', {
                 error: error.message,
+                response: error.response?.data,
                 hasKotCookie: this.checkAuthCookie(),
                 endpoint: `${websocketBaseUrl}/broadcasting/auth`
               });

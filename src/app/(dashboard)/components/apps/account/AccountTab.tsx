@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import axios from "@/utils/axios";
+import api from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Camera, Trash2, Upload } from "lucide-react";
 
@@ -25,7 +25,7 @@ export function AccountTab({ user }: AccountTabProps) {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await axios.post('/V1/auth/update-profile', {
+      await api.post('/V1/auth/update-profile', {
         first_name: firstName,
         last_name: lastName,
         phone: phone

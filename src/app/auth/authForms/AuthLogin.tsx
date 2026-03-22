@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { login } from "@/lib/actions/api.actions";
-import axios from "@/utils/axios";
+import api, { getCsrf } from "@/lib/api";
 import { getBaseApiUrl } from "@/lib/utils/url-resolver";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { Loader2, Sparkles, ArrowRight } from "lucide-react";
@@ -70,23 +70,11 @@ const AuthLogin = ({ icon, title, subtitle, socialauths, subtext }: loginType) =
       setLoading(true);
 
       try {
-        const API = getBaseApiUrl();
-        console.log("Attempting to connect to API:", API);
-
-        if (!API) {
-          throw new Error("API URL is not configured. Check your environment variables.");
-        }
-
         // Step 1: Initialize CSRF protection (Sanctum requirement)
-        const baseUrl = API.split('/api')[0];
-        console.log("Initializing CSRF at:", `${baseUrl}/sanctum/csrf-cookie`);
-        
-        await fetch(`${baseUrl}/sanctum/csrf-cookie`, {
-          credentials: 'include'
-        });
+        await getCsrf();
 
         // Step 2: Direct API call via Axios (Client-side)
-        const response = await axios.post('/V1/auth/user-login', {
+        const response = await api.post('/V1/auth/user-login', {
           email,
           password
         });
@@ -99,6 +87,7 @@ const AuthLogin = ({ icon, title, subtitle, socialauths, subtext }: loginType) =
           if (result.data?.token || result.token) {
              const token = result.data?.token || result.token;
              document.cookie = `k-o-t=${token}; path=/; max-age=86400; SameSite=Lax`;
+             localStorage.setItem('token', token);
              setSnackbarTitle("Success");
              setSnackbarMessage("Login successful! Redirecting...");
              setSnackbarSeverity("success");

@@ -7,8 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import axios from "@/utils/axios";
-import { getBaseApiUrl } from "@/lib/utils/url-resolver";
+import api from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Loader2, Sparkles, SendHorizontal } from "lucide-react";
 
@@ -45,21 +44,10 @@ const AuthForgot = ({ icon, title, subtitle, socialauths, subtext }: loginType) 
       setLoading(true);
   
       try {
-        const API = getBaseApiUrl();
-        console.log("Attempting to connect to API for password reset:", API);
-
-        if (!API) {
-          throw new Error("API URL is not configured.");
-        }
-
-        // Step 1: Initialize CSRF protection (Sanctum requirement)
-        const baseUrl = API.split('/api')[0];
-        await fetch(`${baseUrl}/sanctum/csrf-cookie`, {
-          credentials: 'include'
-        });
+        await api.get('/sanctum/csrf-cookie');
 
         // Step 2: Direct API call via Axios (Client-side)
-        const response = await axios.post('/V1/auth/user-reset-password', {
+        const response = await api.post('/V1/auth/user-reset-password', {
           email
         });
   

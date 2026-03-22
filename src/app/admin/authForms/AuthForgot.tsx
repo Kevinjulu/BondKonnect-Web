@@ -7,8 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import axios from "@/utils/axios";
-import { getBaseApiUrl } from "@/lib/utils/url-resolver";
+import api from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,15 +42,10 @@ const AuthForgot = ({ icon, title, subtitle, socialauths, subtext }: loginType) 
       }
   
       try {
-        const API = getBaseApiUrl();
-        if (!API) throw new Error("API URL is not configured.");
-
-        // Initialize CSRF
-        const baseUrl = API.split('/api')[0];
-        await fetch(`${baseUrl}/sanctum/csrf-cookie`, { credentials: 'include' });
+        await api.get('/sanctum/csrf-cookie');
 
         // Direct API call
-        const response = await axios.post('/V1/auth/user-reset-password', { email });
+        const response = await api.post('/V1/auth/user-reset-password', { email });
         const result = response.data;
 
         if (result?.success) {

@@ -5,53 +5,69 @@
  * In production, it MUST be the Railway backend URL.
  */
 export function getBaseApiUrl(): string {
-  // Priority 1: Internal API URL for server-side fetches (faster, more secure)
-  // This is typically http://bondkonnect-api.railway.internal:8000/api
-  if (typeof window === 'undefined') {
-    const internalUrl = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL;
-    if (internalUrl) return internalUrl.trim();
+  // 1. Server-side resolution (Next.js Server Components / Actions)
+  if (typeof window === "undefined") {
+    const internalUrl = process.env.INTERNAL_API_URL?.trim();
+    const publicUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+
+    // Use internal URL if available (faster/more secure within Railway network)
+    if (internalUrl) return internalUrl;
+    
+    // Fallback to public URL for SSR if internal is not provided
+    if (publicUrl) return publicUrl;
+
+    console.error("CRITICAL: Both INTERNAL_API_URL and NEXT_PUBLIC_API_URL are undefined on the server!");
+    throw new Error("API configuration missing. Check environment variables.");
   }
 
-  // Priority 2: Standard Public API URL
-  const apiUrl = (
-    process.env.NEXT_PUBLIC_API_URL
-  )?.trim();
+  // 2. Client-side resolution
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
 
-  // Log configuration to help debugging (only in browser)
-  if (typeof window !== 'undefined') {
-    if (!apiUrl) {
-      console.warn("CRITICAL: NEXT_PUBLIC_API_URL is UNDEFINED!");
-    } else {
-      console.log("Connecting to API at:", apiUrl);
-      
-      // Safety check: warn if it points to the frontend origin instead of backend
-      if (apiUrl.includes(window.location.host)) {
-        console.warn("WARNING: API URL is pointing to the FRONTEND origin. Ensure NEXT_PUBLIC_API_URL is set in your Railway dashboard.");
-      }
-    }
-  }
-
-  // Strictly enforce an API URL in all environments to prevent accidental self-connection
   if (!apiUrl) {
-     // Return the expected Railway URL as a hard default if the variable is missing
-     return 'https://bondkonnect-backend-production.up.railway.app/api';
+    console.error("CRITICAL: NEXT_PUBLIC_API_URL is undefined on the client!");
+    // In browser, we can't throw without crashing the UI, so we return a dummy string 
+    // to trigger network errors that the axios interceptors can catch.
+    return "/CONFIG_ERROR_MISSING_API_URL";
+  }
+
+  // Safety check: warn if it points to the frontend origin instead of backend
+  if (typeof window !== "undefined" && apiUrl.includes(window.location.host)) {
+    console.warn(
+      "WARNING: API URL is pointing to the FRONTEND origin. " +
+      "Ensure NEXT_PUBLIC_API_URL is set in your Railway dashboard to the backend service URL."
+    );
   }
 
   return apiUrl;
 }
 
 /**
+ * Detects if the provided URL points to the frontend origin.
+ * Used to prevent "self-calling" loops where the frontend tries to 
+ * fetch data from its own static routes.
+ */
+export function isSelfCalling(url: string): boolean {
+  if (typeof window === "undefined") return false;
+  
+  try {
+    const origin = window.location.origin;
+    // Check if URL is relative or matches the current origin
+    return url.startsWith("/") || url.startsWith(origin);
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
  * Retrieves the WebSocket URL for Pusher authentication.
  */
 export function getWebSocketUrl(): string {
-  const wsUrl = (
-    process.env.NEXT_PUBLIC_WEBSOCKET_URL
-  )?.trim();
+  const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL?.trim();
 
-  if (typeof window !== 'undefined') {
-    console.log("WebSocket auth endpoint set to:", wsUrl || 'https://bondkonnect-backend-production.up.railway.app');
+  if (!wsUrl) {
+    console.warn("WARNING: NEXT_PUBLIC_WEBSOCKET_URL is undefined. Using empty string.");
+    return "";
   }
 
-  // Strictly enforce the WebSocket URL
-  return wsUrl || 'https://bondkonnect-backend-production.up.railway.app';
+  return wsUrl;
 }

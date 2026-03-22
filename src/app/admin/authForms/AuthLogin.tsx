@@ -9,10 +9,9 @@ import { Button } from '@/components/ui/button';
 import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import axios from '@/utils/axios';
 import { login } from "@/lib/actions/api.actions";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
-import { getBaseApiUrl } from "@/lib/utils/url-resolver";
+import api from "@/lib/api";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -65,18 +64,7 @@ const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) =
       }
   
       try {
-        const API = getBaseApiUrl();
-        console.log("Admin Login: Connecting to API:", API);
-
-        if (!API) {
-          throw new Error("API URL is not configured.");
-        }
-
-        // Step 1: CSRF
-        const baseUrl = API.split('/api')[0];
-        await fetch(`${baseUrl}/sanctum/csrf-cookie`, {
-          credentials: 'include'
-        });
+        await api.get('/sanctum/csrf-cookie');
 
         // Step 2: Login
         const result = await login(new URLSearchParams({ email, password }).toString());

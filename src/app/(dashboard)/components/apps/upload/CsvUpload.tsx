@@ -2,7 +2,7 @@
 import * as React from 'react'
 import { Check, FileIcon, Upload, X, FileText, MousePointer2, CloudUpload, AlertCircle } from 'lucide-react'
 import Papa from 'papaparse'
-import axios from '@/utils/axios'
+import api from '@/lib/api'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -277,7 +277,7 @@ export default function UploadCsv() {
       }
 
       // Send data to API
-      const response = await axios.post('/v1/auth/upload-data', {
+      const response = await api.post('/V1/auth/upload-data', {
         table: tableMapping[documentType as keyof typeof tableMapping],
         data: mappedData
       })
