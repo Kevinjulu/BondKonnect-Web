@@ -23,7 +23,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from "@/components/ui/checkbox";
-import api from "@/lib/api";
+import api, { getCsrf } from "@/lib/api";
 import { getAllBrokersAndDealers } from "@/lib/actions/api.actions";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { Badge } from "@/components/ui/badge";
@@ -104,7 +104,7 @@ const AuthSignUp = ({ icon, title, subtitle, role = "individual", subtext }: log
     setLoading(true);
 
     try {
-      await api.get('/sanctum/csrf-cookie');
+      await getCsrf();
 
       const response = await api.post('/V1/auth/user-register', {
         is_individual: role === "individual",

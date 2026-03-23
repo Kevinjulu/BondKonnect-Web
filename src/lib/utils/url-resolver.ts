@@ -42,6 +42,14 @@ export function getBaseApiUrl(): string {
 }
 
 /**
+ * Retrieves the base URL (without /api) from the environment.
+ */
+export function getBaseUrl(): string {
+  const apiUrl = getBaseApiUrl();
+  return apiUrl.split('/api')[0];
+}
+
+/**
  * Detects if the provided URL points to the frontend origin.
  * Used to prevent "self-calling" loops where the frontend tries to 
  * fetch data from its own static routes.

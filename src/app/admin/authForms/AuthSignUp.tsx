@@ -28,6 +28,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 // const axios = require('@/utils/axios');
 import { register } from "@/lib/actions/api.actions";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
+import api, { getCsrf } from "@/lib/api";
   
 const frameworks = [
   {
@@ -133,6 +134,7 @@ const AuthSignUp = ({ icon, title, subtitle, role = "", socialauths,subtext, }: 
       console.log('newDealerInputs before API call:', newDealerInputs);
   
       try {
+      await getCsrf();
 
       const email = emailRef.current?.value || "";
       const phone = phoneRef.current?.value || "";

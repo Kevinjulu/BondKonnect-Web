@@ -1,8 +1,9 @@
 import axios from 'axios'
 import { AuthService } from './auth-service'
+import { getBaseApiUrl, getBaseUrl } from './utils/url-resolver'
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: getBaseApiUrl(),
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -11,7 +12,12 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(async (config) => {
-  // Use AuthService to get the token (works on both server and client)
+  // 1. Connectivity Guard: Prevent self-calling in the browser
+  if (typeof window !== 'undefined' && config.baseURL && config.baseURL.includes(window.location.host)) {
+     // Optional: you could block here like in axios.ts, but let's keep it simple for now
+  }
+
+  // 2. Use AuthService to get the token (works on both server and client)
   const token = await AuthService.getToken()
   
   if (token) {
@@ -43,7 +49,7 @@ api.interceptors.response.use(
  * Initializes CSRF protection for Sanctum
  */
 export const getCsrf = async () => {
-  const baseURL = process.env.NEXT_PUBLIC_API_URL?.split('/api')[0]
+  const baseURL = getBaseUrl();
   return axios.get(`${baseURL}/sanctum/csrf-cookie`, {
     withCredentials: true
   })
