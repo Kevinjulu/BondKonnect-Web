@@ -12,6 +12,7 @@ import { IoPersonOutline } from "react-icons/io5";
 import { SiBookstack } from "react-icons/si";
 import { ShieldCheck, Sparkles, ArrowRight } from "lucide-react";
 import { setActiveRole } from "@/lib/actions/api.actions";
+import { AuthService } from "@/lib/auth-service";
 import { cn } from "@/lib/utils";
 
 type Role = "individual" | "agent" | "corporate" | "broker" | "authorizeddealer" | "admin";
@@ -65,8 +66,9 @@ const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, m
   const persistRole = useCallback(async (role: string, systemId: number, cookie: string) => {
     if (!cookie) throw new Error("Authentication token missing");
     try {
-      localStorage.setItem("userRole", role);
-      localStorage.setItem("lastActiveTime", Date.now().toString());
+      // Use AuthService for role management
+      AuthService.setUserRole(role);
+      
       const formData = new FormData();
       formData.append("role", systemId.toString());
       const response = await setActiveRole(formData, cookie);
@@ -106,8 +108,12 @@ const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, m
       const result = await persistRole(selectedRole, systemId, user_details.cookie);
 
       if (result?.success) {
-        document.cookie = `userRole=${selectedRole}; path=/`;
-        document.cookie = `roleSystemId=${systemId}; path=/`;
+        // AuthService handles the role cookie
+        AuthService.setUserRole(selectedRole);
+        
+        // Handle roleSystemId separately if needed, though role is usually enough
+        document.cookie = `roleSystemId=${systemId}; path=/; SameSite=Lax`;
+        
         setSnackbarMessage(`Entering workstation as ${selectedRole}`);
         setSnackbarSeverity("success");
         setSnackbarOpen(true);

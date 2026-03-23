@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { AuthService } from './auth-service'
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -9,13 +10,14 @@ const api = axios.create({
   }
 })
 
-api.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+api.interceptors.request.use(async (config) => {
+  // Use AuthService to get the token (works on both server and client)
+  const token = await AuthService.getToken()
+  
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
+  
   return config
 })
 
@@ -24,7 +26,9 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('token')
+        // Clear all session data using AuthService
+        AuthService.clearAll()
+        
         // Only redirect if we are not already on the login page
         if (!window.location.pathname.includes('/auth/login')) {
           window.location.href = '/auth/login'

@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { login } from "@/lib/actions/api.actions";
 import api, { getCsrf } from "@/lib/api";
+import { AuthService } from "@/lib/auth-service";
 import { getBaseApiUrl } from "@/lib/utils/url-resolver";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { Loader2, Sparkles, ArrowRight } from "lucide-react";
@@ -86,8 +87,8 @@ const AuthLogin = ({ icon, title, subtitle, socialauths, subtext }: loginType) =
           // Dev bypass sets token immediately
           if (result.data?.token || result.token) {
              const token = result.data?.token || result.token;
-             document.cookie = `k-o-t=${token}; path=/; max-age=86400; SameSite=Lax`;
-             localStorage.setItem('token', token);
+             // Use AuthService for secure token management
+             AuthService.setToken(token);
              setSnackbarTitle("Success");
              setSnackbarMessage("Login successful! Redirecting...");
              setSnackbarSeverity("success");

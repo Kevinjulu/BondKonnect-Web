@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { getBaseApiUrl, isSelfCalling } from '@/lib/utils/url-resolver';
 import { toast } from '@/hooks/use-toast';
+import { AuthService } from '@/lib/auth-service';
 
 const API_URL = getBaseApiUrl();
 
@@ -41,7 +42,7 @@ const axiosServices = axios.create({
 
 // Request Interceptor
 axiosServices.interceptors.request.use(
-  (config) => {
+  async (config) => {
     // 1. Connectivity Guard: Prevent self-calling
     if (typeof window !== 'undefined' && config.baseURL && isSelfCalling(config.baseURL)) {
       const errorMsg = `BLOCKED REQUEST: Attempting to call frontend origin as API: ${config.baseURL}${config.url}`;
@@ -71,17 +72,12 @@ axiosServices.interceptors.request.use(
     }
 
     // 3. Handle auth token for client-side requests
-    if (typeof window !== 'undefined') {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('k-o-t='))
-        ?.split('=')[1];
-
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    const token = await AuthService.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return config;
+    
+    return config
   },
   (error) => {
     console.error("[API Request Error]", error);
@@ -92,7 +88,7 @@ axiosServices.interceptors.request.use(
 // Response Interceptor
 axiosServices.interceptors.response.use(
   (response) => {
-    // Reset failure counter on any successful response
+    // ... reset failure counter
     consecutiveFailures = 0;
     if (isMaintenanceMode) {
       isMaintenanceMode = false;
@@ -110,6 +106,7 @@ axiosServices.interceptors.response.use(
     return response;
   },
   (error) => {
+    // ... handle errors
     // Increment failure counter for connection-related issues
     const isConnError = error.code === 'ERR_NETWORK' || 
                         error.code === 'ECONNREFUSED' || 
@@ -139,9 +136,11 @@ axiosServices.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // Handle unauthorized session
       if (typeof window !== 'undefined') {
+        // Use AuthService to clear all session data
+        AuthService.clearAll();
+        
         // Only redirect if we are not already on the login page to avoid loops
         if (!window.location.pathname.includes('/auth/login')) {
-          document.cookie = 'k-o-t=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
           window.location.href = '/auth/login';
         }
       }

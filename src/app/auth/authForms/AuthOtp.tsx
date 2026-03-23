@@ -13,6 +13,7 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot, } from "@/com
 // const axios = require('@/utils/axios');
 import { otpVerify, resendOtp } from "@/lib/actions/auth.actions";
 import { getIPAddress, getCurrentUserDetails } from "@/lib/actions/api.actions";
+import { AuthService } from "@/lib/auth-service";
 import { Loader2 } from "lucide-react";
 
 const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => {
@@ -82,7 +83,7 @@ const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => 
           const token = response.data;
           
           if (token) {
-            document.cookie = `k-o-t=${token}; path=/; max-age=86400; SameSite=Lax`;
+            AuthService.setToken(token);
           }
           
           setSnackbarTitle("Success");

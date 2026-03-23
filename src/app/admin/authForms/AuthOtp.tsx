@@ -13,6 +13,7 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot, } from "@/com
 // const axios = require('@/utils/axios');
 import { otpVerify, resendOtp, getIPAddress, } from "@/lib/actions/api.actions";
 import { createSession } from "../session/auth1";
+import { AuthService } from "@/lib/auth-service";
 
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
 
@@ -122,10 +123,10 @@ const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => 
   
   
           const token = response.data;
-          const expires = new Date(
-            Date.now() + 60 * 24 * 60 * 60 * 1000
-          ).toUTCString();
-          document.cookie = `k-o-t=${token}; expires=${expires}; path=/; SameSite=Lax`;
+          if (token) {
+            // Use AuthService for secure token management (60 days expiration as requested by original code)
+            AuthService.setToken(token, 60);
+          }
   
           // push to the role selection page
           router.push("/admin/role");
