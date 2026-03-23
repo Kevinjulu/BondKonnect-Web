@@ -43,10 +43,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     // Trigger a refresh of notifications
     setNotificationRefreshTrigger(prev => prev + 1);
     
-    // Dispatch custom event for components to listen to
-    window.dispatchEvent(new CustomEvent('newNotification', { 
-      detail: notification 
-    }));
+    // Dispatch custom event for components to listen to asynchronously to avoid blocking the main thread
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('newNotification', { 
+        detail: notification 
+      }));
+    }, 0);
   };
 
   // Handle new messages
@@ -55,10 +57,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     // Trigger a refresh of messages
     setMessageRefreshTrigger(prev => prev + 1);
     
-    // Dispatch custom event for components to listen to
-    window.dispatchEvent(new CustomEvent('newMessage', { 
-      detail: message 
-    }));
+    // Dispatch custom event for components to listen to asynchronously to avoid blocking the main thread
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('newMessage', { 
+        detail: message 
+      }));
+    }, 0);
   };
 
   const { connect, disconnect, isConnected } = useWebSocket({
