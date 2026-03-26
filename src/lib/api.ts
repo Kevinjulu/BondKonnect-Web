@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { AuthService } from './auth-service'
+import { AuthService } from './auth-service.client'
 import { getBaseApiUrl, getBaseUrl } from './utils/url-resolver'
 
 const api = axios.create({
@@ -56,3 +56,4 @@ export const getCsrf = async () => {
 }
 
 export default api
+

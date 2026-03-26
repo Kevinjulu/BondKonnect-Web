@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getBaseApiUrl, isSelfCalling } from '@/lib/utils/url-resolver';
 import { toast } from '@/hooks/use-toast';
-import { AuthService } from '@/lib/auth-service';
+import { AuthService } from '@/lib/auth-service.client';
 
 const API_URL = getBaseApiUrl();
 

@@ -13,7 +13,7 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot, } from "@/com
 // const axios = require('@/utils/axios');
 import { otpVerify, resendOtp, getIPAddress, } from "@/lib/actions/api.actions";
 import { createSession } from "../session/auth1";
-import { AuthService } from "@/lib/auth-service";
+import { AuthService } from "@/lib/auth-service.client";
 
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
 
@@ -290,3 +290,4 @@ const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => 
   
   export default AuthOtp;
   
+
