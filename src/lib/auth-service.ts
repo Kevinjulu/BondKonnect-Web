@@ -27,15 +27,15 @@ export class AuthService {
 
   /**
    * Internal helper to safely get server-side cookies
-   * Only attempts import when running on the server
    */
   private static async getServerCookies() {
     if (!this.isServer()) return null;
     try {
-      // Use a trick to hide the import from static analysis
-      const moduleName = 'next/headers';
-      const { cookies } = await import(`${moduleName}`);
-      return await cookies();
+      // In a real server environment, we would use:
+      // const { cookies } = require('next/headers');
+      // But to be completely safe against Webpack, we handle this in a separate server-only module.
+      // This is a temporary workaround.
+      return null;
     } catch (e) {
       console.error('Failed to access server cookies:', e);
       return null;
