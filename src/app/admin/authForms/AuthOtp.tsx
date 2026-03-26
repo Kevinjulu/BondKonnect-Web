@@ -31,12 +31,12 @@ const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => 
       const checkUser = async () => {
         const user = await getCurrentUserDetails();
         if (user) {
-          redirect("/");
+          router.push("/");
         }
       };
   
       checkUser();
-    }, []);
+    }, [router]);
 
     useEffect(() => {
         if (timeLeft === 0) setResendActive(true);
@@ -112,15 +112,13 @@ const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => 
   
         const response = await otpVerify(params.toString());
   
-        createSession(emailfromparams);
-  
         if (response?.success) {
-          createSession(emailfromparams);
+          // Create server-side session
+          await createSession(emailfromparams);
+          
           setSnackbarMessage("OTP verified successfully");
           setSnackbarSeverity("success");
           setSnackbarOpen(true);
-  
-  
   
           const token = response.data;
           if (token) {

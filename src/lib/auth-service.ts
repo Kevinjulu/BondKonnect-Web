@@ -9,8 +9,6 @@
  * prevent hydration mismatches.
  */
 
-import { cookies } from 'next/headers';
-
 // Constants for session keys
 export const AUTH_KEYS = {
   TOKEN: 'k-o-t',
@@ -28,17 +26,28 @@ export class AuthService {
   }
 
   /**
+   * Internal helper to safely get server-side cookies
+   * Only attempts import when running on the server
+   */
+  private static async getServerCookies() {
+    if (!this.isServer()) return null;
+    try {
+      // Dynamic import to avoid client-side bundling issues with next/headers
+      const { cookies } = await import('next/headers');
+      return await cookies();
+    } catch (e) {
+      console.error('Failed to access server cookies:', e);
+      return null;
+    }
+  }
+
+  /**
    * GET token (Server & Client aware)
    */
   static async getToken(): Promise<string | null> {
     if (this.isServer()) {
-      try {
-        const cookieStore = await cookies();
-        return cookieStore.get(AUTH_KEYS.TOKEN)?.value || null;
-      } catch (e) {
-        // Fallback if cookies() is called outside of request context
-        return null;
-      }
+      const cookieStore = await this.getServerCookies();
+      return cookieStore?.get(AUTH_KEYS.TOKEN)?.value || null;
     } else {
       return this.getClientCookie(AUTH_KEYS.TOKEN);
     }
@@ -49,12 +58,8 @@ export class AuthService {
    */
   static async getUserRole(): Promise<string | null> {
     if (this.isServer()) {
-      try {
-        const cookieStore = await cookies();
-        return cookieStore.get(AUTH_KEYS.USER_ROLE)?.value || null;
-      } catch (e) {
-        return null;
-      }
+      const cookieStore = await this.getServerCookies();
+      return cookieStore?.get(AUTH_KEYS.USER_ROLE)?.value || null;
     } else {
       return this.getClientCookie(AUTH_KEYS.USER_ROLE);
     }
@@ -93,12 +98,8 @@ export class AuthService {
     let rawValue: string | null = null;
     
     if (this.isServer()) {
-      try {
-        const cookieStore = await cookies();
-        rawValue = cookieStore.get(AUTH_KEYS.CURRENT_SPONSOR)?.value || null;
-      } catch (e) {
-        return null;
-      }
+      const cookieStore = await this.getServerCookies();
+      rawValue = cookieStore?.get(AUTH_KEYS.CURRENT_SPONSOR)?.value || null;
     } else {
       rawValue = this.getClientCookie(AUTH_KEYS.CURRENT_SPONSOR);
     }
