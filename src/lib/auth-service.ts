@@ -32,8 +32,9 @@ export class AuthService {
   private static async getServerCookies() {
     if (!this.isServer()) return null;
     try {
-      // Dynamic import to avoid client-side bundling issues with next/headers
-      const { cookies } = await import('next/headers');
+      // Use a trick to hide the import from static analysis
+      const moduleName = 'next/headers';
+      const { cookies } = await import(`${moduleName}`);
       return await cookies();
     } catch (e) {
       console.error('Failed to access server cookies:', e);
