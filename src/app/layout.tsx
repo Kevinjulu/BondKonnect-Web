@@ -4,6 +4,7 @@ import { store } from "@/store/store";
 import { Provider } from "react-redux";
 import NextTopLoader from "nextjs-toploader";
 import { Providers } from "./providers";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export default function RootLayout({
@@ -25,6 +26,7 @@ export default function RootLayout({
             {children}
           </Providers>
         </Provider>
+        <Analytics />
       </body>
     </html>
   );
