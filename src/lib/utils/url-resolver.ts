@@ -1,4 +1,5 @@
 // src/lib/utils/url-resolver.ts
+import { env } from "@/app/config/env";
 
 /**
  * Retrieves the base API URL from environment variables.
@@ -7,13 +8,14 @@
 export function getBaseApiUrl(): string {
   // 1. Server-side resolution (Next.js Server Components / Actions)
   if (typeof window === "undefined") {
-    const internalUrl = process.env.INTERNAL_API_URL?.trim();
-    const publicUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+    const internalUrl = env.INTERNAL_API_URL;
+    const publicUrl = env.NEXT_PUBLIC_API_URL;
+    const forcePublic = env.FORCE_PUBLIC_API;
 
-    // Use internal URL if available (faster/more secure within Railway network)
-    if (internalUrl) return internalUrl;
+    // Use internal URL if available and NOT forced to public
+    if (internalUrl && !forcePublic) return internalUrl;
     
-    // Fallback to public URL for SSR if internal is not provided
+    // Fallback to public URL for SSR
     if (publicUrl) return publicUrl;
 
     console.error("CRITICAL: Both INTERNAL_API_URL and NEXT_PUBLIC_API_URL are undefined on the server!");
@@ -21,12 +23,10 @@ export function getBaseApiUrl(): string {
   }
 
   // 2. Client-side resolution
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  const apiUrl = env.NEXT_PUBLIC_API_URL;
 
   if (!apiUrl) {
     console.error("CRITICAL: NEXT_PUBLIC_API_URL is undefined on the client!");
-    // In browser, we can't throw without crashing the UI, so we return a dummy string 
-    // to trigger network errors that the axios interceptors can catch.
     return "/CONFIG_ERROR_MISSING_API_URL";
   }
 
@@ -34,7 +34,7 @@ export function getBaseApiUrl(): string {
   if (typeof window !== "undefined" && apiUrl.includes(window.location.host)) {
     console.warn(
       "WARNING: API URL is pointing to the FRONTEND origin. " +
-      "Ensure NEXT_PUBLIC_API_URL is set in your Railway dashboard to the backend service URL."
+      "Ensure NEXT_PUBLIC_API_URL is set correctly."
     );
   }
 
@@ -70,7 +70,7 @@ export function isSelfCalling(url: string): boolean {
  * Retrieves the WebSocket URL for Pusher authentication.
  */
 export function getWebSocketUrl(): string {
-  const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL?.trim();
+  const wsUrl = env.NEXT_PUBLIC_WEBSOCKET_URL;
 
   if (!wsUrl) {
     console.warn("WARNING: NEXT_PUBLIC_WEBSOCKET_URL is undefined. Using empty string.");

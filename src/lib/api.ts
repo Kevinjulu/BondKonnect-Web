@@ -30,6 +30,37 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Enhanced Connectivity Detection: Detect if we got an HTML response instead of JSON
+    const errorData = error.response?.data;
+    const contentType = error.response?.headers?.['content-type'] || '';
+    const isHtml = contentType.includes('text/html') || (typeof errorData === 'string' && errorData.includes('<!DOCTYPE html>'));
+
+    if (isHtml) {
+      let diagnosticMessage = "Server returned HTML instead of JSON. Check API configuration.";
+      
+      // Identify the source of the HTML
+      if (typeof errorData === 'string') {
+        if (errorData.includes('railway.app') || errorData.includes('Railway')) {
+          diagnosticMessage = "RAILWAY ERROR: Backend service might be offline or internal URL is incorrect.";
+        } else if (errorData.includes('Next.js') || errorData.includes('__next')) {
+          diagnosticMessage = "FRONTEND LOOP: Request hit frontend origin. Check API_URL.";
+        }
+      }
+
+      console.error(`[API Connection Error] ${diagnosticMessage}`, {
+        url: error.config?.url,
+        status: error.response?.status,
+        internal: typeof window === "undefined"
+      });
+
+      return Promise.reject({
+        message: diagnosticMessage,
+        status: error.response?.status,
+        isHtmlResponse: true,
+        data: errorData
+      });
+    }
+
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
         // Clear all session data using AuthService

@@ -1,15 +1,25 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Allowed origins for CORS - Strictly Railway and Pusher
+// Allowed origins for CORS - Strictly Railway, Vercel, and Pusher
 const ALLOWED_ORIGINS = [
     process.env.NEXT_PUBLIC_APP_URL,
     process.env.NEXT_PUBLIC_API_URL,
     process.env.NEXT_PUBLIC_LOGIN_URL,
-].filter(Boolean);
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+].filter(Boolean) as string[];
 
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
+    const origin = request.headers.get('origin');
+    
+    // Dynamic origin check (useful for Vercel Preview deployments)
+    const isAllowedOrigin = origin && (
+        ALLOWED_ORIGINS.includes(origin) || 
+        origin.endsWith('.vercel.app') || 
+        origin.endsWith('.railway.app')
+    );
+
     const authToken = request.cookies.get('k-o-t');
     const userRole = request.cookies.get('userRole');
     
@@ -45,8 +55,7 @@ export function middleware(request: NextRequest) {
 
     // Handle preflight OPTIONS requests
     if (request.method === 'OPTIONS') {
-        const origin = request.headers.get('origin');
-        if (origin && ALLOWED_ORIGINS.includes(origin)) {
+        if (isAllowedOrigin) {
             return new NextResponse(null, {
                 status: 200,
                 headers: {
@@ -61,8 +70,7 @@ export function middleware(request: NextRequest) {
     }
 
     // CORS headers
-    const origin = request.headers.get('origin');
-    if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    if (isAllowedOrigin) {
         response.headers.set('Access-Control-Allow-Origin', origin);
         response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
