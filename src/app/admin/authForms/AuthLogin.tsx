@@ -146,6 +146,7 @@ const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) =
                     placeholder="m@gmail.com"
                     ref={emailRef}
                     required
+                    autoComplete="email"
                   />
                 </div>
                 <div className="grid gap-2">
@@ -162,6 +163,7 @@ const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) =
                     placeholder="Enter your password"
                     ref={passwordRef}
                     required
+                    autoComplete="current-password"
                   />
                 </div>
 

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import api from "@/lib/api";
+import api, { getCsrf } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,7 +42,7 @@ const AuthForgot = ({ icon, title, subtitle, socialauths, subtext }: loginType) 
       }
   
       try {
-        await api.get('/sanctum/csrf-cookie');
+        await getCsrf();
 
         // Direct API call
         const response = await api.post('/V1/auth/user-reset-password', { email });
@@ -95,6 +95,7 @@ const AuthForgot = ({ icon, title, subtitle, socialauths, subtext }: loginType) 
                   ref={emailRef}
                   required
                   disabled={loading}
+                  autoComplete="email"
                 />
               </div>
 

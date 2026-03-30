@@ -243,30 +243,30 @@ const AuthSignUp = ({ icon, title, subtitle, role = "individual", subtext }: log
                       <>
                         <div className="grid gap-2">
                           <Label htmlFor="firstName" className="text-[10px] font-black uppercase tracking-widest text-foreground opacity-70">First Name</Label>
-                          <Input id="firstName" placeholder="John" ref={firstNameRef} className="h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm" />
+                          <Input id="firstName" placeholder="John" ref={firstNameRef} autoComplete="given-name" className="h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm" />
                         </div>
                         <div className="grid gap-2">
                           <Label htmlFor="otherNames" className="text-[10px] font-black uppercase tracking-widest text-foreground opacity-70">Other Names</Label>
-                          <Input id="otherNames" placeholder="Doe" ref={otherNamesRef} className="h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm" />
+                          <Input id="otherNames" placeholder="Doe" ref={otherNamesRef} autoComplete="family-name" className="h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm" />
                         </div>
                       </>
                     ) : (
                       <div className="grid gap-2 col-span-2">
                         <Label htmlFor="companyName" className="text-[10px] font-black uppercase tracking-widest text-foreground opacity-70">Company Name</Label>
-                        <Input id="companyName" placeholder="e.g Acme Corp" ref={companyNameRef} className="h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm" />
+                        <Input id="companyName" placeholder="e.g Acme Corp" ref={companyNameRef} autoComplete="organization" className="h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm" />
                       </div>
                     )}
                   </div>
 
                   <div className="grid gap-2">
                     <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-foreground opacity-70">Email Address</Label>
-                    <Input id="email" type="email" placeholder="abc@company.com" ref={emailRef} className={cn("h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm", errors.email && "border-destructive")} />
+                    <Input id="email" type="email" placeholder="abc@company.com" ref={emailRef} autoComplete="email" className={cn("h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm", errors.email && "border-destructive")} />
                     {errors.email && <p className="text-[10px] text-destructive font-bold uppercase tracking-tight mt-1">{errors.email[0]}</p>}
                   </div>
 
                   <div className="grid gap-2">
                     <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest text-foreground opacity-70">Phone Number</Label>
-                    <Input id="phone" placeholder="07** *** ***" ref={phoneRef} className="h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm" />
+                    <Input id="phone" placeholder="07** *** ***" ref={phoneRef} autoComplete="tel" className="h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm" />
                   </div>
 
                   <Button onClick={() => setStep(2)} className="w-full h-12 mt-2 rounded-xl bg-foreground text-background hover:bg-foreground/90 transition-all font-bold tracking-tight">

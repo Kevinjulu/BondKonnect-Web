@@ -159,6 +159,7 @@ const AuthLogin = ({ icon, title, subtitle, socialauths, subtext }: loginType) =
                 ref={emailRef}
                 required
                 disabled={loading}
+                autoComplete="email"
                 className={cn(
                   "h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm",
                   errors.email && "border-destructive ring-destructive"
@@ -183,6 +184,7 @@ const AuthLogin = ({ icon, title, subtitle, socialauths, subtext }: loginType) =
                 ref={passwordRef}
                 required
                 disabled={loading}
+                autoComplete="current-password"
                 className={cn(
                   "h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm",
                   errors.password && "border-destructive ring-destructive"

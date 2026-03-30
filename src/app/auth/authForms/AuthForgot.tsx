@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import api from "@/lib/api";
+import api, { getCsrf } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Loader2, Sparkles, SendHorizontal } from "lucide-react";
 
@@ -44,7 +44,7 @@ const AuthForgot = ({ icon, title, subtitle, socialauths, subtext }: loginType) 
       setLoading(true);
   
       try {
-        await api.get('/sanctum/csrf-cookie');
+        await getCsrf();
 
         // Step 2: Direct API call via Axios (Client-side)
         const response = await api.post('/V1/auth/user-reset-password', {
@@ -120,6 +120,7 @@ const AuthForgot = ({ icon, title, subtitle, socialauths, subtext }: loginType) 
                 ref={emailRef}
                 required
                 disabled={loading}
+                autoComplete="email"
                 className={cn(
                   "h-12 rounded-xl border-black bg-white text-black font-bold placeholder:text-black/40 focus:ring-black focus:border-black transition-all shadow-sm",
                   error && "border-red-500 ring-red-500"

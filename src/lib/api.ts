@@ -80,7 +80,7 @@ api.interceptors.response.use(
  * Initializes CSRF protection for Sanctum
  */
 export const getCsrf = async () => {
-  const baseURL = getBaseUrl();
+  const baseURL = getBaseApiUrl();
   return axios.get(`${baseURL}/sanctum/csrf-cookie`, {
     withCredentials: true
   })

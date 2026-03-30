@@ -201,6 +201,7 @@ const AuthSetPassword = ({ icon, title,email, subtitle, socialauths,subtext,csrf
                     placeholder="Enter your password"
                     ref={passwordRef}
                     required
+                    autoComplete="new-password"
                   />
                 </div>
                 <div className="grid gap-2">
@@ -214,6 +215,7 @@ const AuthSetPassword = ({ icon, title,email, subtitle, socialauths,subtext,csrf
                     placeholder="Re-enter your password"
                     ref={repasswordRef}
                     required
+                    autoComplete="new-password"
                   />
                 </div>
               {loading ? (

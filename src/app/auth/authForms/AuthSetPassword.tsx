@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import api from "@/lib/api";
+import api, { getCsrf } from "@/lib/api";
 import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { Loader2 } from "lucide-react";
 
@@ -94,7 +94,7 @@ const AuthSetPassword = ({ icon, title, subtitle, socialauths, subtext, csrfToke
       setLoading(true);
   
       try {
-        await api.get('/sanctum/csrf-cookie');
+        await getCsrf();
 
         const response = await api.post('/V1/auth/set-password', {
           email: emailFromLink,
@@ -148,6 +148,7 @@ const AuthSetPassword = ({ icon, title, subtitle, socialauths, subtext, csrfToke
                   ref={passwordRef}
                   required
                   disabled={loading}
+                  autoComplete="new-password"
                 />
               </div>
               <div className="grid gap-2">
@@ -159,6 +160,7 @@ const AuthSetPassword = ({ icon, title, subtitle, socialauths, subtext, csrfToke
                   ref={repasswordRef}
                   required
                   disabled={loading}
+                  autoComplete="new-password"
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
