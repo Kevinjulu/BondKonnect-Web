@@ -10,7 +10,7 @@ cmds = ["npm install"]
 cmds = ["next build"]
 
 [start]
-command = "npm run start"
+command = "node .next/standalone/server.js"
 
 [variables]
 NODE_ENV = "production"
