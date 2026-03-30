@@ -39,10 +39,16 @@ function validateEnv() {
   });
 
   if (!result.success) {
-    console.error("❌ Invalid environment variables:", result.error.format());
-    // Only throw in production build to catch missing envs early
+    if (typeof window === 'undefined') {
+      console.error("❌ Invalid environment variables:", JSON.stringify(result.error.format(), null, 2));
+    } else {
+      console.error("❌ Invalid environment variables:", result.error.format());
+    }
+    
+    // In production, we log but DON'T throw to prevent SIGTERM loops
+    // This allows the app to start and show a diagnostic error instead of crashing silently
     if (process.env.NODE_ENV === "production") {
-      throw new Error("Missing or invalid environment variables. Check .env and dashboard.");
+      console.warn("⚠️ App is starting with missing/invalid environment variables. Expect runtime errors.");
     }
   }
 

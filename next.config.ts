@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
   
   // Resolve workspace root conflict warning
   outputFileTracingRoot: path.join(__dirname),
+
+  // Enable standalone output for Railway/Nixpacks optimization
+  output: 'standalone',
 };
 
 export default nextConfig;
