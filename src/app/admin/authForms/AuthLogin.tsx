@@ -28,6 +28,10 @@ const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) =
     
     const [loading, setLoading] = useState(false);
 
+    const handleSnackbarClose = () => {
+      setSnackbarOpen(false);
+    };
+
     useEffect(() => {
       const checkUser = async () => {
         const user = await getCurrentUserDetails();

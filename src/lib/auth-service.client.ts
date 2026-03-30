@@ -5,7 +5,7 @@
  * 'next/headers' or server-side APIs.
  */
 
-import { AUTH_KEYS } from './auth-service';
+import { AUTH_KEYS } from './auth-constants';
 
 export const AuthService = {
   /**

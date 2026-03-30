@@ -12,7 +12,7 @@ import { IoPersonOutline } from "react-icons/io5";
 import { SiBookstack } from "react-icons/si";
 import { ShieldCheck, Sparkles, ArrowRight } from "lucide-react";
 import { setActiveRole } from "@/lib/actions/api.actions";
-import { AuthService } from "@/lib/auth-service.client";
+import { AuthService } from "@/lib/auth-service";
 import { cn } from "@/lib/utils";
 
 type Role = "individual" | "agent" | "corporate" | "broker" | "authorizeddealer" | "admin";
