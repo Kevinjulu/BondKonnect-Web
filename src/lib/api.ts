@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { AuthService } from './auth-service.client'
-import { getBaseApiUrl, getBaseUrl } from './utils/url-resolver'
+import { getBaseApiUrl, isSelfCalling } from './utils/url-resolver'
 
 const api = axios.create({
   baseURL: getBaseApiUrl(),
@@ -13,8 +13,10 @@ const api = axios.create({
 
 api.interceptors.request.use(async (config) => {
   // 1. Connectivity Guard: Prevent self-calling in the browser
-  if (typeof window !== 'undefined' && config.baseURL && config.baseURL.includes(window.location.host)) {
-     // Optional: you could block here like in axios.ts, but let's keep it simple for now
+  if (typeof window !== 'undefined' && config.baseURL && isSelfCalling(config.baseURL)) {
+     const errorMsg = `BLOCKED REQUEST: Attempting to call frontend origin as API: ${config.baseURL}${config.url}`;
+     console.error(errorMsg);
+     return Promise.reject(new Error(errorMsg));
   }
 
   // 2. Use AuthService to get the token (works on both server and client)

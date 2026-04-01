@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { cn } from "@/lib/utils"
 import { getAllSubscriptionPlans, initiateMpesaStkPush, createPaypalOrder, getUserSubscriptions } from "@/lib/actions/api.actions"
+import { env } from "@/app/config/env"
 import React from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Icons } from "@/components/icons"
@@ -164,7 +165,10 @@ export function SubscriptionsListing({ userDetails }: { userDetails?: any }) {
         });
 
         if (res?.success && res.order_id) {
-          const paypalUrl = `https://www.sandbox.paypal.com/checkoutnow?token=${res.order_id}`;
+          const paypalBaseUrl = env.NEXT_PUBLIC_PAYPAL_ENV === 'live' 
+            ? 'https://www.paypal.com/checkoutnow' 
+            : 'https://www.sandbox.paypal.com/checkoutnow';
+          const paypalUrl = `${paypalBaseUrl}?token=${res.order_id}`;
           toast({ title: "Redirecting", description: "Opening secure PayPal gateway..." });
           window.open(paypalUrl, '_blank');
           toast({ 

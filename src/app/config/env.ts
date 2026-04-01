@@ -18,6 +18,7 @@ const envSchema = z.object({
   // Vercel System Variables (automatically populated by Vercel)
   VERCEL_URL: z.string().optional(),
   VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
+  NEXT_PUBLIC_PAYPAL_ENV: z.enum(["sandbox", "live"]).default("sandbox"),
 });
 
 /**
@@ -36,6 +37,7 @@ function validateEnv() {
     NEXT_PUBLIC_PUSHER_APP_CLUSTER: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER,
     VERCEL_URL: process.env.VERCEL_URL,
     VERCEL_ENV: process.env.VERCEL_ENV,
+    NEXT_PUBLIC_PAYPAL_ENV: process.env.NEXT_PUBLIC_PAYPAL_ENV,
   });
 
   if (!result.success) {

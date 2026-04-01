@@ -1,5 +1,6 @@
 import Echo from 'laravel-echo'
 import Pusher from 'pusher-js'
+import { AuthService } from './auth-service'
 
 declare global {
   interface Window {
@@ -18,7 +19,7 @@ if (typeof window !== 'undefined') {
     authEndpoint: `${process.env.NEXT_PUBLIC_API_URL}/broadcasting/auth`,
     auth: {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${AuthService.getToken()}`,
         Accept: 'application/json',
       }
     }
