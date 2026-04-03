@@ -7,7 +7,7 @@ nixPkgs = ["nodejs"]
 cmds = ["npm install"]
 
 [phases.build]
-cmds = ["next build"]
+cmds = ["next build", "mkdir -p .next/standalone/.next/static", "cp -r public .next/standalone/public", "cp -r .next/static .next/standalone/.next/static"]
 
 [start]
 command = "node .next/standalone/server.js"
@@ -15,3 +15,4 @@ command = "node .next/standalone/server.js"
 [variables]
 NODE_ENV = "production"
 HOSTNAME = "0.0.0.0"
+NPM_CONFIG_OMIT = "dev"
