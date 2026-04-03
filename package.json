@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 4000",
-    "build": "next build",
-    "start": "node .next/standalone/server.js",
+    "build": "next build && mkdir -p .next/standalone/.next/static && cp -r public .next/standalone/public && cp -r .next/static .next/standalone/.next/static",
+    "start": "HOSTNAME=0.0.0.0 PORT=${PORT:-8080} node .next/standalone/server.js",
     "start:dev": "next start -p 4000",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
@@ -67,6 +67,7 @@
     "react-redux": "^9.1.2",
     "recharts": "^2.13.3",
     "remark-gfm": "^4.0.1",
+    "sharp": "^0.34.5",
     "stylis-plugin-rtl": "^2.1.1",
     "tailwind-merge": "^2.5.4",
     "zod": "^3.24.2"

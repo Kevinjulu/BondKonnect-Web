@@ -15,5 +15,6 @@ command = "node .next/standalone/server.js"
 [variables]
 NODE_ENV = "production"
 HOSTNAME = "0.0.0.0"
+PORT = "8080"
 NPM_CONFIG_OMIT = "dev"
 NPM_CONFIG_PRODUCTION = ""
