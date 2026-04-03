@@ -74,11 +74,11 @@ Before pushing, manually verify:
 - [ ] PaypalController: includes `user_id` when inserting payment
 
 #### Frontend (`bondkonnect_web/src/lib/actions/payment.actions.tsx`)
-- [ ] All endpoints updated to use:
+- [x] All endpoints updated to use:
   - `V1/financials` (subscriptions)
   - `V1/services` (transactions)
   - `V1/payments` (M-Pesa/PayPal only)
-- [ ] Parameter names normalized:
+- [x] Parameter names normalized:
   - `email` → `user_email`
   - `transaction_id` → `trans_id`
 

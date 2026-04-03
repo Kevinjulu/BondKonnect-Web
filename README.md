@@ -58,9 +58,9 @@ The application will be available at `http://localhost:4000`.
 
 We maintain 100% confidence in our financial calculations through rigorous testing:
 
--   **Unit & Integration**: [Vitest](https://vitest.dev/) and React Testing Library for component and logic validation.
--   **E2E**: [Playwright](https://playwright.dev/) for critical user flows.
--   **Linting**: ESLint with strict formatting rules.
+- **Unit & Integration**: [Vitest](https://vitest.dev/) and React Testing Library for component and logic validation.
+- **E2E**: [Playwright](https://playwright.dev/) for critical user flows.
+- **Linting**: ESLint with strict formatting rules.
 
 ```bash
 # Run unit tests
@@ -72,6 +72,14 @@ npm run lint
 # Run E2E tests
 npx playwright test
 ```
+
+## 🌟 Core Features
+
+-   **Real-time Market Data:** High-performance bond analytics and spot yield curves.
+-   **Integrated Trading:** Seamless quote submission and transaction management.
+-   **Payment Infrastructure:** Unified gateway for M-Pesa and PayPal with automated parameter normalization.
+-   **Peer-to-Peer Ratings:** Comprehensive credibility system with weighted scoring and dispute resolution.
+-   **Portfolio Management:** Advanced analytics, P&L tracking, and stress testing.
 
 ## 📄 License
 

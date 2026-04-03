@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { AuthService } from './auth-service.client'
-import { getBaseApiUrl, isSelfCalling } from './utils/url-resolver'
+import { getBaseApiUrl, getBaseUrl, isSelfCalling } from './utils/url-resolver'
 
 const api = axios.create({
   baseURL: getBaseApiUrl(),
@@ -82,7 +82,7 @@ api.interceptors.response.use(
  * Initializes CSRF protection for Sanctum
  */
 export const getCsrf = async () => {
-  const baseURL = getBaseApiUrl();
+  const baseURL = getBaseUrl();
   return axios.get(`${baseURL}/sanctum/csrf-cookie`, {
     withCredentials: true
   })

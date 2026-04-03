@@ -17,9 +17,26 @@
 - `src/app/config/permissions.ts`: Centralized RBAC logic and module/action permissions.
 - `src/components`: Shared UI components and layout elements.
 - `src/hooks`: Custom hooks for authentication, data fetching, and real-time updates.
-- `src/lib/actions`: Server-side actions for API interactions and authentication.
-- `src/store`: Redux store configuration and slices.
+- `src/lib/actions`: Server-side actions for API interactions (Auth, Market, Portfolio, Payments, Ratings).
+- `src/components/ratings`: Peer-to-peer rating and credibility system components.
+- `src/store`: Redux store configuration and slices (including PaymentSlice).
 - `src/utils`: Theme configuration, axios instances, and utility functions.
+
+## Core Features & Systems
+
+### 1. Payment Infrastructure
+The platform supports M-Pesa and PayPal integrations. Recently, the API architecture was reorganized for better scalability:
+- **Subscriptions:** Moved to `/V1/financials` endpoints.
+- **Transactions:** Moved to `/V1/services` endpoints.
+- **Direct Payments:** Maintained under `/V1/payments` (M-Pesa/PayPal).
+- **Normalization:** Frontend actions now automatically normalize parameters (e.g., `email` → `user_email`) to ensure backend compatibility.
+
+### 2. Rating & Credibility System
+A comprehensive peer-to-peer rating system integrated into the quote-book workflow:
+- **Dimensions:** Professionalism, Communication, Reliability, Settlement, and Compliance.
+- **Credibility Index:** A weighted score (0-100) based on ratings, activity, and settlement history.
+- **Badges:** Tiered visual indicators (Platinum, Gold, Silver, Bronze) for user credibility.
+- **Dispute Management:** Formal process for challenging unfair ratings.
 
 ## UI & Design Decisions
 BondKonnect employs a sophisticated UI architecture designed for clarity, data density, and high-performance financial analytics.

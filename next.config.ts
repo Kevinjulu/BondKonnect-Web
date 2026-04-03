@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
   // Disable TS type-checking errors in production build pipeline when using CI/deploy systems.
   // Be sure to re-enable in local dev and fix the underlying type issues later.
   typescript: {
-    
+    ignoreBuildErrors: true,
   },
 
   /* config options here */

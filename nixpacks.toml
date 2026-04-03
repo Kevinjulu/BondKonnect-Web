@@ -1,13 +1,13 @@
 # nixpacks.toml for BondKonnect Frontend (Next.js)
 
 [phases.setup]
-nixPkgs = ["nodejs"]
+nixPkgs = ["nodejs_22"]
 
 [phases.install]
 cmds = ["npm install"]
 
 [phases.build]
-cmds = ["next build", "mkdir -p .next/standalone/.next/static", "cp -r public .next/standalone/public", "cp -r .next/static .next/standalone/.next/static"]
+cmds = ["npm run build"]
 
 [start]
 command = "node .next/standalone/server.js"
@@ -15,6 +15,4 @@ command = "node .next/standalone/server.js"
 [variables]
 NODE_ENV = "production"
 HOSTNAME = "0.0.0.0"
-PORT = "8080"
 NPM_CONFIG_OMIT = "dev"
-NPM_CONFIG_PRODUCTION = ""
