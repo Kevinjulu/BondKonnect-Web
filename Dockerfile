@@ -37,9 +37,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
-# Standard Next.js standalone environment variables
 ENV HOSTNAME="0.0.0.0"
-ENV PORT=8080
 
-# Execute the server
-CMD ["node", "server.js"]
+# Execute the server using shell form to ensure environment variable expansion
+CMD ["sh", "-c", "node server.js"]
