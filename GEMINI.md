@@ -1,88 +1,39 @@
-# GEMINI.md - Project Context: BondKonnect
+# GEMINI.md - Frontend Context: BondKonnect Web
 
 ## Project Overview
-**BondKonnect** is a comprehensive bond trading and portfolio analytics platform. It provides real-time market insights, bond performance indicators, and financial management tools for various user roles in the bond market.
+**BondKonnect Web** is the Next.js 15 frontend for the bond trading platform, providing high-density financial analytics and a modern trading interface.
 
-### Core Technologies
-- **Framework:** Next.js 15 (App Router) with TypeScript.
-- **Frontend:** React 18, Tailwind CSS, Radix UI (Shadcn/ui), and Material UI.
-- **State Management:** Redux Toolkit (global state) and TanStack Query (server state).
-- **Analytics:** Recharts for market data visualization.
-- **Real-time:** Pusher/WebSockets for live notifications and messaging.
-- **Testing:** Vitest for unit/integration testing and Playwright for E2E flows.
+## Core Technologies
+- **Framework:** Next.js 15 (App Router)
+- **Styling:** Tailwind CSS (Modern UI) & Material UI (Data Components).
+- **State:** Redux Toolkit (Global) & TanStack Query (Server State).
+- **Communication:** Axios (API) & Laravel Echo (WebSockets).
+- **Deployment:** Docker Standalone (Node 22-alpine).
 
-### Architecture
-- `src/app`: Application routes and page components.
-- `src/app/(dashboard)`: Protected dashboard routes and layout.
-- `src/app/config/permissions.ts`: Centralized RBAC logic and module/action permissions.
-- `src/components`: Shared UI components and layout elements.
-- `src/hooks`: Custom hooks for authentication, data fetching, and real-time updates.
-- `src/lib/actions`: Server-side actions for API interactions (Auth, Market, Portfolio, Payments, Ratings).
-- `src/components/ratings`: Peer-to-peer rating and credibility system components.
-- `src/store`: Redux store configuration and slices (including PaymentSlice).
-- `src/utils`: Theme configuration, axios instances, and utility functions.
+## Architecture & Infrastructure
 
-## Core Features & Systems
+### 1. Production Deployment (Railway)
+- **Dockerization:** Multi-stage build using `output: 'standalone'`.
+- **Port Binding:** Uses shell-form `CMD ["sh", "-c", "PORT=${PORT:-3000} HOSTNAME=0.0.0.0 node server.js"]` to correctly handle Railway's dynamic `$PORT`.
+- **Networking:**
+  - `NEXT_PUBLIC_API_URL`: Public HTTPS URL for client-side fetching.
+  - `INTERNAL_API_URL`: Private mesh URL (`http://backend.railway.internal`) for SSR/Server Components.
 
-### 1. Payment Infrastructure
-The platform supports M-Pesa and PayPal integrations. Recently, the API architecture was reorganized for better scalability:
-- **Subscriptions:** Moved to `/V1/financials` endpoints.
-- **Transactions:** Moved to `/V1/services` endpoints.
-- **Direct Payments:** Maintained under `/V1/payments` (M-Pesa/PayPal).
-- **Normalization:** Frontend actions now automatically normalize parameters (e.g., `email` → `user_email`) to ensure backend compatibility.
-
-### 2. Rating & Credibility System
-A comprehensive peer-to-peer rating system integrated into the quote-book workflow:
-- **Dimensions:** Professionalism, Communication, Reliability, Settlement, and Compliance.
-- **Credibility Index:** A weighted score (0-100) based on ratings, activity, and settlement history.
-- **Badges:** Tiered visual indicators (Platinum, Gold, Silver, Bronze) for user credibility.
-- **Dispute Management:** Formal process for challenging unfair ratings.
-
-## UI & Design Decisions
-BondKonnect employs a sophisticated UI architecture designed for clarity, data density, and high-performance financial analytics.
-
-### Design Principles
-- **Clarity & Contrast:** High-contrast typography (using `font-black` and `tracking-tighter`) ensures financial data is legible at a glance.
-- **Modern Aesthetic:** Extensive use of rounded corners (`rounded-[32px]`, `rounded-xl`) and subtle neutral borders (`border-neutral-100`) creates a contemporary, professional look.
-- **Responsive Analytics:** Dashboards use a flexible grid system (Tailwind) to adapt from dense desktop trading views to mobile-optimized calculators.
-- **Motion & Feedback:** Integrated page transitions and skeleton loaders (via `ContentLoader`) provide smooth navigation and immediate user feedback.
-
-### Styling Engines
-The project utilizes a dual-engine approach for maximum flexibility:
-1. **Tailwind CSS:** Used for layout, modern UI elements, and rapid utility-based styling.
-2. **Material UI (MUI):** Integrated for complex data components and thematic consistency across legacy views.
-
-### Color Palette (Theming)
-The application supports multiple thematic presets (Blue, Green, Purple, etc.) and full Light/Dark mode transitions.
-
-**Core Palettes (Light Mode):**
-- **Primary:** High-contrast Dark/Blue tones (`#006DAF` / `#1e4db7`) for brand presence.
-- **Secondary:** Accent tones (`#44d0ef`, `#fb9678`) for call-to-actions and status indicators.
-- **Backgrounds:** Clean neutrals (`#ffffff`, `#fafbfb`) with subtle grey backgrounds for content separation.
-
-**System Variables (Tailwind/CSS):**
-- **Primary:** `hsl(var(--primary))` mapped to high-contrast dark-on-light or light-on-dark.
-- **Success/Error:** Semantically mapped to standard financial indicators (Green for yield up, Red for risk alerts).
-- **Sidebar:** Specifically themed with a distinct background (`--sidebar-background`) to anchor the navigation experience.
+### 2. State & Data Flow
+- **Authentication:** Managed via `useAuth` hook and Sanctum-compatible cookies.
+- **API Interceptors:** Automatically handle CSRF tokens and unauthorized redirects.
+- **Normalization:** `url-resolver.ts` ensures consistent `/api` prefix and port stripping for service-to-service calls.
 
 ## Building and Running
-The project follows standard npm scripts for development and production:
+- **Development:** `npm run dev` (Port 4000)
+- **Build:** `npm run build` (Generates `.next/standalone`)
+- **Start:** `npm run start` (Production server)
+- **Linting:** `npm run lint`
 
-- **Development:** `npm run dev` (Starts the server on port 4000)
-- **Production Build:** `npm run build`
-- **Start Production:** `npm run start`
-- **Linting:** `npm run lint` or `npm run lint:fix`
-- **Unit Testing:** `npm run test` (Vitest)
-- **E2E Testing:** `npx playwright test`
+## Design Principles
+- **Clarity:** High-contrast typography and dense data grids.
+- **Consistency:** Unified rounding (`rounded-[32px]`) and semantic color mapping for yields/risk.
+- **Performance:** Skeleton loaders and optimized image handling.
 
-## Development Conventions
-1.  **Routing:** All protected routes are under the `(dashboard)` group and guarded by `middleware.ts`.
-2.  **Permissions:** Use the `hasRequiredPermissions` utility from `@/app/config/permissions` to control component visibility and access.
-3.  **Data Fetching:** Prefer TanStack Query hooks (found in `@/hooks`) for server state to benefit from caching and auto-refreshing.
-4.  **Styling:** Use Tailwind CSS for component styling, adhering to the design system defined in `@/utils/theme`.
-5.  **Authentication:** Managed via `useAuth` hook and `k-o-t` session cookie.
-6.  **Navigation:** Use Next.js `<Link>` components for all internal transitions to maintain SPA-like performance.
-
-## Key Documentation
-- `ROUTING.md`: Detailed breakdown of route categories and redirection logic.
-- `documentation/UPGRADES_2026_02_14.md`: Overview of the 2026 security and testing infrastructure upgrades.
+---
+*Last Updated: April 2026*
