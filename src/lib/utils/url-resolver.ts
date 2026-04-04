@@ -2,14 +2,25 @@
 import { env } from "@/app/config/env";
 
 /**
+ * Normalizes a URL to ensure it has the /api suffix if missing.
+ */
+function normalizeApiUrl(url: string | undefined): string | null {
+  if (!url) return null;
+  // Remove trailing slash
+  const cleanUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+  // Append /api if missing
+  return cleanUrl.includes('/api') ? cleanUrl : `${cleanUrl}/api`;
+}
+
+/**
  * Retrieves the base API URL from environment variables.
  * In production, it MUST be the Railway backend URL.
  */
 export function getBaseApiUrl(): string {
   // 1. Server-side resolution (Next.js Server Components / Actions)
   if (typeof window === "undefined") {
-    const internalUrl = env.INTERNAL_API_URL;
-    const publicUrl = env.NEXT_PUBLIC_API_URL;
+    const internalUrl = normalizeApiUrl(env.INTERNAL_API_URL);
+    const publicUrl = normalizeApiUrl(env.NEXT_PUBLIC_API_URL);
     const forcePublic = env.FORCE_PUBLIC_API;
 
     // Use internal URL if available and NOT forced to public
@@ -23,7 +34,7 @@ export function getBaseApiUrl(): string {
   }
 
   // 2. Client-side resolution
-  const apiUrl = env.NEXT_PUBLIC_API_URL;
+  const apiUrl = normalizeApiUrl(env.NEXT_PUBLIC_API_URL);
 
   if (!apiUrl) {
     console.error("CRITICAL: NEXT_PUBLIC_API_URL is undefined on the client!");
@@ -68,14 +79,20 @@ export function isSelfCalling(url: string): boolean {
 
 /**
  * Retrieves the WebSocket URL for Pusher authentication.
+ * Falls back to the base URL if NEXT_PUBLIC_WEBSOCKET_URL is missing.
  */
 export function getWebSocketUrl(): string {
   const wsUrl = env.NEXT_PUBLIC_WEBSOCKET_URL;
+  const baseUrl = getBaseUrl();
 
-  if (!wsUrl) {
-    console.warn("WARNING: NEXT_PUBLIC_WEBSOCKET_URL is undefined. Using empty string.");
+  // Prefer the explicit websocket URL, fallback to base URL (backend root)
+  const selectedUrl = wsUrl || baseUrl;
+
+  if (!selectedUrl) {
+    console.warn("WARNING: Both NEXT_PUBLIC_WEBSOCKET_URL and base URL are undefined. Using empty string.");
     return "";
   }
 
-  return wsUrl;
+  // Remove trailing slash for consistency
+  return selectedUrl.endsWith('/') ? selectedUrl.slice(0, -1) : selectedUrl;
 }

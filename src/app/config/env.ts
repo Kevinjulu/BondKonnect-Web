@@ -2,13 +2,13 @@ import { z } from "zod";
 
 const envSchema = z.object({
   NEXT_PUBLIC_APP_ENV: z.enum(["development", "test", "production"]).default("development"),
-  NEXT_PUBLIC_API_URL: z.string().url().transform((v) => v.replace(':4040', '')),
+  NEXT_PUBLIC_API_URL: z.string().url().transform((v) => v.replace(':4040', '').replace(':8080', '')),
   NEXT_PUBLIC_APP_URL: z.string().url(),
-  NEXT_PUBLIC_WEBSOCKET_URL: z.string().url().optional().transform((v) => v?.replace(':4040', '')),
+  NEXT_PUBLIC_WEBSOCKET_URL: z.string().url().optional().transform((v) => v?.replace(':4040', '').replace(':8080', '')),
   NEXT_PUBLIC_LOGIN_URL: z.string().url().optional(),
   
   // Internal API for SSR within Railway/Vercel (if applicable)
-  INTERNAL_API_URL: z.string().url().optional().transform((v) => v?.replace(':4040', '')),
+  INTERNAL_API_URL: z.string().url().optional().transform((v) => v?.replace(':4040', '').replace(':8080', '')),
   FORCE_PUBLIC_API: z.string().transform((v) => v === "true").default("false"),
 
   // Pusher
