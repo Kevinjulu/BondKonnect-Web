@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.vscode
+.playwright-mcp
+e2e
+docs
+documentation
+Files
+*.md
+.env*.local
+.npmrc
