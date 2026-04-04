@@ -10,7 +10,7 @@ cmds = ["npm install"]
 cmds = ["npm run build"]
 
 [start]
-command = "node .next/standalone/server.js"
+command = "HOSTNAME=0.0.0.0 PORT=$PORT node .next/standalone/server.js"
 
 [variables]
 NODE_ENV = "production"
