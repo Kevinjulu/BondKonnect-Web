@@ -104,12 +104,48 @@ const AuthLogin = ({ icon, title, subtitle, socialauths, subtext }: loginType) =
              setTimeout(() => router.push(`/auth/otp?email=${encodeURIComponent(email)}`), 1500);
           }
         } else {
-          // ... handle errors
+          // Handle specific error statuses from the API result
+          const status = result.status;
+          let errorMessage = result.message || "Login failed.";
+
+          if (status === 401) {
+            errorMessage = "Invalid email or password.";
+          } else if (status === 403) {
+            errorMessage = "Account suspended. Contact admin.";
+          } else if (status === 503) {
+            errorMessage = "Service Unavailable. Please try again later.";
+          }
+
+          setSnackbarTitle(status === 503 ? "Service Unavailable" : "Login Error");
+          setSnackbarMessage(errorMessage);
+          setSnackbarSeverity("error");
+          setSnackbarOpen(true);
         }
       } catch (error: any) {
         console.error("Login Error:", error);
-        const errorMessage = error.message || "Unable to reach the server.";
-        setSnackbarTitle("Connection Issue");
+        
+        let errorMessage = "Unable to reach the server.";
+        let errorTitle = "Connection Issue";
+
+        if (error.response) {
+          const status = error.response.status;
+          if (status === 401) {
+            errorMessage = "Invalid email or password.";
+            errorTitle = "Login Error";
+          } else if (status === 403) {
+            errorMessage = "Account suspended. Contact admin.";
+            errorTitle = "Login Error";
+          } else if (status === 503) {
+            errorMessage = "Service Unavailable. Please try again later.";
+            errorTitle = "Service Unavailable";
+          } else {
+            errorMessage = error.response.data?.message || errorMessage;
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
+        setSnackbarTitle(errorTitle);
         setSnackbarMessage(errorMessage);
         setSnackbarSeverity("error");
         setSnackbarOpen(true);

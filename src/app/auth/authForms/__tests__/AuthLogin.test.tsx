@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import AuthLogin from '../AuthLogin';
-import { login } from '@/lib/actions/api.actions';
+import api, { getCsrf } from '@/lib/api';
 import React from 'react';
 
 // Mock next/navigation
@@ -11,9 +11,12 @@ vi.mock('next/navigation', () => ({
   }),
 }));
 
-// Mock api actions
-vi.mock('@/lib/actions/api.actions', () => ({
-  login: vi.fn(),
+// Mock api
+vi.mock('@/lib/api', () => ({
+  default: {
+    post: vi.fn(),
+  },
+  getCsrf: vi.fn(() => Promise.resolve()),
 }));
 
 // Mock user check
@@ -27,10 +30,11 @@ describe('AuthLogin Error Handling', () => {
   });
 
   it('should display "Invalid email or password" on 401 error', async () => {
-    (login as any).mockResolvedValue({
-      success: false,
-      status: 401,
-      message: 'Unauthorized',
+    (api.post as any).mockRejectedValue({
+      response: {
+        status: 401,
+        data: { message: 'Unauthorized' }
+      }
     });
 
     render(<AuthLogin title="Log In" />);
@@ -45,15 +49,16 @@ describe('AuthLogin Error Handling', () => {
     fireEvent.click(screen.getByRole('button', { name: /log in to workstation/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid email or password.')).toBeInTheDocument();
+      expect(screen.getByText(/Invalid email or password/i)).toBeInTheDocument();
     });
   });
 
   it('should display suspension message on 403 error', async () => {
-    (login as any).mockResolvedValue({
-      success: false,
-      status: 403,
-      message: 'Forbidden',
+    (api.post as any).mockRejectedValue({
+      response: {
+        status: 403,
+        data: { message: 'Forbidden' }
+      }
     });
 
     render(<AuthLogin title="Log In" />);
@@ -73,10 +78,11 @@ describe('AuthLogin Error Handling', () => {
   });
 
   it('should display service unavailable message on 503 error', async () => {
-    (login as any).mockResolvedValue({
-      success: false,
-      status: 503,
-      message: 'Service Unavailable',
+    (api.post as any).mockRejectedValue({
+      response: {
+        status: 503,
+        data: { message: 'Service Unavailable' }
+      }
     });
 
     render(<AuthLogin title="Log In" />);
@@ -91,12 +97,12 @@ describe('AuthLogin Error Handling', () => {
     fireEvent.click(screen.getByRole('button', { name: /log in to workstation/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Service Unavailable/i)).toBeInTheDocument();
+      expect(screen.getByText(/Service Unavailable. Please try again later./i)).toBeInTheDocument();
     });
   });
 
   it('should display "Unable to reach the server." when the login call throws', async () => {
-    (login as any).mockRejectedValue(new Error('Network Error'));
+    (api.post as any).mockRejectedValue(new Error('Unable to reach the server.'));
 
     render(<AuthLogin title="Log In" />);
 

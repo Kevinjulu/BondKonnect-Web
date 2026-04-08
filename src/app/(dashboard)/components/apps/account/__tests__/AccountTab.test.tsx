@@ -1,12 +1,12 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { AccountTab } from '../AccountTab'
-import axios from '@/utils/axios'
+import api from '@/lib/api'
 
-// Mock axios
-vi.mock('@/utils/axios', () => ({
+// Mock api
+vi.mock('@/lib/api', () => ({
   default: {
-    post: vi.fn(),
+    post: vi.fn(() => Promise.resolve({ success: true })),
   },
 }))
 
@@ -56,7 +56,7 @@ describe('AccountTab', () => {
     expect(screen.getByText('Saving...')).toBeInTheDocument()
     
     await waitFor(() => {
-      expect(axios.post).toHaveBeenCalledWith('/V1/auth/update-profile', {
+      expect(api.post).toHaveBeenCalledWith('/V1/auth/update-profile', {
         first_name: 'Jane',
         last_name: 'Doe',
         phone: ''
