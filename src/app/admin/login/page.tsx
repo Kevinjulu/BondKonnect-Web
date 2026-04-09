@@ -48,11 +48,11 @@ const Login = () => {
 
             // }
           />
-        </div>
-      </div>
-    </section>
-  </PageContainer>
-  );
-};
-
+                      <LogoImage
+                        src="/images/logos/logo-c.svg"
+                        alt="logo"
+                        className="h-9"
+                        width={400}
+                        height={36}
+                      />
 export default Login;

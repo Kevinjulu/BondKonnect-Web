@@ -6,6 +6,7 @@ import Header from "./layouts/header/Header"
 import { Toaster } from "@/components/ui/toaster"
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
+import LogoImage from "@/components/ui/LogoImage";
 import { WebSocketProvider } from "@/components/providers/WebSocketProvider";
 import { useTheme } from "next-themes";
 import { FloatingUtilityDock } from "./components/apps/dashboard/FloatingUtilityDock";
@@ -61,7 +62,7 @@ const ContentLoader = () => {
     <div className="flex flex-col justify-center items-center w-full h-[60vh] bg-white animate-in fade-in duration-300">
       <div className="relative mb-8">
         <div className="absolute inset-0 bg-neutral-100 rounded-full blur-2xl opacity-20 animate-pulse" />
-        <Image
+        <LogoImage
           src={logoSrc}
           alt="BondKonnect"
           width={140}
@@ -110,7 +111,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     const timer = setTimeout(() => {
       setIsPageLoading(false);
     }, 300);
-
     return () => clearTimeout(timer);
   }, [pathname]);
 
@@ -134,7 +134,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-white">
-        <Image src="/images/logos/logo-c.png" alt="Loading..." width={100} height={35} className="animate-pulse" />
+        <LogoImage src="/images/logos/logo-c.png" alt="Loading..." width={100} height={35} className="animate-pulse" />
       </div>
     );
   }

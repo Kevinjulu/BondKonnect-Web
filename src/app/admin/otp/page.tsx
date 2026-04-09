@@ -11,6 +11,7 @@ import AuthOtp from '../authForms/AuthOtp';
 import { TbPassword } from "react-icons/tb";
 // next import
 import Image from "next/image";
+import LogoImage from "@/components/ui/LogoImage";
 const Otp = () => {
   return (
   <PageContainer title="OTP Page" description="this is OTP page">
@@ -19,7 +20,7 @@ const Otp = () => {
         <div className="flex flex-col gap-4">
          <Box display="flex" justifyContent="center" width="100%">
 
-            <Image
+            <LogoImage
               src="/images/logos/logo-c.svg"
               alt="logo"
               className="h-9"

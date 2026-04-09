@@ -83,14 +83,14 @@ const AuthForgot = ({ icon, title, subtitle, socialauths, subtext }: loginType) 
           <div className="flex flex-col items-center gap-1 group">
             <div className="relative">
               {icon}
-              <div className="absolute -top-1 -right-1 size-5 bg-black rounded-full border-2 border-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Sparkles className="size-3 text-white" />
+              <div className="absolute -top-1 -right-1 size-5 bg-foreground rounded-full border-2 border-background flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Sparkles className="size-3 text-background" />
               </div>
             </div>
-            <CardTitle className="text-3xl font-black tracking-tighter text-black leading-none mt-2 transition-colors">
+            <CardTitle className="text-3xl font-black tracking-tighter text-foreground leading-none mt-2 transition-colors">
               {title}
             </CardTitle>
-            <CardDescription className="text-black font-bold tracking-tight opacity-70 transition-colors text-center">
+            <CardDescription className="text-foreground font-bold tracking-tight opacity-70 transition-colors text-center">
               {subtitle}
             </CardDescription>
           </div>
@@ -102,15 +102,15 @@ const AuthForgot = ({ icon, title, subtitle, socialauths, subtext }: loginType) 
               <>
                 {socialauths}
                 <div className="flex items-center gap-4">
-                  <span className="h-px w-full bg-black/10"></span>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-black/40">OR</span>
-                  <span className="h-px w-full bg-black/10"></span>
+                  <span className="h-px w-full bg-border"></span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-foreground/40">OR</span>
+                  <span className="h-px w-full bg-border"></span>
                 </div>
               </>
             )}
   
             <div className="grid gap-2">
-              <Label htmlFor="email" className={cn("text-[10px] font-black uppercase tracking-widest text-black opacity-70", error && "text-red-500 opacity-100")}>
+              <Label htmlFor="email" className={cn("text-[10px] font-black uppercase tracking-widest text-foreground opacity-70", error && "text-destructive opacity-100")}>
                 Registered Work Email
               </Label>
               <Input
@@ -122,17 +122,17 @@ const AuthForgot = ({ icon, title, subtitle, socialauths, subtext }: loginType) 
                 disabled={loading}
                 autoComplete="email"
                 className={cn(
-                  "h-12 rounded-xl border-black bg-white text-black font-bold placeholder:text-black/40 focus:ring-black focus:border-black transition-all shadow-sm",
-                  error && "border-red-500 ring-red-500"
+                  "h-12 rounded-xl border-border bg-background text-foreground font-bold placeholder:text-foreground/40 focus:ring-foreground focus:border-foreground transition-all shadow-sm",
+                  error && "border-destructive ring-destructive"
                 )}
               />
-              {error && <p className="text-[10px] font-bold text-red-500 uppercase tracking-tight mt-1">{error}</p>}
+              {error && <p className="text-[10px] font-bold text-destructive uppercase tracking-tight mt-1">{error}</p>}
             </div>
 
-            <Button type="submit" className="w-full h-12 mt-2 rounded-xl bg-black text-white hover:bg-neutral-800 shadow-lg transition-all font-bold tracking-tight" disabled={loading}>
+            <Button type="submit" className="w-full h-12 mt-2 rounded-xl bg-foreground text-background hover:bg-foreground/90 shadow-lg transition-all font-bold tracking-tight" disabled={loading}>
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 size-4 animate-spin text-white" />
+                  <Loader2 className="mr-2 size-4 animate-spin text-background" />
                   Dispatching...
                 </>
               ) : (
@@ -145,8 +145,8 @@ const AuthForgot = ({ icon, title, subtitle, socialauths, subtext }: loginType) 
           </form>
 
           {subtext && (
-            <div className="mt-8 pt-8 border-t border-black/5 flex justify-center text-sm animate-in fade-in duration-1000">
-              <div className="text-black font-bold">
+            <div className="mt-8 pt-8 border-t border-border flex justify-center text-sm animate-in fade-in duration-1000">
+              <div className="text-foreground font-bold">
                 {subtext}
               </div>
             </div>

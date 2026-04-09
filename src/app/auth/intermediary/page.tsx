@@ -14,6 +14,7 @@ import IntermediaryRegistration from '../authForms/IntermediaryRegistration';
 import { generateCsrfToken } from "@/lib/actions/api.actions";
 // next import
 import Image from "next/image";
+import LogoImage from "@/components/ui/LogoImage";
 const IntermediaryPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -61,7 +62,7 @@ const IntermediaryPage = () => {
         <div className="container">
           <div className="flex flex-col gap-4">
             <Box display="flex" justifyContent="center" width="100%">
-              <Image
+              <LogoImage
                 src="/images/logos/logo-c.svg"
                 alt="logo"
                 className="h-9"

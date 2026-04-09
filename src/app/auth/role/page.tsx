@@ -52,7 +52,7 @@ const Role = () => {
   
   return (
     <PageContainer title="Role Selection | BondKonnect" description={isSignup ? "Create your account" : "Switch Workstation Mode"}>
-      <section className="min-h-screen flex items-center justify-center bg-white py-10 px-4 relative overflow-hidden transition-colors duration-500">
+      <section className="min-h-screen flex items-center justify-center bg-background py-10 px-4 relative overflow-hidden transition-colors duration-500">
         {/* Uniform Top Gradient */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
         

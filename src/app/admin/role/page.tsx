@@ -17,6 +17,7 @@ import { getCurrentUserDetails } from "@/lib/actions/user.check";
 import { Icons } from "@/components/icons"
 // next import
 import Image from "next/image";
+import LogoImage from "@/components/ui/LogoImage";
 // Types
 type Mode = "signin" | "signup";
 
@@ -76,13 +77,13 @@ const Role = () => {
         <div className="flex flex-col gap-4">
          <Box display="flex" justifyContent="center" width="100%">
 
-            <Image
-              src="/images/logos/logo-c.svg"
-              alt="logo"
-              className="h-9"
-              width={400}
-              height={100}
-            />
+              <LogoImage
+                src="/images/logos/logo-c.svg"
+                alt="logo"
+                className="h-9"
+                width={400}
+                height={100}
+              />
 
           </Box>
           <AuthRole

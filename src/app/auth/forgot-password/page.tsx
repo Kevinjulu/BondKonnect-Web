@@ -23,7 +23,7 @@ const ForgotPasword = () => {
 
   return (
     <PageContainer title="Forgot Password | BondKonnect" description="Reset your account password">
-      <section className="min-h-screen flex items-center justify-center bg-white py-12 px-4 relative overflow-hidden transition-colors duration-500">
+      <section className="min-h-screen flex items-center justify-center bg-background py-12 px-4 relative overflow-hidden transition-colors duration-500">
         {/* Uniform Top Gradient */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-black/10 to-transparent" />
         
@@ -31,7 +31,7 @@ const ForgotPasword = () => {
           <div className="flex flex-col items-center gap-8">
             <AuthLogo className="mb-2 transition-transform hover:scale-105 duration-300" />
             
-            <div className="w-full bg-white rounded-[32px] border border-black shadow-[0_8px_30px_rgb(0,0,0,0.08)] p-2">
+            <div className="w-full bg-card rounded-[32px] border border-border shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] p-2 transition-all">
               <div className="mb-2 ml-4 mt-4">
                 <Link href="/auth/login" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-black/60 hover:text-black transition-colors">
                   <ArrowLeft className="size-3" />

@@ -19,7 +19,8 @@ const Success = () => {
             className="h-9"
             width={400}
             height={36}
-          />
+            import Image from "next/image";
+            import LogoImage from "@/components/ui/LogoImage";
 
           </Box>
           
@@ -28,13 +29,12 @@ const Success = () => {
             icon={
               <IoMailOutline className="size-10 rounded-full bg-accent p-2.5 text-muted-foreground" />
             }
-
-            title="Mail Sent Successfully!"
-            subtitle="Please check your email address for your Sign Up link. You will be redirected to the Log in page."
-            // subtext={
-            //   <div className="mx-auto flex gap-1 text-sm">
-            //   <p>Don&apos;t have an account yet?</p>
-            //   <a href="/auth/sign-up" className="underline">
+                          <LogoImage
+                            src="/images/logos/logo-c.svg"
+                            alt="logo"
+                            width={400}
+                            height={36}
+                          />
             //     Sign Up
             //   </a>
             // </div>

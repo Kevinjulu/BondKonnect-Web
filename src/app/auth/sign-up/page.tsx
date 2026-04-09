@@ -13,7 +13,7 @@ const SignUp = () => {
 
   return (
     <PageContainer title="Sign Up | BondKonnect" description="Create your BondKonnect account">
-      <section className="min-h-screen flex items-center justify-center bg-white py-12 px-4 relative overflow-hidden transition-colors duration-500">
+      <section className="min-h-screen flex items-center justify-center bg-background py-12 px-4 relative overflow-hidden transition-colors duration-500">
         {/* Background Decorative Element */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
         

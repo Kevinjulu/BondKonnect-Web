@@ -23,6 +23,14 @@ export function getBaseApiUrl(): string {
     const publicUrl = normalizeApiUrl(env.NEXT_PUBLIC_API_URL);
     const forcePublic = env.FORCE_PUBLIC_API;
 
+    // Debug: print resolution at runtime (server-side only). Remove after verification.
+    try {
+      // eslint-disable-next-line no-console
+      console.info("API resolver (server): internalUrl=", internalUrl, "publicUrl=", publicUrl, "forcePublic=", forcePublic);
+    } catch (e) {
+      // swallow logging errors in constrained runtimes
+    }
+
     // Use internal URL if available and NOT forced to public
     if (internalUrl && !forcePublic) return internalUrl;
     

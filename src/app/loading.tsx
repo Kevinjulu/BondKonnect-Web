@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from "next/image";
 import { useTheme } from "next-themes";
+import LogoImage from "@/components/ui/LogoImage";
 
 export default function Loading() {
   const { resolvedTheme } = useTheme();
@@ -21,7 +22,7 @@ export default function Loading() {
       <div className="relative mb-12">
         {/* Logo Container */}
         <div className="relative animate-pulse">
-          <Image
+          <LogoImage
             src={logoSrc}
             alt="BondKonnect"
             width={240}

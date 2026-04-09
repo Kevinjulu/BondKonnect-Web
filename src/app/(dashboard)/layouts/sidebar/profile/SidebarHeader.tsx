@@ -4,6 +4,7 @@ import { SidebarHeader, SidebarMenu, SidebarMenuItem } from "@/components/ui/sid
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import LogoImage from "@/components/ui/LogoImage";
 
 export function Header({ userDetails }: { userDetails: UserData }) {
   const { resolvedTheme } = useTheme();
@@ -14,9 +15,9 @@ export function Header({ userDetails }: { userDetails: UserData }) {
     setMounted(true);
   }, []);
 
-  const logoSrc = mounted && resolvedTheme === "light" 
-    ? "/images/logos/logo-c.png" 
-    : "/images/logos/logo.png";
+  const logoSrc = mounted && resolvedTheme === "dark" 
+    ? "/images/logos/logo-dark.svg" 
+    : "/images/logos/logo-c.png";
   
   return (
    
@@ -24,7 +25,7 @@ export function Header({ userDetails }: { userDetails: UserData }) {
     <SidebarMenu>
       <SidebarMenuItem>
           <div className="flex items-center justify-start py-6 px-6">
-            <Image
+            <LogoImage
               src={logoSrc}
               alt="BondKonnect Logo"
               className="h-16 w-auto object-contain transition-all duration-500 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:mx-auto"

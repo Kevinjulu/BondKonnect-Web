@@ -13,6 +13,7 @@ import Link from 'next/link';
 import AuthSignUp from '../authForms/AuthSignUp';
 // next import
 import Image from "next/image";
+import LogoImage from "@/components/ui/LogoImage";
 
 const SignUp = () => {
   const router = useRouter();
@@ -30,13 +31,13 @@ const SignUp = () => {
         <div className="flex flex-col gap-4">
          <Box display="flex" justifyContent="center" width="100%">
 
-            <Image
-              src="/images/logos/logo-c.svg"
-              alt="logo"
-              className="h-9"
-              width={400}
-              height={100}
-            />
+              <LogoImage
+                src="/images/logos/logo-c.svg"
+                alt="logo"
+                className="h-9"
+                width={400}
+                height={100}
+              />
 
           </Box>
           <AuthSignUp

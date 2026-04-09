@@ -30,13 +30,13 @@ const ForgotPasword = () => {
             <Image
               src="/images/logos/logo-c.svg"
               alt="logo"
-              className="h-9"
-              width={400}
-              height={36}
-            />
-        </Box>
-         
-          <AuthForgot
+                    <LogoImage
+                      src="/images/logos/logo-c.svg"
+                      alt="logo"
+                      className="h-9"
+                      width={400}
+                      height={36}
+                    />
             icon={
               <GoQuestion className="size-10 rounded-full bg-accent p-2.5 text-muted-foreground" />
             }

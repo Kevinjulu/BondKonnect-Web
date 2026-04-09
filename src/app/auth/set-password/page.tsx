@@ -13,6 +13,7 @@ import AuthSetPassword from '../authForms/AuthSetPassword';
 import { TbPasswordFingerprint } from "react-icons/tb";
 // next import
 import Image from "next/image";
+import LogoImage from "@/components/ui/LogoImage";
 import { generateCsrfToken } from "@/lib/actions/api.actions";
 
 
@@ -54,11 +55,12 @@ const SetPassword = () => {
         <div className="flex flex-col gap-4">
          <Box display="flex" justifyContent="center" width="100%">
             <Image
-              src="/images/logos/logo-c.svg"
-              alt="logo"
-              className="h-9"
-              width={400}
-              height={100}
+              <LogoImage
+                src="/images/logos/logo-c.svg"
+                alt="logo"
+                className="h-9"
+                width={400}
+                height={100}
             />
           </Box>
          

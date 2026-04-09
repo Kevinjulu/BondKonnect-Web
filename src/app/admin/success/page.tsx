@@ -27,13 +27,12 @@ const Success = () => {
             height={100}
           />
 
-          </Box>
-          
-          <AuthSuccess
-          
-            icon={
-              <IoMailOutline className="size-10 rounded-full bg-accent p-2.5 text-muted-foreground" />
-            }
+                    <LogoImage
+                      src="/images/logos/logo-c.svg"
+                      alt="logo"
+                      width={300}
+                      height={60}
+                    />
 
             title="Mail Sent Successfully!"
             subtitle="Please check your email address for your Sign Up link. You will be redirected to the Log in page."

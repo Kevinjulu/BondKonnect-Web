@@ -1,12 +1,24 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { useSelector } from "@/store/hooks";
 import Link from "next/link";
 import { styled } from "@mui/material";
 import { AppState } from "@/store/store";
 import Image from "next/image";
+import { useTheme } from "next-themes";
+import LogoImage from "@/components/ui/LogoImage";
 
 const Logo = () => {
   const customizer = useSelector((state: AppState) => state.customizer);
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const logoSrc = mounted && resolvedTheme === "dark" 
+    ? "/images/logos/logo-dark.svg" 
+    : "/images/logos/logo-c.png";
   
   const LinkStyled = styled(Link)(() => ({
     
@@ -19,49 +31,31 @@ const Logo = () => {
   if (customizer.activeDir === "ltr") {
     return (
       <LinkStyled href="#">
-        {customizer.activeMode === "dark" ? (
-          <Image
-            src="/images/logos/logo-dark.svg"
-            alt="logo"
-            height={customizer.TopbarHeight}
-            width={180}
-            priority
-             className="" 
-          />
-        ) : (
-          <Image
-            src={"/images/logos/logo-c.png"}
-            alt="logo"
-            height={customizer.TopbarHeight}
-            width={180}
-            priority
-          />
-        )}
+        <LogoImage
+          src={logoSrc}
+          alt="logo"
+          height={customizer.TopbarHeight}
+          width={180}
+          priority
+          className="h-full w-auto object-contain"
+        />
       </LinkStyled>
     );
   }
 
   return (
     <LinkStyled href="/auth/login">
-      {customizer.activeMode === "dark" ? (
-        <Image
-          src="/images/logos/logo-dark.svg"
-          alt="logo"
-          height={customizer.TopbarHeight}
-          width={180}
-          priority
-        />
-      ) : (
-        <Image
-          src="/images/logos/logo-c.png"
-          alt="logo"
-          height={customizer.TopbarHeight}
-          width={180}
-          priority
-        />
-      )}
+      <LogoImage
+        src={logoSrc}
+        alt="logo"
+        height={customizer.TopbarHeight}
+        width={180}
+        priority
+        className="h-full w-auto object-contain"
+      />
     </LinkStyled>
   );
 };
 
 export default Logo;
+

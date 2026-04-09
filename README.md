@@ -8,6 +8,8 @@ The entire BondKonnect platform, including this frontend and the corresponding L
 
 -   **Frontend Service**: `bondkonnect-web` (This Repository)
 -   **Backend Service**: `bondkonnect-api`
+ -   **Frontend Repository (GitHub)**: https://github.com/Kevinjulu/BondKonnect-web
+ -   **Backend Repository (GitHub)**: https://github.com/Kevinjulu/BondKonnect-backend
 -   **Database**: Managed PostgreSQL on Railway
 -   **Real-time Messaging**: Pusher for live notifications
 

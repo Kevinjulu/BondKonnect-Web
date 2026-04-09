@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import LogoImage from "@/components/ui/LogoImage";
 
 interface AuthLogoProps {
   className?: string;
@@ -15,14 +16,14 @@ export const AuthLogo = ({ className }: AuthLogoProps) => {
     setMounted(true);
   }, []);
 
-  const logoSrc = mounted && resolvedTheme === "light" 
-    ? "/images/logos/logo-c.png" 
-    : "/images/logos/logo.png";
+  const logoSrc = mounted && resolvedTheme === "dark" 
+    ? "/images/logos/logo-dark.svg" 
+    : "/images/logos/logo-c.png";
 
   return (
     <div className={`flex justify-center w-full ${className}`}>
       <Link href="/">
-        <Image
+        <LogoImage
           src={logoSrc}
           alt="BondKonnect Logo"
           width={200}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
+import LogoImage from "@/components/ui/LogoImage"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -64,15 +65,15 @@ export function SubscriptionDashboard({ userDetails }: { userDetails: any }) {
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-96 w-full space-y-8">
-        <div className="animate-pulse">
-          <Image
-            src="/images/logos/logo-c.svg"
-            alt="BondKonnect"
-            width={140}
-            height={50}
-            priority
-          />
-        </div>
+          <div className="animate-pulse">
+            <LogoImage
+              src="/images/logos/logo-c.svg"
+              alt="BondKonnect"
+              width={140}
+              height={50}
+              priority
+            />
+          </div>
         <div className="flex items-center gap-3">
           <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
           <span className="text-sm font-black uppercase tracking-widest text-neutral-400">Loading Terminal...</span>
