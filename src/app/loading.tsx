@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import Image from "next/image";
 import { useTheme } from "next-themes";
 import LogoImage from "@/components/ui/LogoImage";
 
@@ -13,9 +12,9 @@ export default function Loading() {
     setMounted(true);
   }, []);
 
-  const logoSrc = mounted && resolvedTheme === "light" 
-    ? "/images/logos/logo-c.png" 
-    : "/images/logos/logo.png";
+  const logoSrc = mounted && resolvedTheme === "dark" 
+    ? "/images/logos/logo-dark.svg" 
+    : "/images/logos/logo-c.png";
 
   return (
     <div className="flex flex-col justify-center items-center w-full h-screen bg-background animate-in fade-in duration-500">

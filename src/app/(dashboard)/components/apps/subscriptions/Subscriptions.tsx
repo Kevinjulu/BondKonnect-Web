@@ -196,7 +196,7 @@ export function SubscriptionsListing({ userDetails }: { userDetails?: any }) {
   if (loadingPlans) return (
     <div className="flex flex-col justify-center items-center h-96 w-full space-y-6">
       <div className="animate-pulse">
-        <LogoImage src="/images/logos/logo-c.svg" alt="BondKonnect" width={140} height={50} priority />
+        <LogoImage src="/images/logos/logo-c.png" alt="BondKonnect" width={140} height={50} priority />
       </div>
       <div className="flex items-center gap-3 text-neutral-400">
         <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>

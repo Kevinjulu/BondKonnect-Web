@@ -67,7 +67,7 @@ export function SubscriptionDashboard({ userDetails }: { userDetails: any }) {
       <div className="flex flex-col justify-center items-center h-96 w-full space-y-8">
           <div className="animate-pulse">
             <LogoImage
-              src="/images/logos/logo-c.svg"
+              src="/images/logos/logo-c.png"
               alt="BondKonnect"
               width={140}
               height={50}

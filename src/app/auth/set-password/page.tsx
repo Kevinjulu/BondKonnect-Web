@@ -1,20 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-
-// import { Button } from '@/components/ui/button';
-import {  Box } from "@mui/material";
-// import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from '@/components/ui/card';
-// import { Input } from '@/components/ui/input';
-// import { Label } from '@/components/ui/label';
 import { useRouter, useSearchParams } from "next/navigation";
 import PageContainer from '../../(dashboard)/components/container/PageContainer';
-// import AuthLogin from '../authForms/AuthLogin';
 import AuthSetPassword from '../authForms/AuthSetPassword';
 import { TbPasswordFingerprint } from "react-icons/tb";
-// next import
-import LogoImage from "@/components/ui/LogoImage";
+import { AuthLogo } from '@/components/AuthLogo';
 import { generateCsrfToken } from "@/lib/actions/api.actions";
-
 
 const SetPassword = () => {
   const router = useRouter();
@@ -52,25 +43,13 @@ const SetPassword = () => {
     <section className=" py-6">
       <div className="container">
         <div className="flex flex-col gap-4">
-         <Box display="flex" justifyContent="center" width="100%">
-            <LogoImage
-              src="/images/logos/logo-c.svg"
-              alt="logo"
-              className="h-9"
-              width={400}
-              height={100}
-            />
-          </Box>
-         
+          <AuthLogo className="mb-2" />
           <AuthSetPassword
-          
             icon={
               <TbPasswordFingerprint className="size-10 rounded-full bg-accent p-2.5 text-muted-foreground" />
             }
-
             title="Set Password"
             subtitle="Set a strong password"
-
             email={email || ""}
             csrfToken={csrfToken}
           />

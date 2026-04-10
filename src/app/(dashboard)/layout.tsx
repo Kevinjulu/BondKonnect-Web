@@ -5,7 +5,6 @@ import { AppSidebar } from "@/app/(dashboard)/layouts/sidebar/Sidebar"
 import Header from "./layouts/header/Header"
 import { Toaster } from "@/components/ui/toaster"
 import { useRouter, usePathname } from "next/navigation";
-import Image from "next/image";
 import LogoImage from "@/components/ui/LogoImage";
 import { WebSocketProvider } from "@/components/providers/WebSocketProvider";
 import { useTheme } from "next-themes";
@@ -54,12 +53,12 @@ const ContentLoader = () => {
     setMounted(true);
   }, []);
 
-  const logoSrc = mounted && resolvedTheme === "light" 
-    ? "/images/logos/logo-c.png" 
-    : "/images/logos/logo.png";
+  const logoSrc = mounted && resolvedTheme === "dark" 
+    ? "/images/logos/logo-dark.svg" 
+    : "/images/logos/logo-c.png";
 
   return (
-    <div className="flex flex-col justify-center items-center w-full h-[60vh] bg-white animate-in fade-in duration-300">
+    <div className="flex flex-col justify-center items-center w-full h-[60vh] bg-background animate-in fade-in duration-300">
       <div className="relative mb-8">
         <div className="absolute inset-0 bg-neutral-100 rounded-full blur-2xl opacity-20 animate-pulse" />
         <LogoImage
@@ -73,7 +72,7 @@ const ContentLoader = () => {
       
       <div className="flex flex-col items-center gap-3">
         <div className="h-[2px] w-24 bg-neutral-100 overflow-hidden relative">
-          <div className="absolute inset-0 bg-black animate-[loading-bar_1.5s_infinite]" />
+          <div className="absolute inset-0 bg-black dark:bg-white animate-[loading-bar_1.5s_infinite]" />
         </div>
         <span className="text-[8px] font-black uppercase tracking-[0.5em] text-neutral-400">
           Syncing Node
@@ -132,9 +131,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   ].some(path => pathname?.includes(path));
 
   if (isLoading) {
+    const { resolvedTheme } = useTheme();
+    const logoSrc = resolvedTheme === "dark" 
+      ? "/images/logos/logo-dark.svg" 
+      : "/images/logos/logo-c.png";
+
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-white">
-        <LogoImage src="/images/logos/logo-c.png" alt="Loading..." width={100} height={35} className="animate-pulse" />
+      <div className="flex h-screen w-screen items-center justify-center bg-background">
+        <LogoImage src={logoSrc} alt="Loading..." width={140} height={48} className="animate-pulse h-12 w-auto object-contain" />
       </div>
     );
   }
@@ -143,7 +147,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <WebSocketProvider userDetails={user || undefined}>
       <SidebarProvider>
         <div className="flex h-screen w-screen overflow-hidden">
-          <AppSidebar userDetails={user || {} as UserData} />
+          <AppSidebar userDetails={user || {} as any} />
           <div className="flex-1 flex flex-col">
             <Header userDetails={user} />
             <div className="flex-1 overflow-y-auto">
