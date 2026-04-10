@@ -6,7 +6,7 @@ import PageContainer from '../../(dashboard)/components/container/PageContainer'
 import AuthForgot from '../authForms/AuthForgot';
 import { GoQuestion } from "react-icons/go";
 import { getCurrentUserDetails } from '@/lib/actions/user.check';
-import Image from 'next/image';
+import LogoImage from '@/components/ui/LogoImage';
 
 const ForgotPasword = () => {
   const router = useRouter();
@@ -27,16 +27,15 @@ const ForgotPasword = () => {
       <div className="container">
         <div className="flex flex-col gap-4">
         <Box display="flex" justifyContent="center" width="100%">
-            <Image
+            <LogoImage
               src="/images/logos/logo-c.svg"
               alt="logo"
-                    <LogoImage
-                      src="/images/logos/logo-c.svg"
-                      alt="logo"
-                      className="h-9"
-                      width={400}
-                      height={36}
-                    />
+              className="h-9"
+              width={400}
+              height={36}
+            />
+          </Box>
+          <AuthForgot
             icon={
               <GoQuestion className="size-10 rounded-full bg-accent p-2.5 text-muted-foreground" />
             }
