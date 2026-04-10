@@ -24,7 +24,7 @@ The platform is composed of several interconnected services within our Railway p
 -   **Frontend Service (`bondkonnect-web`)**:
     -   **URL:** `https://bondkonnect.up.railway.app`
 -   **Backend Service (`bondkonnect-api`)**:
-    -   **URL:** `https://bondkonnect-backend-production.up.railway.app/api`
+    -   **URL:** `https://laravel-backend-api.up.railway.app/api`
 -   **Database Service**:
     -   **Type:** PostgreSQL
     -   **Notes:** Managed by Railway, providing automated backups and scaling.
@@ -44,17 +44,21 @@ These variables MUST be set in the Railway dashboard for the `bondkonnect-web` s
 Instead of hardcoding the URL, use the following syntax in the Railway Dashboard:
 
 ```env
-# The full URL to the backend API service (dynamically resolved)
-NEXT_PUBLIC_API_URL=https://${{bondkonnect-api.RAILWAY_PUBLIC_DOMAIN}}/api
+# The full public URL to the backend API service (used by the browser)
+NEXT_PUBLIC_API_URL=https://laravel-backend-api.up.railway.app
+
+# The internal Railway URL for server-side requests (SSR / Server Actions)
+# Uses Railway's private network — faster and avoids public egress
+INTERNAL_API_URL=http://laravel-backend-api.railway.internal:8080
 
 # The base URL of this frontend application (dynamically resolved)
 NEXT_PUBLIC_APP_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}
 
-# The base URL for the backend service, used for WebSocket authentication (dynamically resolved)
-NEXT_PUBLIC_WEBSOCKET_URL=https://${{bondkonnect-api.RAILWAY_PUBLIC_DOMAIN}}
+# The base URL for the backend service, used for WebSocket authentication
+NEXT_PUBLIC_WEBSOCKET_URL=https://laravel-backend-api.up.railway.app
 ```
 
-**Note:** If your backend service is named differently in the Railway Canvas (e.g., `api` or `backend`), replace `bondkonnect-api` with the actual service name.
+**Note:** `NEXT_PUBLIC_API_URL` is embedded into the client-side bundle at build time, so a redeploy is required whenever the backend domain changes. `INTERNAL_API_URL` is only used server-side and can be updated without a full rebuild.
 
 #### Why this is better:
 1. **Zero Manual Edits:** If you rename the backend or clone the environment, the frontend automatically picks up the new URL.
