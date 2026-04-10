@@ -54,7 +54,6 @@ const ForgotPasword = () => {
             //     <Globe className="mr-2 size-4" />
             //     Sign up with Google
             //   </Button>
-
             // }
           />
         </div>

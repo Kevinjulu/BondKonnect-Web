@@ -4,6 +4,7 @@ import { Box } from "@mui/material";
 import PageContainer from '../../(dashboard)/components/container/PageContainer';
 import AuthLogin from '../authForms/AuthLogin';
 import Image from 'next/image';
+import LogoImage from "@/components/ui/LogoImage";
 
 const Login = () => {
   return (
@@ -14,15 +15,13 @@ const Login = () => {
 
           
          <Box display="flex" justifyContent="center" width="100%">
-
-          <Image
+          <LogoImage
             src="/images/logos/logo-c.svg"
             alt="logo"
             className="h-9"
             width={400}
             height={36}
           />
-
           </Box>
           <AuthLogin
           
