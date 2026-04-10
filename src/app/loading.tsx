@@ -14,7 +14,7 @@ export default function Loading() {
 
   const logoSrc = mounted && resolvedTheme === "dark" 
     ? "/images/logos/logo-dark.svg" 
-    : "/images/logos/logo-c.png";
+    : "/images/logos/logo.png";
 
   return (
     <div className="flex flex-col justify-center items-center w-full h-screen bg-background animate-in fade-in duration-500">

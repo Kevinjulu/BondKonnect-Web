@@ -18,7 +18,7 @@ export const AuthLogo = ({ className }: AuthLogoProps) => {
 
   const logoSrc = mounted && resolvedTheme === "dark" 
     ? "/images/logos/logo-dark.svg" 
-    : "/images/logos/logo-c.png";
+    : "/images/logos/logo.png";
 
   return (
     <div className={`flex justify-center w-full ${className}`}>
