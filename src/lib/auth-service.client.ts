@@ -1,11 +1,17 @@
 /**
  * AuthService (Client Side)
- * 
- * Provides client-safe authentication helpers that do not rely on 
+ *
+ * Provides client-safe authentication helpers that do not rely on
  * 'next/headers' or server-side APIs.
  */
 
 import { AUTH_KEYS } from './auth-constants';
+
+/** Sanctum sets this cookie name after a successful /sanctum/csrf-cookie call. */
+const SANCTUM_CSRF_COOKIE = 'XSRF-TOKEN';
+
+/** Sanctum sets this cookie name after a successful login (session-based auth). */
+const SANCTUM_SESSION_COOKIE = 'laravel_session';
 
 export const AuthService = {
   /**
@@ -59,6 +65,36 @@ export const AuthService = {
   },
 
   /**
+   * Check whether Sanctum's XSRF-TOKEN cookie is present in the browser.
+   * Call this after getCsrf() to confirm the cookie was actually set.
+   */
+  hasCsrfToken(): boolean {
+    return this.getClientCookie(SANCTUM_CSRF_COOKIE) !== null;
+  },
+
+  /**
+   * Return the raw XSRF-TOKEN value (URL-decoded) or null if absent.
+   * Useful for manually attaching the token to a request header.
+   */
+  getCsrfToken(): string | null {
+    const raw = this.getClientCookie(SANCTUM_CSRF_COOKIE);
+    if (!raw) return null;
+    try {
+      return decodeURIComponent(raw);
+    } catch {
+      return raw;
+    }
+  },
+
+  /**
+   * Check whether Sanctum's laravel_session cookie is present.
+   * A truthy result means the user has an active server-side session.
+   */
+  hasSessionCookie(): boolean {
+    return this.getClientCookie(SANCTUM_SESSION_COOKIE) !== null;
+  },
+
+  /**
    * CLEAR all session data (Client side only)
    */
   clearAll(): void {
@@ -95,11 +131,18 @@ export const AuthService = {
       date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
       expires = "; expires=" + date.toUTCString();
     }
-    document.cookie = `${name}=${value || ""}${expires}; path=/; SameSite=Lax`;
+    // In production the frontend and backend are on different Railway domains, so
+    // cookies must use SameSite=None; Secure to be sent in cross-site requests.
+    // In development (HTTP) we fall back to SameSite=Lax to avoid the Secure requirement.
+    const isProduction = window.location.protocol === 'https:';
+    const sameSite = isProduction ? 'SameSite=None; Secure' : 'SameSite=Lax';
+    document.cookie = `${name}=${value || ""}${expires}; path=/; ${sameSite}`;
   },
 
   removeClientCookie(name: string): void {
     if (typeof window === 'undefined') return;
-    document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax`;
+    const isProduction = window.location.protocol === 'https:';
+    const sameSite = isProduction ? 'SameSite=None; Secure' : 'SameSite=Lax';
+    document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; ${sameSite}`;
   }
 };
