@@ -71,10 +71,32 @@ const AuthLogin = ({ icon, title, subtitle, socialauths, subtext }: loginType) =
       setLoading(true);
 
       try {
-        // Step 1: Initialize CSRF protection (Sanctum requirement)
-        await getCsrf();
+        // Step 1: Initialize CSRF protection (Sanctum requirement).
+        // Retry once if the first attempt doesn't yield the cookie — this can
+        // happen on cold starts where the backend needs a moment to warm up.
+        let csrfReady = await getCsrf();
+        if (!csrfReady) {
+          console.warn('[Login] CSRF cookie not set on first attempt, retrying...');
+          await new Promise(resolve => setTimeout(resolve, 800));
+          csrfReady = await getCsrf();
+        }
 
-        // Step 2: Direct API call via Axios (Client-side)
+        if (!csrfReady) {
+          setSnackbarTitle("Security Error");
+          setSnackbarMessage(
+            "Could not establish a secure session with the server. " +
+            "Please refresh the page and try again."
+          );
+          setSnackbarSeverity("error");
+          setSnackbarOpen(true);
+          setLoading(false);
+          return;
+        }
+
+        // Step 2: Direct API call via Axios (Client-side).
+        // Axios will automatically attach the XSRF-TOKEN cookie value as the
+        // X-XSRF-TOKEN header because of the xsrfCookieName/xsrfHeaderName
+        // config set on the api instance.
         const response = await api.post('/V1/auth/user-login', {
           email,
           password

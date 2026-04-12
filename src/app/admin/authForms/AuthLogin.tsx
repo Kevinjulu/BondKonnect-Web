@@ -68,7 +68,26 @@ const AuthLogin = ({ icon, title, subtitle, socialauths,subtext, }: loginType) =
       }
   
       try {
-        await getCsrf();
+        // Step 1: Initialize CSRF protection (Sanctum requirement).
+        // Retry once if the first attempt doesn't yield the cookie.
+        let csrfReady = await getCsrf();
+        if (!csrfReady) {
+          console.warn('[Admin Login] CSRF cookie not set on first attempt, retrying...');
+          await new Promise(resolve => setTimeout(resolve, 800));
+          csrfReady = await getCsrf();
+        }
+
+        if (!csrfReady) {
+          setSnackbarTitle("Security Error");
+          setSnackbarMessage(
+            "Could not establish a secure session with the server. " +
+            "Please refresh the page and try again."
+          );
+          setSnackbarSeverity("error");
+          setSnackbarOpen(true);
+          setLoading(false);
+          return;
+        }
 
         // Step 2: Login
         const result = await login(new URLSearchParams({ email, password }).toString());

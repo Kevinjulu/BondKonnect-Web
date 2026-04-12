@@ -8,7 +8,12 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-  }
+    // Sanctum reads the CSRF token from this header name
+    'X-Requested-With': 'XMLHttpRequest',
+  },
+  // Tell axios to read the XSRF-TOKEN cookie and forward it as X-XSRF-TOKEN
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
 })
 
 api.interceptors.request.use(async (config) => {
@@ -79,13 +84,46 @@ api.interceptors.response.use(
 )
 
 /**
- * Initializes CSRF protection for Sanctum
+ * Initializes CSRF protection for Sanctum.
+ *
+ * Hits the /sanctum/csrf-cookie endpoint which causes Laravel to set the
+ * XSRF-TOKEN cookie. We explicitly wait for the response (and therefore the
+ * Set-Cookie header) before returning so callers can be sure the cookie is
+ * present before they attempt a login request.
+ *
+ * Returns true when the XSRF-TOKEN cookie is confirmed present, false otherwise.
  */
-export const getCsrf = async () => {
+export const getCsrf = async (): Promise<boolean> => {
   const baseURL = getBaseUrl();
-  return axios.get(`${baseURL}/sanctum/csrf-cookie`, {
-    withCredentials: true
-  })
+
+  try {
+    await axios.get(`${baseURL}/sanctum/csrf-cookie`, {
+      withCredentials: true,
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      // Ensure axios forwards the XSRF-TOKEN cookie on subsequent requests
+      xsrfCookieName: 'XSRF-TOKEN',
+      xsrfHeaderName: 'X-XSRF-TOKEN',
+    });
+
+    // Verify the cookie was actually set by the browser
+    const hasCsrf = AuthService.hasCsrfToken();
+    if (hasCsrf) {
+      console.debug('[CSRF] XSRF-TOKEN cookie confirmed present after /sanctum/csrf-cookie.');
+    } else {
+      console.warn(
+        '[CSRF] /sanctum/csrf-cookie responded but XSRF-TOKEN cookie was NOT found. ' +
+        'Check CORS, SameSite, and Secure cookie settings on the backend.'
+      );
+    }
+
+    return hasCsrf;
+  } catch (err) {
+    console.error('[CSRF] Failed to fetch /sanctum/csrf-cookie:', err);
+    return false;
+  }
 }
 
 export default api
