@@ -5,22 +5,13 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import LogoImage from "@/components/ui/LogoImage";
+import { useLogoSrc } from "@/hooks/use-logo-src";
 
 export function Header({ userDetails }: { userDetails: UserData }) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const logoSrc = useLogoSrc('sidebar');
 
-  // Avoid hydration mismatch by waiting for mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const logoSrc = mounted && resolvedTheme === "dark" 
-    ? "/images/logos/logo-dark.svg" 
-    : "/images/logos/logo-c.png";
-  
   return (
-   
+
   <SidebarHeader className="p-0 bg-transparent">
     <SidebarMenu>
       <SidebarMenuItem>

@@ -63,15 +63,14 @@ const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, m
   const [loading, setLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role>("individual");
 
-  const persistRole = useCallback(async (role: string, systemId: number, cookie: string) => {
-    if (!cookie) throw new Error("Authentication token missing");
+  const persistRole = useCallback(async (role: string, systemId: number) => {
     try {
       // Use AuthService for role management
       AuthService.setUserRole(role);
       
       const formData = new FormData();
       formData.append("role", systemId.toString());
-      const response = await setActiveRole(formData, cookie);
+      const response = await setActiveRole(formData);
       if (!response?.success) throw new Error(response?.message || "Role activation failed");
       return response;
     } catch (error) {
@@ -98,14 +97,14 @@ const AuthRole = ({ icon, title, subtitle, socialauths, subtext, user_details, m
         return;
       }
 
-      if (!user_details?.cookie) throw new Error("Session expired. Please login again.");
+      if (!user_details) throw new Error("Session expired. Please login again.");
 
       const roleMapping = {
         admin: 1, individual: 2, agent: 3, corporate: 4, broker: 5, authorizeddealer: 6
       };
 
       const systemId = roleMapping[selectedRole as keyof typeof roleMapping];
-      const result = await persistRole(selectedRole, systemId, user_details.cookie);
+      const result = await persistRole(selectedRole, systemId);
 
       if (result?.success) {
         // AuthService handles the role cookie

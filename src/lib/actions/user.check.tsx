@@ -4,18 +4,8 @@ import { cookies } from "next/headers";
 import { getCurrentUser } from "./api.actions";
 
 export async function getCurrentUserDetails() {
-  const cookieStore = await cookies();
-  const rawCookie = cookieStore.get("k-o-t");
-  
-  if (!rawCookie) {
-    return null;
-  }
-
-  const full_name = `${rawCookie.name}=${rawCookie.value}`;
-  console.log("Validating Session Cookie: ", rawCookie.name);
-
-  // Get the current user
-  const currentUser = await getCurrentUser(full_name);
+  // Get the current user using Sanctum session
+  const currentUser = await getCurrentUser();
   
   if (!currentUser || !currentUser.data) {
     return null;
@@ -35,7 +25,6 @@ export async function getCurrentUserDetails() {
     account_id: currentUser.data.AccountId || "",
     other_names: currentUser.data.OtherNames || "",
     lastName: currentUser.data.OtherNames || "", // Alias for compatibility
-    cookie: full_name,
     roles: currentUser.data.Roles.map(
       (role: {
         id: string;

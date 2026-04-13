@@ -80,11 +80,7 @@ const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => 
         const response = await otpVerify(queryParams);
   
         if (response.success) {
-          const token = response.data;
-          
-          if (token) {
-            AuthService.setToken(token);
-          }
+          // No token needed - Sanctum handles session via cookies
           
           setSnackbarTitle("Success");
           setSnackbarMessage("OTP verified successfully");

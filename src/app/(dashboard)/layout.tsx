@@ -10,6 +10,7 @@ import { WebSocketProvider } from "@/components/providers/WebSocketProvider";
 import { useTheme } from "next-themes";
 import { FloatingUtilityDock } from "./components/apps/dashboard/FloatingUtilityDock";
 import { useAuth } from "@/hooks/use-auth";
+import { useLogoSrc } from "@/hooks/use-logo-src";
 import { AlertCircle } from "lucide-react";
 
 // Simple Error Boundary component
@@ -53,9 +54,7 @@ const ContentLoader = () => {
     setMounted(true);
   }, []);
 
-  const logoSrc = mounted && resolvedTheme === "dark" 
-    ? "/images/logos/logo-dark.svg" 
-    : "/images/logos/logo.png";
+  const logoSrc = useLogoSrc('loading');
 
   return (
     <div className="flex flex-col justify-center items-center w-full h-[60vh] bg-background animate-in fade-in duration-300">

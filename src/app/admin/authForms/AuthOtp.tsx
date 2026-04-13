@@ -120,11 +120,7 @@ const AuthOtp = ({ icon, title, subtitle, socialauths,subtext, }: loginType) => 
           setSnackbarSeverity("success");
           setSnackbarOpen(true);
   
-          const token = response.data;
-          if (token) {
-            // Use AuthService for secure token management (60 days expiration as requested by original code)
-            AuthService.setToken(token, 60);
-          }
+          // No token needed - Sanctum handles session via cookies
   
           // push to the role selection page
           router.push("/admin/role");

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import LogoImage from "@/components/ui/LogoImage"
+import { useLogoSrc } from "@/hooks/use-logo-src"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -42,6 +43,7 @@ export function SubscriptionDashboard({ userDetails }: { userDetails: any }) {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
   const [activeSub, setActiveSub] = useState<Subscription | null>(null)
+  const logoSrc = useLogoSrc('dashboard')
 
   useEffect(() => {
     async function loadSubscriptions() {
@@ -67,7 +69,7 @@ export function SubscriptionDashboard({ userDetails }: { userDetails: any }) {
       <div className="flex flex-col justify-center items-center h-96 w-full space-y-8">
           <div className="animate-pulse">
             <LogoImage
-              src="/images/logos/logo-c.png"
+              src={logoSrc}
               alt="BondKonnect"
               width={140}
               height={50}

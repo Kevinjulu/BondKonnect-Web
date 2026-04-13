@@ -15,24 +15,10 @@ const SANCTUM_SESSION_COOKIE = 'laravel_session';
 
 export const AuthService = {
   /**
-   * GET token (Client side only)
-   */
-  getToken(): string | null {
-    return this.getClientCookie(AUTH_KEYS.TOKEN);
-  },
-
-  /**
    * GET user role (Client side only)
    */
   getUserRole(): string | null {
     return this.getClientCookie(AUTH_KEYS.USER_ROLE);
-  },
-
-  /**
-   * SET token (Client side only)
-   */
-  setToken(token: string, days: number = 1): void {
-    this.setClientCookie(AUTH_KEYS.TOKEN, token, days);
   },
 
   /**
@@ -103,7 +89,7 @@ export const AuthService = {
       this.removeClientCookie(key);
     });
 
-    localStorage.removeItem('token');
+    // Clear localStorage items that may have been set previously
     localStorage.removeItem('userRole');
     localStorage.removeItem('lastActiveTime');
     localStorage.removeItem('lastPath');

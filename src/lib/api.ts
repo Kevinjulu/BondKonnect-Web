@@ -24,12 +24,7 @@ api.interceptors.request.use(async (config) => {
      return Promise.reject(new Error(errorMsg));
   }
 
-  // 2. Use AuthService to get the token (works on both server and client)
-  const token = await AuthService.getToken()
-  
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
+  // Authentication handled via cookies (Sanctum)
   
   return config
 })

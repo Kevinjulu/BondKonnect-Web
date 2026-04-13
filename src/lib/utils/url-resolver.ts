@@ -1,106 +1,85 @@
 // src/lib/utils/url-resolver.ts
 import { env } from "@/app/config/env";
 
-/**
- * Normalizes a URL to ensure it has the /api suffix if missing.
- */
-function normalizeApiUrl(url: string | undefined): string | null {
-  if (!url) return null;
-  // Remove trailing slash
-  const cleanUrl = url.endsWith('/') ? url.slice(0, -1) : url;
-  // Append /api if missing
-  return cleanUrl.includes('/api') ? cleanUrl : `${cleanUrl}/api`;
+function normalizeUrl(url: string): string {
+  const trimmed = url.trim();
+  return trimmed.replace(/\/+$|^\s+|\s+$/g, '').replace(/\/+$/g, '');
 }
 
 /**
- * Retrieves the base API URL from environment variables.
- * In production, it MUST be the Railway backend URL.
+ * Retrieves the configured API URL from environment variables.
+ * This should be the actual API root used by the client,
+ * for example https://api.example.com or https://api.example.com/api.
+ * 
+ * Server-side (SSR) prefers INTERNAL_API_URL if available.
  */
 export function getBaseApiUrl(): string {
-  // 1. Server-side resolution (Next.js Server Components / Actions)
-  if (typeof window === "undefined") {
-    const internalUrl = normalizeApiUrl(env.INTERNAL_API_URL);
-    const publicUrl = normalizeApiUrl(env.NEXT_PUBLIC_API_URL);
-    const forcePublic = env.FORCE_PUBLIC_API;
+  const isServer = typeof window === 'undefined';
+  const forcePublic = env.FORCE_PUBLIC_API === true || env.FORCE_PUBLIC_API === 'true';
+  
+  let baseUrl = env.NEXT_PUBLIC_API_URL;
 
-    // Debug: print resolution at runtime (server-side only). Remove after verification.
-    try {
-      // eslint-disable-next-line no-console
-      console.info("API resolver (server): internalUrl=", internalUrl, "publicUrl=", publicUrl, "forcePublic=", forcePublic);
-    } catch (e) {
-      // swallow logging errors in constrained runtimes
-    }
-
-    // Use internal URL if available and NOT forced to public
-    if (internalUrl && !forcePublic) return internalUrl;
-    
-    // Fallback to public URL for SSR
-    if (publicUrl) return publicUrl;
-
-    console.error("CRITICAL: Both INTERNAL_API_URL and NEXT_PUBLIC_API_URL are undefined on the server!");
-    throw new Error("API configuration missing. Check environment variables.");
+  // Server-side preference for internal mesh URL
+  if (isServer && !forcePublic && env.INTERNAL_API_URL) {
+    baseUrl = env.INTERNAL_API_URL;
   }
 
-  // 2. Client-side resolution
-  const apiUrl = normalizeApiUrl(env.NEXT_PUBLIC_API_URL);
-
-  if (!apiUrl) {
-    console.error("CRITICAL: NEXT_PUBLIC_API_URL is undefined on the client!");
+  if (!baseUrl) {
+    console.error("CRITICAL: NEXT_PUBLIC_API_URL is undefined!");
     return "/CONFIG_ERROR_MISSING_API_URL";
   }
 
-  // Safety check: warn if it points to the frontend origin instead of backend
-  if (typeof window !== "undefined" && apiUrl.includes(window.location.host)) {
-    console.warn(
-      "WARNING: API URL is pointing to the FRONTEND origin. " +
-      "Ensure NEXT_PUBLIC_API_URL is set correctly."
-    );
+  // Warning: If API URL matches current frontend origin in browser
+  if (!isServer && baseUrl) {
+    try {
+      const apiOrigin = new URL(baseUrl, window.location.origin).origin;
+      if (apiOrigin === window.location.origin) {
+        console.warn(`[Connectivity] WARNING: API URL is pointing to the FRONTEND origin (${apiOrigin}). Requests might loop back to Next.js instead of reaching the backend.`);
+      }
+    } catch (e) {
+      // Ignore URL parsing errors here
+    }
   }
 
-  return apiUrl;
+  return normalizeUrl(baseUrl);
 }
 
 /**
- * Retrieves the base URL (without /api) from the environment.
+ * Retrieves the backend root URL from the configured API URL.
+ * If the API URL includes /api, that suffix is stripped.
  */
 export function getBaseUrl(): string {
   const apiUrl = getBaseApiUrl();
-  return apiUrl.split('/api')[0];
+  return apiUrl.replace(/\/api\/?$/, '');
 }
 
 /**
- * Detects if the provided URL points to the frontend origin.
- * Used to prevent "self-calling" loops where the frontend tries to 
- * fetch data from its own static routes.
+ * Detects whether a URL targets the current frontend origin.
+ * Relative paths like /api/v1 are treated as self-calling.
  */
 export function isSelfCalling(url: string): boolean {
   if (typeof window === "undefined") return false;
-  
+
   try {
-    const origin = window.location.origin;
-    // Check if URL is relative or matches the current origin
-    return url.startsWith("/") || url.startsWith(origin);
-  } catch (e) {
+    const urlObj = new URL(url, window.location.origin);
+    return urlObj.origin === window.location.origin;
+  } catch {
     return false;
   }
 }
 
 /**
  * Retrieves the WebSocket URL for Pusher authentication.
- * Falls back to the base URL if NEXT_PUBLIC_WEBSOCKET_URL is missing.
  */
 export function getWebSocketUrl(): string {
   const wsUrl = env.NEXT_PUBLIC_WEBSOCKET_URL;
   const baseUrl = getBaseUrl();
-
-  // Prefer the explicit websocket URL, fallback to base URL (backend root)
-  const selectedUrl = wsUrl || baseUrl;
+  const selectedUrl = normalizeUrl(wsUrl || baseUrl || '');
 
   if (!selectedUrl) {
     console.warn("WARNING: Both NEXT_PUBLIC_WEBSOCKET_URL and base URL are undefined. Using empty string.");
     return "";
   }
 
-  // Remove trailing slash for consistency
-  return selectedUrl.endsWith('/') ? selectedUrl.slice(0, -1) : selectedUrl;
+  return selectedUrl;
 }

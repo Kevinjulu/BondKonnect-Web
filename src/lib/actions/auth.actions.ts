@@ -27,10 +27,10 @@ export const login = async (queryParams: string) => {
   }
 };
 
-export const logout = async (cookie: string) => {
+export const logout = async () => {
   try {
     const response = await api.post('/V1/auth/user-logout', {}, {
-      headers: await getHeaders(cookie)
+      headers: await getHeaders()
     });
     return { success: true, data: response.data, message: response.data.message };
   } catch (error: any) {
@@ -51,10 +51,10 @@ export const register = async (data: any) => {
   }
 };
 
-export const getCurrentUser = async (queryParams: string) => {
+export const getCurrentUser = async () => {
   try {
     const response = await api.post('/V1/auth/get-user-details', {}, {
-      headers: await getHeaders(queryParams)
+      headers: await getHeaders()
     });
     return { success: true, data: response.data, message: response.data.message };
   } catch (error: any) {
@@ -87,13 +87,10 @@ export const getAdminUsers = async () => {
   }
 };
   
-export const setActiveRole = async (data: FormData, token: string) => {
+export const setActiveRole = async (data: FormData) => {
   try {
     const response = await api.post('/V1/auth/set-active-role', data, {
-      headers: {
-        Accept: "application/json",
-        Cookie: token,
-      }
+      headers: await getHeaders()
     });
     return response.data;
   } catch (error: any) {

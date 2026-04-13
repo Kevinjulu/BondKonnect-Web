@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
         origin.endsWith('.railway.app')
     );
 
-    const authToken = request.cookies.get('k-o-t');
+    const authToken = request.cookies.get('laravel_session'); // Sanctum session cookie
     const userRole = request.cookies.get('userRole');
     
     // 1. Route Protection

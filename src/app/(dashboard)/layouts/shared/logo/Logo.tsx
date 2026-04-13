@@ -6,22 +6,14 @@ import { AppState } from "@/store/store";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import LogoImage from "@/components/ui/LogoImage";
+import { useLogoSrc } from "@/hooks/use-logo-src";
 
 const Logo = () => {
   const customizer = useSelector((state: AppState) => state.customizer);
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const logoSrc = useLogoSrc('dashboard');
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const logoSrc = mounted && resolvedTheme === "dark" 
-    ? "/images/logos/logo-dark.svg" 
-    : "/images/logos/logo-c.png";
-  
   const LinkStyled = styled(Link)(() => ({
-    
+
     height: customizer.TopbarHeight,
     width: customizer.isCollapse ? "40px" : "180px",
     overflow: "hidden",
@@ -30,7 +22,7 @@ const Logo = () => {
 
   if (customizer.activeDir === "ltr") {
     return (
-      <LinkStyled href="#">
+      <LinkStyled href="/">
         <LogoImage
           src={logoSrc}
           alt="logo"
@@ -44,7 +36,7 @@ const Logo = () => {
   }
 
   return (
-    <LinkStyled href="/auth/login">
+    <LinkStyled href="/">
       <LogoImage
         src={logoSrc}
         alt="logo"

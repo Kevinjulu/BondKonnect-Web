@@ -106,25 +106,16 @@ const AuthLogin = ({ icon, title, subtitle, socialauths, subtext }: loginType) =
         console.log("Login result:", result);
 
         if (result.success) {
-          // Dev bypass sets token immediately
-          if (result.data?.token || result.token) {
-             const token = result.data?.token || result.token;
-             // Use AuthService for secure token management
-             AuthService.setToken(token);
-             setSnackbarTitle("Success");
-             setSnackbarMessage("Login successful! Redirecting...");
-             setSnackbarSeverity("success");
-             setSnackbarOpen(true);
-             setTimeout(() => router.push('/'), 1000);
-          } else {
-             // Normal flow: OTP was sent
-             setSnackbarTitle("OTP Sent");
-             setSnackbarMessage(result.message || "Please check your email for the verification code.");
-             setSnackbarSeverity("success");
-             setSnackbarOpen(true);
-             // Redirect to OTP page with email parameter
-             setTimeout(() => router.push(`/auth/otp?email=${encodeURIComponent(email)}`), 1500);
-          }
+          // Normal flow: OTP was sent (no dev bypass)
+          setSnackbarTitle("OTP Sent");
+          setSnackbarMessage(result.message || "Please check your email for the verification code.");
+          setSnackbarSeverity("success");
+          setSnackbarOpen(true);
+          
+          // Redirect to OTP page
+          setTimeout(() => {
+            router.push(`/auth/otp?email=${encodeURIComponent(email)}`);
+          }, 1000);
         } else {
           // Handle specific error statuses from the API result
           const status = result.status;

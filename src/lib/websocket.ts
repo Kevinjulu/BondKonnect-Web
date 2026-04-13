@@ -114,14 +114,8 @@ class WebSocketService {
               'Cache-Control': 'no-cache',
             };
 
-            // Send k-o-t token as standard Authorization header
-            if (kotToken) {
-              headers['Authorization'] = `Bearer ${kotToken}`;
-              headers['X-Auth-Token'] = kotToken; // Maintain legacy support
-              console.log('Sending k-o-t token as Authorization header');
-            } else {
-              console.warn('No k-o-t token found in cookies');
-            }
+            // Authentication handled via cookies (Sanctum)
+            console.log('Authenticating broadcasting via cookies');
             
             api.post(`${websocketBaseUrl}/broadcasting/auth`, {
                 socket_id: socketId,

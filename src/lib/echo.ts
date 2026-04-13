@@ -1,6 +1,7 @@
 import Echo from 'laravel-echo'
 import Pusher from 'pusher-js'
-import { AuthService } from './auth-service'
+import { getBaseUrl } from '@/lib/utils/url-resolver'
+import { env } from '@/app/config/env'
 
 declare global {
   interface Window {
@@ -10,16 +11,18 @@ declare global {
 }
 
 if (typeof window !== 'undefined') {
+  const apiRoot = getBaseUrl() || env.NEXT_PUBLIC_API_URL || '';
+  const authEndpoint = `${apiRoot.replace(/\/+$/, '')}/broadcasting/auth`;
+
   window.Pusher = Pusher
   window.Echo = new Echo({
     broadcaster: 'pusher',
-    key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
-    cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER,
+    key: env.NEXT_PUBLIC_PUSHER_APP_KEY,
+    cluster: env.NEXT_PUBLIC_PUSHER_APP_CLUSTER,
     forceTLS: true,
-    authEndpoint: `${process.env.NEXT_PUBLIC_API_URL}/broadcasting/auth`,
+    authEndpoint,
     auth: {
       headers: {
-        Authorization: `Bearer ${AuthService.getToken()}`,
         Accept: 'application/json',
       }
     }

@@ -3,18 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { useTheme } from "next-themes";
 import LogoImage from "@/components/ui/LogoImage";
+import { useLogoSrc } from "@/hooks/use-logo-src";
 
 export default function Loading() {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const logoSrc = mounted && resolvedTheme === "dark" 
-    ? "/images/logos/logo-dark.svg" 
-    : "/images/logos/logo.png";
+  const logoSrc = useLogoSrc('loading');
 
   return (
     <div className="flex flex-col justify-center items-center w-full h-screen bg-background animate-in fade-in duration-500">

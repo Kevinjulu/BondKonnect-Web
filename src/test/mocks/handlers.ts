@@ -1,7 +1,8 @@
 import { http, HttpResponse } from 'msw'
 
 // Define the base URL pattern to match
-const BASE_URL = '*/api/V1'
+// Note: vitest.config.ts sets NEXT_PUBLIC_API_URL without the /api prefix
+const BASE_URL = '*/V1'
 
 export const handlers = [
   // Authentication

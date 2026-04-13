@@ -18,19 +18,14 @@ import { useRouter } from "next/navigation";
     const role = userDetails?.roles?.find((role) => role.is_active)?.role_name;
   
     const handleClick = async () => {
-      // Use AuthService to get the token
-      const token = await AuthService.getToken();
-  
       try {
         // Use AuthService to clear all session data securely
         AuthService.clearAll();
 
-        if (token) {
-          // Proceed with server-side logout if token was present
-          const logoutResult = await logout(`k-o-t=${token}`);
-          if (!logoutResult.success) {
-            console.error("Logout failed", logoutResult.message);
-          }
+        // Proceed with server-side logout using Sanctum cookies
+        const logoutResult = await logout();
+        if (!logoutResult.success) {
+          console.error("Logout failed", logoutResult.message);
         }
         
         // Always redirect to login
