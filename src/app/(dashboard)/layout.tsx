@@ -90,6 +90,7 @@ const ContentLoader = () => {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const { resolvedTheme } = useTheme();
   const [isPageLoading, setIsPageLoading] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -130,7 +131,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   ].some(path => pathname?.includes(path));
 
   if (isLoading) {
-    const { resolvedTheme } = useTheme();
     const logoSrc = resolvedTheme === "dark" 
       ? "/images/logos/logo-dark.svg" 
       : "/images/logos/logo-c.png";

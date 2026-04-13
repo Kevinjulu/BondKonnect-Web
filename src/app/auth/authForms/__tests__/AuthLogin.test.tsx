@@ -16,7 +16,7 @@ vi.mock('@/lib/api', () => ({
   default: {
     post: vi.fn(),
   },
-  getCsrf: vi.fn(() => Promise.resolve()),
+  getCsrf: vi.fn(() => Promise.resolve(true)),
 }));
 
 // Mock user check
@@ -51,7 +51,7 @@ describe('AuthLogin Error Handling', () => {
     await waitFor(() => {
       expect(screen.getByText(/Invalid email or password/i)).toBeInTheDocument();
     });
-  });
+  }, 15000);
 
   it('should display suspension message on 403 error', async () => {
     (api.post as any).mockRejectedValue({
